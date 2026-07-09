@@ -23,18 +23,45 @@ const websites = [
 ];
 
 const appList = document.getElementById("appList");
+const searchInput = document.getElementById("searchInput");
+const noResults = document.getElementById("noResults");
+const resultCount = document.getElementById("resultCount");
 
-websites.forEach(site => {
-  const div = document.createElement("div");
+function renderWebsites(filteredSites) {
+  appList.innerHTML = "";
+  
+  if (filteredSites.length === 0) {
+    appList.style.display = "none";
+    noResults.style.display = "block";
+    resultCount.textContent = "";
+  } else {
+    appList.style.display = "flex";
+    noResults.style.display = "none";
+    resultCount.textContent = `(${filteredSites.length})`;
+    
+    filteredSites.forEach(site => {
+      const div = document.createElement("div");
+      div.className = "app";
+      div.innerHTML = `
+        <h3>${site.name}</h3>
+        <button onclick="window.open('${site.url}','_blank')">
+          Open
+        </button>
+      `;
+      appList.appendChild(div);
+    });
+  }
+}
 
-  div.className = "app";
+function filterWebsites() {
+  const searchTerm = searchInput.value.toLowerCase();
+  const filteredSites = websites.filter(site =>
+    site.name.toLowerCase().includes(searchTerm)
+  );
+  renderWebsites(filteredSites);
+}
 
-  div.innerHTML = `
-    <h3>${site.name}</h3>
-    <button onclick="window.open('${site.url}','_blank')">
-      Open
-    </button>
-  `;
+searchInput.addEventListener("input", filterWebsites);
 
-  appList.appendChild(div);
-});
+// Initial render
+renderWebsites(websites);
