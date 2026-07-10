@@ -13,50 +13,11 @@ body{
   width:120px;
   height:120px;
   border-radius:25px;
-  display:block;
-  margin:20px auto;
 }
 
 h1{
   font-size:48px;
   margin:10px 0;
-}
-
-.search-container{
-  display:flex;
-  justify-content:center;
-  gap:10px;
-  padding:20px;
-  margin:10px 0;
-}
-
-.search-bar{
-  width:300px;
-  padding:12px 15px;
-  border:2px solid #e0e0e0;
-  border-radius:25px;
-  font-size:16px;
-  outline:none;
-  transition:border-color 0.3s;
-}
-
-.search-bar:focus{
-  border-color:#1a73e8;
-}
-
-.search-btn{
-  background:#1a73e8;
-  color:white;
-  border:none;
-  padding:12px 20px;
-  border-radius:25px;
-  cursor:pointer;
-  font-size:16px;
-  transition:opacity 0.3s;
-}
-
-.search-btn:hover{
-  opacity:0.9;
 }
 
 #appList{
@@ -90,4 +51,10 @@ h1{
 
 .app button:hover{
   opacity:0.9;
+ logo{
+  width:120px;
+  height:120px;
+  border-radius:20px;
+  display:block;
+  margin:20px auto;
 }
