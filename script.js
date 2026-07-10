@@ -56,25 +56,16 @@ const websites = [
   {name:"Dropbox",url:"https://dropbox.com"},
   {name:"OneDrive",url:"https://onedrive.live.com"},
   {name:"Box",url:"https://box.com"},
-  {name:"7zip",url:"https://7-zip.org"},
-  {name:"WinRAR",url:"https://winrar.com"},
   {name:"VLC Media Player",url:"https://videolan.org"},
   {name:"Zoom",url:"https://zoom.us"},
   {name:"Google Meet",url:"https://meet.google.com"},
   {name:"Skype",url:"https://skype.com"},
-  {name:"OBS Studio",url:"https://obsproject.com"},
   {name:"Blender",url:"https://blender.org"},
   {name:"GIMP",url:"https://gimp.org"},
   {name:"Audacity",url:"https://audacityteam.org"},
   {name:"Inkscape",url:"https://inkscape.org"},
   {name:"Photopea",url:"https://photopea.com"},
-  {name:"TinyPNG",url:"https://tinypng.com"},
-  {name:"Compressor.io",url:"https://compressor.io"},
-  {name:"FFmpeg",url:"https://ffmpeg.org"},
   {name:"Handbrake",url:"https://handbrake.fr"},
-  {name:"MusicBrainz",url:"https://musicbrainz.org"},
-  {name:"Last.fm",url:"https://last.fm"},
-  {name:"Shazam",url:"https://shazam.com"},
   {name:"SoundCloud",url:"https://soundcloud.com"},
   {name:"Bandcamp",url:"https://bandcamp.com"},
   {name:"Tidal",url:"https://tidal.com"},
@@ -85,212 +76,145 @@ const websites = [
   {name:"DuckDuckGo",url:"https://duckduckgo.com"},
   {name:"Bing",url:"https://bing.com"},
   {name:"Yahoo",url:"https://yahoo.com"},
-  {name:"Yandex",url:"https://yandex.com"},
   {name:"Brave Search",url:"https://search.brave.com"},
   {name:"Ecosia",url:"https://ecosia.org"},
   {name:"Wolfram Alpha",url:"https://wolframalpha.com"},
   {name:"IMDb",url:"https://imdb.com"},
   {name:"Rotten Tomatoes",url:"https://rottentomatoes.com"},
-  {name:"TheMovieDB",url:"https://themoviedb.org"},
   {name:"Letterboxd",url:"https://letterboxd.com"},
   {name:"Goodreads",url:"https://goodreads.com"},
-  {name:"Project Gutenberg",url:"https://gutenberg.org"},
-  {name:"Standard Ebooks",url:"https://standardebooks.org"},
-  {name:"Scribd",url:"https://scribd.com"},
   {name:"Kindle",url:"https://read.amazon.com"},
   {name:"Wattpad",url:"https://wattpad.com"},
-  {name:"AO3",url:"https://archiveofourown.org"},
-  {name:"FanFiction.net",url:"https://fanfiction.net"},
-  {name:"4chan",url:"https://4chan.org"},
-  {name:"8kun",url:"https://8kun.top"},
+  {name:"Snapchat",url:"https://snapchat.com"},
+  {name:"TikTok",url:"https://tiktok.com"},
   {name:"Mastodon",url:"https://mastodon.social"},
   {name:"Bluesky",url:"https://bsky.app"},
   {name:"Threads",url:"https://threads.net"},
-  {name:"Threads Meta",url:"https://threads.com"},
-  {name:"BeReal",url:"https://bereal.com"},
-  {name:"Snapchat",url:"https://snapchat.com"},
-  {name:"TikTok",url:"https://tiktok.com"},
-  {name:"Viber",url:"https://viber.com"},
-  {name:"WeChat",url:"https://weixin.qq.com"},
-  {name:"Line",url:"https://line.me"},
-  {name:"Messenger",url:"https://messenger.com"},
   {name:"Signal",url:"https://signal.org"},
   {name:"Proton Mail",url:"https://proton.me"},
   {name:"Tutanota",url:"https://tutanota.com"},
-  {name:"Guerrillamail",url:"https://guerrillamail.com"},
-  {name:"Maildrop",url:"https://maildrop.cc"},
-  {name:"10MinuteMail",url:"https://10minutemail.com"},
-  {name:"Temp Mail",url:"https://tempmail.com"},
-  {name:"Trash Mail",url:"https://trashmail.com"},
-  {name:"JimdoFree",url:"https://jimdo.com"},
-  {name:"Wix",url:"https://wix.com"},
-  {name:"Squarespace",url:"https://squarespace.com"},
-  {name:"Shopify",url:"https://shopify.com"},
-  {name:"WooCommerce",url:"https://woocommerce.com"},
-  {name:"BigCommerce",url:"https://bigcommerce.com"},
-  {name:"Magento",url:"https://magento.com"},
-  {name:"PrestaShop",url:"https://prestashop.com"},
-  {name:"OpenCart",url:"https://opencart.com"},
-  {name:"osCommerce",url:"https://oscommerce.com"},
-  {name:"Zen Cart",url:"https://zen-cart.com"},
-  {name:"eBay Stores",url:"https://ebay.com/stores"},
   {name:"Etsy",url:"https://etsy.com"},
-  {name:"Alibaba",url:"https://alibaba.com"},
-  {name:"AliExpress",url:"https://aliexpress.com"},
-  {name:"Taobao",url:"https://taobao.com"},
-  {name:"Lazada",url:"https://lazada.com"},
-  {name:"Shopee",url:"https://shopee.com"},
-  {name:"Tokopedia",url:"https://tokopedia.com"},
-  {name:"Blibli",url:"https://blibli.com"},
-  {name:"OLX",url:"https://olx.com"},
-  {name:"Cashify",url:"https://cashify.com"},
-  {name:"Swappa",url:"https://swappa.com"},
-  {name:"Decluttr",url:"https://decluttr.com"},
-  {name:"Vinted",url:"https://vinted.com"},
-  {name:"Mercari",url:"https://mercari.com"},
-  {name:"Depop",url:"https://depop.com"},
-  {name:"Poshmark",url:"https://poshmark.com"},
-  {name:"Grailed",url:"https://grailed.com"},
-  {name:"Vestiaire Collective",url:"https://vestiairecollective.com"},
-  {name:"The RealReal",url:"https://therealreal.com"},
-  {name:"Rebag",url:"https://rebag.com"},
-  {name:"Tradesy",url:"https://tradesy.com"},
-  {name:"ThredUP",url:"https://thredup.com"},
-  {name:"Rent the Runway",url:"https://renttherunway.com"},
-  {name:"Luxury Garage Sale",url:"https://luxurygaragesale.com"},
-  {name:"Outfittery",url:"https://outfittery.com"},
-  {name:"Stitch Fix",url:"https://stitchfix.com"},
-  {name:"Trunk Club",url:"https://trunkclub.com"},
-  {name:"Le Tote",url:"https://letote.com"},
-  {name:"Fabletics",url:"https://fabletics.com"},
-  {name:"Cladwell",url:"https://cladwell.com"},
-  {name:"Chic Right Now",url:"https://chicrightnow.com"},
-  {name:"StyleSnap",url:"https://stylesnap.com"},
-  {name:"eBay Fashion",url:"https://ebay.com/fashion"},
   {name:"ASOS",url:"https://asos.com"},
   {name:"H&M",url:"https://hm.com"},
   {name:"Zara",url:"https://zara.com"},
-  {name:"Forever 21",url:"https://forever21.com"},
-  {name:"Uniqlo",url:"https://uniqlo.com"},
-  {name:"Gap",url:"https://gap.com"},
-  {name:"American Eagle",url:"https://ae.com"},
-  {name:"Urban Outfitters",url:"https://urbanoutfitters.com"},
   {name:"Target",url:"https://target.com"},
   {name:"Walmart",url:"https://walmart.com"},
-  {name:"Costco",url:"https://costco.com"},
-  {name:"BJ's Wholesale Club",url:"https://bjs.com"},
-  {name:"Sam's Club",url:"https://samsclub.com"},
   {name:"Best Buy",url:"https://bestbuy.com"},
-  {name:"Micro Center",url:"https://microcenter.com"},
-  {name:"Newegg",url:"https://newegg.com"},
-  {name:"TigerDirect",url:"https://tigerdirect.com"},
-  {name:"Overstock",url:"https://overstock.com"},
-  {name:"Wayfair",url:"https://wayfair.com"},
-  {name:"Furniture.com",url:"https://furniture.com"},
-  {name:"Article",url:"https://article.com"},
+  {name:"Costco",url:"https://costco.com"},
   {name:"IKEA",url:"https://ikea.com"},
-  {name:"Ashley Furniture",url:"https://ashleyfurniture.com"},
-  {name:"Pottery Barn",url:"https://potterybarn.com"},
-  {name:"West Elm",url:"https://westelm.com"},
-  {name:"Restoration Hardware",url:"https://rh.com"},
-  {name:"Williams Sonoma",url:"https://williams-sonoma.com"},
-  {name:"Bed Bath Beyond",url:"https://bedbathandbeyond.com"},
-  {name:"Target Home",url:"https://target.com/c/home"},
-  {name:"Kohl's",url:"https://kohls.com"},
-  {name:"Macy's",url:"https://macys.com"},
-  {name:"Nordstrom",url:"https://nordstrom.com"},
-  {name:"Saks Fifth Avenue",url:"https://saksfifthavenue.com"},
-  {name:"Neiman Marcus",url:"https://neimanmarcus.com"},
-  {name:"Bloomingdale's",url:"https://bloomingdales.com"},
-  {name:"Lord & Taylor",url:"https://lordandtaylor.com"},
-  {name:"Dillard's",url:"https://dillards.com"},
-  {name:"Belk",url:"https://belk.com"},
-  {name:"Bon-Ton",url:"https://bonton.com"},
-  {name:"JCPenney",url:"https://jcpenney.com"},
-  {name:"Sears",url:"https://sears.com"},
-  {name:"Kmart",url:"https://kmart.com"},
-  {name:"Meijer",url:"https://meijer.com"},
-  {name:"Kroger",url:"https://kroger.com"},
-  {name:"Safeway",url:"https://safeway.com"},
-  {name:"Whole Foods",url:"https://wholefoodsmarket.com"},
-  {name:"Trader Joe's",url:"https://traderjoes.com"},
-  {name:"Instacart",url:"https://instacart.com"},
-  {name:"Amazon Fresh",url:"https://fresh.amazon.com"},
-  {name:"Walmart Grocery",url:"https://walmart.com/cp/grocery"},
-  {name:"Target Grocery",url:"https://target.com/c/groceries"},
+  {name:"Wayfair",url:"https://wayfair.com"},
   {name:"DoorDash",url:"https://doordash.com"},
   {name:"Uber Eats",url:"https://ubereats.com"},
   {name:"Grubhub",url:"https://grubhub.com"},
-  {name:"Postmates",url:"https://postmates.com"},
   {name:"Zomato",url:"https://zomato.com"},
   {name:"Swiggy",url:"https://swiggy.com"},
-  {name:"Foodpanda",url:"https://foodpanda.com"},
-  {name:"Deliveroo",url:"https://deliveroo.com"},
-  {name:"Just Eat",url:"https://justeat.com"},
-  {name:"Yelp",url:"https://yelp.com"},
-  {name:"OpenTable",url:"https://opentable.com"},
-  {name:"Resy",url:"https://resy.com"},
-  {name:"Michelin Guide",url:"https://guide.michelin.com"},
-  {name:"Tripadvisor",url:"https://tripadvisor.com"},
   {name:"Expedia",url:"https://expedia.com"},
   {name:"Kayak",url:"https://kayak.com"},
   {name:"Skyscanner",url:"https://skyscanner.com"},
-  {name:"Google Flights",url:"https://google.com/flights"},
-  {name:"Momondo",url:"https://momondo.com"},
-  {name:"Kiwi.com",url:"https://kiwi.com"},
-  {name:"Orbitz",url:"https://orbitz.com"},
-  {name:"Priceline",url:"https://priceline.com"},
-  {name:"Hotwire",url:"https://hotwire.com"},
   {name:"Trivago",url:"https://trivago.com"},
-  {name:"Hotels.com",url:"https://hotels.com"},
-  {name:"Airbnb",url:"https://airbnb.com"},
-  {name:"VRBO",url:"https://vrbo.com"},
-  {name:"HomeAway",url:"https://homeaway.com"},
-  {name:"Camping.com",url:"https://camping.com"},
-  {name:"Glamping Hub",url:"https://glampinghub.com"},
-  {name:"KOA",url:"https://koa.com"}
+  {name:"Hotels.com",url:"https://hotels.com"}
 ];
 
-const appList = document.getElementById("appList");
-const searchInput = document.getElementById("searchInput");
-const noResults = document.getElementById("noResults");
-const resultCount = document.getElementById("resultCount");
+// DOM Elements
+const searchInput = document.getElementById('searchInput');
+const resultsSearchInput = document.getElementById('resultsSearchInput');
+const searchWebBtn = document.getElementById('searchWebBtn');
+const luckyBtn = document.getElementById('luckyBtn');
+const main = document.querySelector('.main');
+const resultsSection = document.getElementById('resultsSection');
+const resultsList = document.getElementById('resultsList');
+const noResults = document.getElementById('noResults');
 
-function renderWebsites(filteredSites) {
-  appList.innerHTML = "";
+// Event Listeners
+searchInput.addEventListener('keypress', (e) => {
+  if (e.key === 'Enter') {
+    searchWebsites();
+  }
+});
+
+searchInput.addEventListener('input', () => {
+  if (searchInput.value.length > 0) {
+    // Show preview on typing
+  }
+});
+
+resultsSearchInput.addEventListener('keypress', (e) => {
+  if (e.key === 'Enter') {
+    searchWebsites();
+  }
+});
+
+resultsSearchInput.addEventListener('input', () => {
+  searchWebsites();
+});
+
+searchWebBtn.addEventListener('click', searchWebsites);
+
+luckyBtn.addEventListener('click', () => {
+  const randomSite = websites[Math.floor(Math.random() * websites.length)];
+  window.open(randomSite.url, '_blank');
+});
+
+// Search function
+function searchWebsites() {
+  const query = searchInput.value.toLowerCase() || resultsSearchInput.value.toLowerCase();
   
-  if (filteredSites.length === 0) {
-    appList.style.display = "none";
-    noResults.style.display = "block";
-    resultCount.textContent = "";
+  if (!query.trim()) {
+    main.style.display = 'flex';
+    resultsSection.style.display = 'none';
+    return;
+  }
+
+  // Hide main, show results
+  main.style.display = 'none';
+  resultsSection.style.display = 'block';
+  resultsSearchInput.value = query;
+
+  // Filter websites
+  const filtered = websites.filter(site => 
+    site.name.toLowerCase().includes(query) || 
+    site.url.toLowerCase().includes(query)
+  );
+
+  // Display results
+  resultsList.innerHTML = '';
+  
+  if (filtered.length === 0) {
+    resultsList.style.display = 'none';
+    noResults.style.display = 'block';
   } else {
-    appList.style.display = "flex";
-    noResults.style.display = "none";
-    resultCount.textContent = `(${filteredSites.length})`;
-    
-    filteredSites.forEach(site => {
-      const div = document.createElement("div");
-      div.className = "app";
-      div.innerHTML = `
-        <h3>${site.name}</h3>
-        <button onclick="window.open('${site.url}','_blank')">
-          Open
-        </button>
+    resultsList.style.display = 'block';
+    noResults.style.display = 'none';
+
+    filtered.forEach(site => {
+      const resultItem = document.createElement('div');
+      resultItem.className = 'result-item';
+      resultItem.innerHTML = `
+        <a href="${site.url}" target="_blank" class="result-title">${site.name}</a>
+        <div class="result-url">${site.url.replace('https://', '')}</div>
+        <div class="result-desc">Visit ${site.name} now</div>
       `;
-      appList.appendChild(div);
+      resultsList.appendChild(resultItem);
     });
   }
 }
 
-function filterWebsites() {
-  const searchTerm = searchInput.value.toLowerCase();
-  const filteredSites = websites.filter(site =>
-    site.name.toLowerCase().includes(searchTerm)
-  );
-  renderWebsites(filteredSites);
+// Go back to main search
+function goBack() {
+  searchInput.value = '';
+  resultsSearchInput.value = '';
+  main.style.display = 'flex';
+  resultsSection.style.display = 'none';
 }
 
-searchInput.addEventListener("input", filterWebsites);
+// Close results on ESC key
+document.addEventListener('keydown', (e) => {
+  if (e.key === 'Escape') {
+    goBack();
+  }
+});
 
-// Initial render
-renderWebsites(websites);
+// Focus on search input on page load
+window.addEventListener('load', () => {
+  searchInput.focus();
+});
