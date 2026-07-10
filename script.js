@@ -115,106 +115,59 @@ const websites = [
   {name:"Hotels.com",url:"https://hotels.com"}
 ];
 
-// DOM Elements
+let filteredWebsites = [...websites];
+
 const searchInput = document.getElementById('searchInput');
-const resultsSearchInput = document.getElementById('resultsSearchInput');
-const searchWebBtn = document.getElementById('searchWebBtn');
-const luckyBtn = document.getElementById('luckyBtn');
-const main = document.querySelector('.main');
-const resultsSection = document.getElementById('resultsSection');
-const resultsList = document.getElementById('resultsList');
+const appList = document.getElementById('appList');
 const noResults = document.getElementById('noResults');
 
-// Event Listeners
-searchInput.addEventListener('keypress', (e) => {
-  if (e.key === 'Enter') {
-    searchWebsites();
-  }
-});
-
-searchInput.addEventListener('input', () => {
-  if (searchInput.value.length > 0) {
-    // Show preview on typing
-  }
-});
-
-resultsSearchInput.addEventListener('keypress', (e) => {
-  if (e.key === 'Enter') {
-    searchWebsites();
-  }
-});
-
-resultsSearchInput.addEventListener('input', () => {
-  searchWebsites();
-});
-
-searchWebBtn.addEventListener('click', searchWebsites);
-
-luckyBtn.addEventListener('click', () => {
-  const randomSite = websites[Math.floor(Math.random() * websites.length)];
-  window.open(randomSite.url, '_blank');
-});
-
-// Search function
-function searchWebsites() {
-  const query = searchInput.value.toLowerCase() || resultsSearchInput.value.toLowerCase();
+// Display all apps on page load
+function displayApps(appsToDisplay) {
+  appList.innerHTML = '';
   
-  if (!query.trim()) {
-    main.style.display = 'flex';
-    resultsSection.style.display = 'none';
+  if (appsToDisplay.length === 0) {
+    appList.style.display = 'none';
+    noResults.style.display = 'block';
     return;
   }
-
-  // Hide main, show results
-  main.style.display = 'none';
-  resultsSection.style.display = 'block';
-  resultsSearchInput.value = query;
-
-  // Filter websites
-  const filtered = websites.filter(site => 
-    site.name.toLowerCase().includes(query) || 
-    site.url.toLowerCase().includes(query)
-  );
-
-  // Display results
-  resultsList.innerHTML = '';
   
-  if (filtered.length === 0) {
-    resultsList.style.display = 'none';
-    noResults.style.display = 'block';
+  appList.style.display = 'flex';
+  noResults.style.display = 'none';
+  
+  appsToDisplay.forEach(website => {
+    const appCard = document.createElement('div');
+    appCard.className = 'app';
+    appCard.innerHTML = `
+      <h3>${website.name}</h3>
+      <button onclick="openWebsite('${website.url}')">Open</button>
+    `;
+    appList.appendChild(appCard);
+  });
+}
+
+// Open website in new tab
+function openWebsite(url) {
+  window.open(url, '_blank');
+}
+
+// Search functionality
+searchInput.addEventListener('input', () => {
+  const query = searchInput.value.toLowerCase().trim();
+  
+  if (query === '') {
+    filteredWebsites = [...websites];
   } else {
-    resultsList.style.display = 'block';
-    noResults.style.display = 'none';
-
-    filtered.forEach(site => {
-      const resultItem = document.createElement('div');
-      resultItem.className = 'result-item';
-      resultItem.innerHTML = `
-        <a href="${site.url}" target="_blank" class="result-title">${site.name}</a>
-        <div class="result-url">${site.url.replace('https://', '')}</div>
-        <div class="result-desc">Visit ${site.name} now</div>
-      `;
-      resultsList.appendChild(resultItem);
-    });
+    filteredWebsites = websites.filter(site => 
+      site.name.toLowerCase().includes(query) || 
+      site.url.toLowerCase().includes(query)
+    );
   }
-}
-
-// Go back to main search
-function goBack() {
-  searchInput.value = '';
-  resultsSearchInput.value = '';
-  main.style.display = 'flex';
-  resultsSection.style.display = 'none';
-}
-
-// Close results on ESC key
-document.addEventListener('keydown', (e) => {
-  if (e.key === 'Escape') {
-    goBack();
-  }
+  
+  displayApps(filteredWebsites);
 });
 
-// Focus on search input on page load
+// Display all apps on page load
 window.addEventListener('load', () => {
+  displayApps(websites);
   searchInput.focus();
 });
