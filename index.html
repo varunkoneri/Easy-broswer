@@ -4,6 +4,10 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Easy Browser</title>
+
+  <link rel="stylesheet" href="style.css">
+  <link rel="icon" href="icon-512.png">
+</head>
 <body>
 
   <header class="header">
@@ -13,29 +17,10 @@
   </header>
 
   <main>
-    <div class="search-container">
-      <input 
-        type="text" 
-        id="searchInput" 
-        class="search-bar" 
-        placeholder="Search websites..."
-      >
-    </div>
-    
     <div id="appList"></div>
-    <div id="noResults" class="no-results" style="display:none;">
-      <p>No websites found matching your search.</p>
-    </div>
   </main>
 
   <script src="script.js"></script>
 
 </body>
 </html>
-<script>
-window.addEventListener("load", function () {
-    setTimeout(function () {
-        document.getElementById("splash").classList.add("hide");
-    }, 2500);
-});
-</script>
