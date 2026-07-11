@@ -19,6 +19,13 @@ const websites = [
   {name:"LinkedIn",url:"https://linkedin.com"},
   {name:"Pinterest",url:"https://pinterest.com"},
   {name:"Poki Games",url:"https://poki.com"},
+  {name:"Cruise Money",url:"https://cruise.money/"}
+  {name:"GitHub",url:"https://github.com"},
+  {name:"Reddit",url:"https://reddit.com"},
+  {name:"Discord",url:"https://discord.com"},
+  {name:"LinkedIn",url:"https://linkedin.com"},
+  {name:"Pinterest",url:"https://pinterest.com"},
+  {name:"Poki Games",url:"https://poki.com"},
   {name:"Twitch",url:"https://twitch.tv"},
   {name:"Stack Overflow",url:"https://stackoverflow.com"},
   {name:"Medium",url:"https://medium.com"},
@@ -403,55 +410,19 @@ const websites = [
   {name:"Convex",url:"https://convexfinance.com"},
   {name:"Stargate",url:"https://stargate.finance"}
 ];
-
 const appList = document.getElementById("appList");
-const searchInput = document.getElementById("searchInput");
-const noResults = document.getElementById("noResults");
 
-function displayApps(appsToDisplay) {
-  appList.innerHTML = "";
-  
-  if (appsToDisplay.length === 0) {
-    appList.style.display = "none";
-    noResults.style.display = "block";
-    return;
-  }
-  
-  appList.style.display = "flex";
-  noResults.style.display = "none";
-  
-  appsToDisplay.forEach(site => {
-    const div = document.createElement("div");
-    div.className = "app";
-    div.innerHTML = `
-      <h3>${site.name}</h3>
-      <button onclick="window.open('${site.url}','_blank')">
-        Open
-      </button>
-    `;
-    appList.appendChild(div);
-  });
-}
+websites.forEach(site => {
+  const div = document.createElement("div");
 
-// Display all apps on page load
-displayApps(websites);
+  div.className = "app";
 
-// Search functionality
-searchInput.addEventListener("input", () => {
-  const query = searchInput.value.toLowerCase().trim();
-  
-  if (query === "") {
-    displayApps(websites);
-  } else {
-    const filtered = websites.filter(site => 
-      site.name.toLowerCase().includes(query) || 
-      site.url.toLowerCase().includes(query)
-    );
-    displayApps(filtered);
-  }
-});
+  div.innerHTML = `
+    <h3>${site.name}</h3>
+    <button onclick="window.open('${site.url}','_blank')">
+      Open
+    </button>
+  `;
 
-// Focus on search input on page load
-window.addEventListener("load", () => {
-  searchInput.focus();
+  appList.appendChild(div);
 });
