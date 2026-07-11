@@ -1,4 +1,9 @@
 <!DOCTYPE html>
+<div id="splash">
+    <img src="icon-512.png" class="splash-logo" alt="Easy Browser">
+    <h1>Easy Browser</h1>
+    <p>Fast • Smart • Secure</p>
+</div>
 <html lang="en">
 <head>
   <meta charset="UTF-8">
@@ -36,3 +41,10 @@
 
 </body>
 </html>
+<script>
+window.addEventListener("load", function () {
+    setTimeout(function () {
+        document.getElementById("splash").classList.add("hide");
+    }, 2500);
+});
+</script>
