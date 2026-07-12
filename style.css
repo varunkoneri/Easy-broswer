@@ -435,3 +435,11 @@ grid-template-columns:repeat(2,1fr);
 }
 
 }
+.appImage{
+    width:90px;
+    height:90px;
+    object-fit:contain;
+    border-radius:20px;
+    display:block;
+    margin:0 auto 15px;
+}
