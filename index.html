@@ -1,26 +1,65 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Easy Browser</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Easy Browser</title>
 
-  <link rel="stylesheet" href="style.css">
-  <link rel="icon" href="icon-512.png">
+    <link rel="stylesheet" href="style.css">
 </head>
 <body>
 
-  <header class="header">
-    <img src="icon-512.png" alt="Easy Browser Logo" class="logo">
-    <h1>Easy Browser</h1>
-    <p>Open your favorite websites</p>
-  </header>
+    <!-- Splash Screen -->
+    <div id="splash">
 
-  <main>
-    <div id="appList"></div>
-  </main>
+        <!-- Blue Particles -->
+        <div id="particles"></div>
 
-  <script src="script.js"></script>
+        <div class="logoBox">
+
+            <img src="icon-512.png" alt="Easy Browser Logo" class="logo">
+
+            <h1>Easy Browser</h1>
+
+            <button id="continueBtn">
+                Continue
+            </button>
+
+            <div class="loader">
+                <span></span>
+            </div>
+
+        </div>
+
+    </div>
+
+    <!-- ===================== -->
+    <!-- Home Screen -->
+    <!-- ===================== -->
+
+    <div id="home">
+
+        <header class="header">
+
+            <img src="icon-512.png" class="logo smallLogo">
+
+            <h1>Easy Browser</h1>
+
+            <p>Open your favorite websites</p>
+
+        </header>
+
+        <main>
+
+            <div id="appList">
+
+            </div>
+
+        </main>
+
+    </div>
+
+    <script src="script.js"></script>
 
 </body>
 </html>
