@@ -119,21 +119,11 @@ if (appList) {
 
         // Get a reliable icon for each website
         const domain = new URL(site.url).hostname;
-
         app.innerHTML = `
-            <img
-                class="appIcon"
-                src="https://www.google.com/s2/favicons?sz=128&domain=${domain}"
-                alt="${site.name}"
-            >
-
-            <h3>${site.name}</h3>
-
-            <button class="openBtn">
-                Open
-            </button>
-        `;
-
+    <img class="appImage" src="${site.image}" alt="${site.name}">
+    <h3>${site.name}</h3>
+    <button>Open</button>
+`;
         app.querySelector(".openBtn").addEventListener("click", () => {
             window.open(site.url, "_blank");
         });
