@@ -7,8 +7,7 @@
   "theme_color": "#0b5cff",
   "icons": [
     {
-      "src": "https://chatgpt.com/backend-api/estuary/content?id=file_000000000094720b9baff88d8f3c2702&ts=495514&p=fs&cid=1&sig=fa4bb7bb5c165dab18b8ce8a90bccc312e15f1fcf04bbdf90193ec6744c5888b&v=0",
-      "sizes": "512x512",
+      "src": "icon-512.png"
       "type": "image/png"
     }
   ]
