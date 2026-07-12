@@ -19,8 +19,8 @@ const websites = [
   {name:"LinkedIn",url:"https://linkedin.com"},
   {name:"Pinterest",url:"https://pinterest.com"},
   {name:"Poki Games",url:"https://poki.com"},
-  {name:"Cruise Money",url:"https://cruise.money/"}
-  {name:"GitHub",url:"https://github.com"},
+  {name:"Cruise Money",url:"https://cruise.money/"},
+{name:"GitHub",url:"https://github.com"},
   {name:"Reddit",url:"https://reddit.com"},
   {name:"Discord",url:"https://discord.com"},
   {name:"LinkedIn",url:"https://linkedin.com"},
