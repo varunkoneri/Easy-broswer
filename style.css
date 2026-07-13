@@ -1,445 +1,232 @@
-/* =====================================
-   Easy Browser CSS
-===================================== */
+/* ===========================
+   SEARCH BAR
+=========================== */
 
-*{
-    margin:0;
-    padding:0;
-    box-sizing:border-box;
-    font-family:Arial,Helvetica,sans-serif;
+.searchBox{
+    max-width:700px;
+    margin:25px auto;
+    padding:0 20px;
 }
 
-html{
-    scroll-behavior:smooth;
+.searchBox input{
+    width:100%;
+    height:55px;
+    border:none;
+    border-radius:35px;
+    outline:none;
+    font-size:18px;
+    padding:0 25px;
+    background:#fff;
+    box-shadow:0 5px 20px rgba(0,0,0,.1);
 }
 
-body{
-    background:#f5f7fb;
-    overflow:hidden;
+.searchBox input:focus{
+    border:2px solid #007BFF;
 }
 
-/* Splash Screen */
+/* ===========================
+   CATEGORY BUTTONS
+=========================== */
 
-#splash{
-    position:fixed;
-    inset:0;
+.categories{
     display:flex;
     justify-content:center;
-    align-items:center;
-    background:linear-gradient(180deg,#eef6ff,#ffffff);
-    overflow:hidden;
-    z-index:9999;
-    transition:opacity .8s;
+    flex-wrap:wrap;
+    gap:12px;
+    margin:20px;
 }
 
-/* Particle Background */
-
-#particles{
-    position:absolute;
-    inset:0;
-    overflow:hidden;
-}
-
-.dot{
-    position:absolute;
-    border-radius:50%;
-    opacity:.8;
-    animation:float linear infinite;
-}
-
-/* Logo Box */
-
-.logoBox{
-    position:relative;
-    z-index:10;
-    text-align:center;
-}
-
-.logo{
-    width:220px;
-    height:220px;
-    border-radius:45px;
-    display:block;
-    margin:auto;
-    box-shadow:0 18px 45px rgba(0,0,0,.18);
-}
-
-.logoBox h1{
-    margin-top:20px;
-    color:#006DFF;
-    font-size:52px;
-}
-
-.logoBox p{
-    margin-top:8px;
-    color:#666;
-    font-size:20px;
-}
-
-/* Continue Button */
-
-#continueBtn{
-
-    margin-top:25px;
-
-    padding:15px 45px;
-
+.categoryBtn{
     border:none;
-
-    border-radius:40px;
-
-    cursor:pointer;
-
-    color:#fff;
-
-    font-size:22px;
-
-    font-weight:bold;
-
-    background:linear-gradient(135deg,#006DFF,#00B8FF);
-
-    transition:.3s;
-
-    box-shadow:0 12px 25px rgba(0,109,255,.3);
-
-}
-
-#continueBtn:hover{
-
-    transform:translateY(-4px);
-
-}
-
-#continueBtn:active{
-
-    transform:scale(.96);
-
-}
-
-/* Loading Bar */
-
-.loader{
-
-    width:260px;
-
-    height:7px;
-
-    background:#ddd;
-
-    margin:30px auto;
-
+    background:#fff;
+    color:#007BFF;
+    padding:10px 22px;
     border-radius:30px;
-
-    overflow:hidden;
-
+    cursor:pointer;
+    font-size:15px;
+    font-weight:bold;
+    box-shadow:0 5px 15px rgba(0,0,0,.08);
+    transition:.3s;
 }
 
-.loader span{
-
-    display:block;
-
-    width:100%;
-
-    height:100%;
-
-    background:linear-gradient(90deg,#006DFF,#00C8FF);
-
+.categoryBtn:hover{
+    background:#007BFF;
+    color:white;
 }
 
-/* Animation */
-
-@keyframes float{
-
-    from{
-
-        transform:translateY(0);
-
-    }
-
-    to{
-
-        transform:translateY(-120vh);
-
-    }
-
-}
-/* =====================================
-   HOME PAGE
-===================================== */
-
-#home{
-    display:none;
-    opacity:0;
-    min-height:100vh;
-    transition:opacity .6s;
-    overflow-y:auto;
-}
-
-/* Header */
-
-.header{
-    background:#ffffff;
-    text-align:center;
-    padding:30px 20px;
-    box-shadow:0 5px 20px rgba(0,0,0,.08);
-    position:sticky;
-    top:0;
-    z-index:100;
-}
-
-.smallLogo{
-    width:110px;
-    height:110px;
-    border-radius:25px;
-}
-
-.header h1{
-    margin-top:15px;
-    color:#006DFF;
-    font-size:42px;
-}
-
-.header p{
-    color:#666;
-    margin-top:8px;
-    font-size:18px;
-}
-
-/* App Grid */
-
-#appList{
-
-    max-width:1500px;
-
-    margin:30px auto;
-
-    padding:20px;
-
-    display:grid;
-
-    grid-template-columns:repeat(auto-fill,minmax(180px,1fr));
-
-    gap:25px;
-
-}
-
-/* Cards */
+/* ===========================
+   APP CARD
+=========================== */
 
 .app{
-
-    background:#fff;
-
+    background:white;
     border-radius:22px;
-
-    padding:20px;
-
+    overflow:hidden;
     text-align:center;
-
-    box-shadow:0 10px 25px rgba(0,0,0,.08);
-
     transition:.3s;
-
+    box-shadow:0 10px 25px rgba(0,0,0,.08);
 }
 
 .app:hover{
-
     transform:translateY(-8px);
-
-    box-shadow:0 15px 35px rgba(0,0,0,.15);
-
 }
 
-/* App Icons */
-
-.appIcon{
-
-    width:70px;
-
-    height:70px;
-
-    border-radius:18px;
-
+.appImage{
+    width:100px;
+    height:100px;
     object-fit:contain;
-
+    margin:25px auto 10px;
     display:block;
-
-    margin:0 auto 15px;
-
-    background:white;
-
 }
-
-/* Title */
 
 .app h3{
-
-    font-size:18px;
-
     color:#222;
-
-    margin-bottom:18px;
-
+    font-size:18px;
+    margin:15px 0;
 }
 
-/* Button */
-
 .app button{
-
+    width:85%;
+    margin-bottom:20px;
     border:none;
-
-    background:linear-gradient(135deg,#006DFF,#00B8FF);
-
+    background:#007BFF;
     color:white;
-
-    padding:11px 22px;
-
+    padding:12px;
     border-radius:30px;
-
     cursor:pointer;
-
     font-size:16px;
-
-    font-weight:bold;
-
     transition:.3s;
-
 }
 
 .app button:hover{
+    background:#0056d6;
+}
+/* ===========================
+   HEADER TOOLS
+=========================== */
 
-    transform:scale(1.05);
-
+.topBar{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    padding:15px 30px;
+    background:#ffffff;
+    box-shadow:0 2px 10px rgba(0,0,0,.08);
+    position:sticky;
+    top:0;
+    z-index:200;
 }
 
-.app button:active{
-
-    transform:scale(.95);
-
+.time{
+    font-size:18px;
+    font-weight:bold;
+    color:#007BFF;
 }
 
-/* Scrollbar */
-
-::-webkit-scrollbar{
-
-    width:10px;
-
-}
-
-::-webkit-scrollbar-thumb{
-
+.darkBtn{
+    border:none;
     background:#007BFF;
-
-    border-radius:20px;
-
+    color:#fff;
+    padding:10px 18px;
+    border-radius:25px;
+    cursor:pointer;
+    font-size:15px;
+    transition:.3s;
 }
 
-::-webkit-scrollbar-track{
-
-    background:#eef4ff;
-
+.darkBtn:hover{
+    background:#005fd1;
 }
 
-/* Mobile */
+/* ===========================
+   FAVORITE ICON
+=========================== */
 
-@media(max-width:900px){
-
-.logo{
-
-width:180px;
-height:180px;
-
+.favorite{
+    position:absolute;
+    top:12px;
+    right:12px;
+    width:28px;
+    height:28px;
+    border-radius:50%;
+    background:#fff;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    cursor:pointer;
+    font-size:18px;
+    box-shadow:0 2px 8px rgba(0,0,0,.15);
 }
 
-.logoBox h1{
-
-font-size:42px;
-
+.favorite:hover{
+    color:#FFD700;
 }
 
-#continueBtn{
+/* ===========================
+   FOOTER
+=========================== */
 
-font-size:18px;
-padding:14px 35px;
-
+footer{
+    text-align:center;
+    padding:30px;
+    color:#777;
+    font-size:15px;
 }
 
-.smallLogo{
+/* ===========================
+   DARK MODE
+=========================== */
 
-width:90px;
-height:90px;
-
+body.dark{
+    background:#121212;
 }
 
-.header h1{
-
-font-size:34px;
-
+body.dark .header,
+body.dark .topBar{
+    background:#1f1f1f;
 }
 
-#appList{
-
-grid-template-columns:repeat(auto-fill,minmax(150px,1fr));
-
-gap:18px;
-
-padding:15px;
-
+body.dark .app{
+    background:#222;
 }
 
-.app{
-
-padding:15px;
-
+body.dark .app h3{
+    color:#fff;
 }
 
-.appIcon{
-
-width:60px;
-height:60px;
-
+body.dark .searchBox input{
+    background:#2b2b2b;
+    color:white;
 }
 
-.app h3{
-
-font-size:16px;
-
+body.dark .categoryBtn{
+    background:#2b2b2b;
+    color:white;
 }
 
+body.dark .categoryBtn:hover{
+    background:#007BFF;
 }
 
-@media(max-width:500px){
-
-.logo{
-
-width:150px;
-height:150px;
-
+body.dark footer{
+    color:#bbb;
 }
 
-.logoBox h1{
+/* ===========================
+   SMOOTH ANIMATIONS
+=========================== */
 
-font-size:34px;
-
+.fadeIn{
+    animation:fadeIn .5s ease;
 }
 
-#continueBtn{
-
-width:90%;
-
-}
-
-#appList{
-
-grid-template-columns:repeat(2,1fr);
-
-}
-
-}
-.appImage{
-    width:90px;
-    height:90px;
-    object-fit:contain;
-    border-radius:20px;
-    display:block;
-    margin:0 auto 15px;
+@keyframes fadeIn{
+    from{
+        opacity:0;
+        transform:translateY(20px);
+    }
+    to{
+        opacity:1;
+        transform:translateY(0);
+    }
 }
