@@ -466,7 +466,7 @@ card.style.display="none";
 // DOUBLE CLICK CARD
 // ======================================
 
-document.querySelector(document).addEventListener("dblclick",function(e){
+document.addEventListener("dblclick", function(e) {
 
 const card=e.target.closest(".app");
 
