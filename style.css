@@ -230,3 +230,125 @@ body.dark footer{
         transform:translateY(0);
     }
 }
+/* ===========================
+   SPLASH ANIMATIONS
+=========================== */
+
+.logo{
+    animation:logoFloat 3s ease-in-out infinite;
+}
+
+@keyframes logoFloat{
+    0%{
+        transform:translateY(0px);
+    }
+    50%{
+        transform:translateY(-10px);
+    }
+    100%{
+        transform:translateY(0px);
+    }
+}
+
+.logoBox h1{
+    animation:fadeTitle 1.2s ease;
+}
+
+@keyframes fadeTitle{
+    from{
+        opacity:0;
+        transform:translateY(30px);
+    }
+    to{
+        opacity:1;
+        transform:translateY(0);
+    }
+}
+
+/* ===========================
+   LOADING BAR
+=========================== */
+
+.loader{
+    position:relative;
+    overflow:hidden;
+}
+
+.loader span{
+    position:absolute;
+    left:-100%;
+    animation:loading 2s linear infinite;
+}
+
+@keyframes loading{
+    0%{
+        left:-100%;
+    }
+    100%{
+        left:100%;
+    }
+}
+
+/* ===========================
+   APP IMAGE
+=========================== */
+
+.appImage{
+    width:100px;
+    height:100px;
+    object-fit:contain;
+    border-radius:22px;
+    margin:20px auto;
+    display:block;
+    transition:.3s;
+}
+
+.app:hover .appImage{
+    transform:scale(1.08);
+}
+
+/* ===========================
+   APP NAME
+=========================== */
+
+.app h3{
+    min-height:45px;
+    display:flex;
+    justify-content:center;
+    align-items:center;
+}
+
+/* ===========================
+   OPEN BUTTON
+=========================== */
+
+.app button{
+    width:90%;
+    margin:auto;
+    margin-bottom:20px;
+}
+
+.app button:active{
+    transform:scale(.95);
+}
+
+/* ===========================
+   HOME FADE
+=========================== */
+
+#home.show{
+    display:block;
+    opacity:1;
+    animation:homeFade .6s ease;
+}
+
+@keyframes homeFade{
+    from{
+        opacity:0;
+        transform:translateY(20px);
+    }
+    to{
+        opacity:1;
+        transform:translateY(0);
+    }
+}
