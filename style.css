@@ -1,354 +1,202 @@
-/* ===========================
-   SEARCH BAR
-=========================== */
+/* ==========================
+   Easy Browser
+========================== */
 
-.searchBox{
-    max-width:700px;
-    margin:25px auto;
-    padding:0 20px;
+*{
+    margin:0;
+    padding:0;
+    box-sizing:border-box;
+    font-family:Arial,Helvetica,sans-serif;
 }
 
-.searchBox input{
-    width:100%;
-    height:55px;
-    border:none;
-    border-radius:35px;
-    outline:none;
-    font-size:18px;
-    padding:0 25px;
-    background:#fff;
-    box-shadow:0 5px 20px rgba(0,0,0,.1);
-}
-
-.searchBox input:focus{
-    border:2px solid #007BFF;
-}
-
-/* ===========================
-   CATEGORY BUTTONS
-=========================== */
-
-.categories{
-    display:flex;
-    justify-content:center;
-    flex-wrap:wrap;
-    gap:12px;
-    margin:20px;
-}
-
-.categoryBtn{
-    border:none;
-    background:#fff;
-    color:#007BFF;
-    padding:10px 22px;
-    border-radius:30px;
-    cursor:pointer;
-    font-size:15px;
-    font-weight:bold;
-    box-shadow:0 5px 15px rgba(0,0,0,.08);
-    transition:.3s;
-}
-
-.categoryBtn:hover{
-    background:#007BFF;
-    color:white;
-}
-
-/* ===========================
-   APP CARD
-=========================== */
-
-.app{
-    background:white;
-    border-radius:22px;
+body{
+    background:#f5f7fb;
     overflow:hidden;
-    text-align:center;
-    transition:.3s;
-    box-shadow:0 10px 25px rgba(0,0,0,.08);
 }
 
-.app:hover{
-    transform:translateY(-8px);
-}
+/* Splash Screen */
 
-.appImage{
-    width:100px;
-    height:100px;
-    object-fit:contain;
-    margin:25px auto 10px;
-    display:block;
-}
-
-.app h3{
-    color:#222;
-    font-size:18px;
-    margin:15px 0;
-}
-
-.app button{
-    width:85%;
-    margin-bottom:20px;
-    border:none;
-    background:#007BFF;
-    color:white;
-    padding:12px;
-    border-radius:30px;
-    cursor:pointer;
-    font-size:16px;
-    transition:.3s;
-}
-
-.app button:hover{
-    background:#0056d6;
-}
-/* ===========================
-   HEADER TOOLS
-=========================== */
-
-.topBar{
+#splash{
+    position:fixed;
+    inset:0;
+    background:linear-gradient(180deg,#eef6ff,#ffffff);
     display:flex;
-    justify-content:space-between;
-    align-items:center;
-    padding:15px 30px;
-    background:#ffffff;
-    box-shadow:0 2px 10px rgba(0,0,0,.08);
-    position:sticky;
-    top:0;
-    z-index:200;
-}
-
-.time{
-    font-size:18px;
-    font-weight:bold;
-    color:#007BFF;
-}
-
-.darkBtn{
-    border:none;
-    background:#007BFF;
-    color:#fff;
-    padding:10px 18px;
-    border-radius:25px;
-    cursor:pointer;
-    font-size:15px;
-    transition:.3s;
-}
-
-.darkBtn:hover{
-    background:#005fd1;
-}
-
-/* ===========================
-   FAVORITE ICON
-=========================== */
-
-.favorite{
-    position:absolute;
-    top:12px;
-    right:12px;
-    width:28px;
-    height:28px;
-    border-radius:50%;
-    background:#fff;
-    display:flex;
-    align-items:center;
     justify-content:center;
-    cursor:pointer;
-    font-size:18px;
-    box-shadow:0 2px 8px rgba(0,0,0,.15);
+    align-items:center;
+    overflow:hidden;
+    z-index:9999;
+    transition:opacity .8s ease;
 }
 
-.favorite:hover{
-    color:#FFD700;
+/* Particle Container */
+
+#particles{
+    position:absolute;
+    inset:0;
+    overflow:hidden;
 }
 
-/* ===========================
-   FOOTER
-=========================== */
+.dot{
+    position:absolute;
+    border-radius:50%;
+    opacity:.8;
+    animation:float linear infinite;
+}
 
-footer{
+/* Logo Box */
+
+.logoBox{
+    position:relative;
+    z-index:5;
     text-align:center;
-    padding:30px;
-    color:#777;
-    font-size:15px;
 }
-
-/* ===========================
-   DARK MODE
-=========================== */
-
-body.dark{
-    background:#121212;
-}
-
-body.dark .header,
-body.dark .topBar{
-    background:#1f1f1f;
-}
-
-body.dark .app{
-    background:#222;
-}
-
-body.dark .app h3{
-    color:#fff;
-}
-
-body.dark .searchBox input{
-    background:#2b2b2b;
-    color:white;
-}
-
-body.dark .categoryBtn{
-    background:#2b2b2b;
-    color:white;
-}
-
-body.dark .categoryBtn:hover{
-    background:#007BFF;
-}
-
-body.dark footer{
-    color:#bbb;
-}
-
-/* ===========================
-   SMOOTH ANIMATIONS
-=========================== */
-
-.fadeIn{
-    animation:fadeIn .5s ease;
-}
-
-@keyframes fadeIn{
-    from{
-        opacity:0;
-        transform:translateY(20px);
-    }
-    to{
-        opacity:1;
-        transform:translateY(0);
-    }
-}
-/* ===========================
-   SPLASH ANIMATIONS
-=========================== */
 
 .logo{
-    animation:logoFloat 3s ease-in-out infinite;
-}
-
-@keyframes logoFloat{
-    0%{
-        transform:translateY(0px);
-    }
-    50%{
-        transform:translateY(-10px);
-    }
-    100%{
-        transform:translateY(0px);
-    }
+    width:180px;
+    height:180px;
+    border-radius:35px;
+    box-shadow:0 15px 40px rgba(0,0,0,.18);
 }
 
 .logoBox h1{
-    animation:fadeTitle 1.2s ease;
+    margin-top:20px;
+    color:#006DFF;
+    font-size:48px;
 }
 
-@keyframes fadeTitle{
-    from{
-        opacity:0;
-        transform:translateY(30px);
-    }
-    to{
-        opacity:1;
-        transform:translateY(0);
-    }
+/* Continue Button */
+
+#continueBtn{
+    margin-top:20px;
+    padding:15px 45px;
+    font-size:20px;
+    font-weight:bold;
+    color:#fff;
+    border:none;
+    border-radius:40px;
+    cursor:pointer;
+    background:linear-gradient(135deg,#006DFF,#00B8FF);
+    box-shadow:0 10px 25px rgba(0,109,255,.35);
+    transition:.3s;
 }
 
-/* ===========================
-   LOADING BAR
-=========================== */
+#continueBtn:hover{
+    transform:translateY(-3px);
+}
+
+#continueBtn:active{
+    transform:scale(.96);
+}
+
+/* Loading Bar */
 
 .loader{
-    position:relative;
+    width:260px;
+    height:7px;
+    margin:25px auto;
+    background:#ddd;
+    border-radius:30px;
     overflow:hidden;
 }
 
 .loader span{
-    position:absolute;
-    left:-100%;
-    animation:loading 2s linear infinite;
+    display:block;
+    width:100%;
+    height:100%;
+    background:linear-gradient(90deg,#006DFF,#00C8FF);
 }
 
-@keyframes loading{
-    0%{
-        left:-100%;
-    }
-    100%{
-        left:100%;
-    }
+/* ==========================
+   Home Page
+========================== */
+
+#home{
+    display:none;
+    opacity:0;
+    transition:opacity .5s;
+    min-height:100vh;
+    overflow:auto;
+    padding-bottom:50px;
 }
 
-/* ===========================
-   APP IMAGE
-=========================== */
+.header{
+    text-align:center;
+    padding:30px 20px;
+    background:white;
+    box-shadow:0 5px 20px rgba(0,0,0,.08);
+}
 
-.appImage{
+.smallLogo{
     width:100px;
     height:100px;
-    object-fit:contain;
-    border-radius:22px;
-    margin:20px auto;
-    display:block;
-    transition:.3s;
+    border-radius:25px;
 }
 
-.app:hover .appImage{
-    transform:scale(1.08);
+.header h1{
+    margin-top:15px;
+    color:#006DFF;
+    font-size:42px;
 }
 
-/* ===========================
-   APP NAME
-=========================== */
+.header p{
+    color:#666;
+    margin-top:10px;
+    font-size:18px;
+}
+
+/* Apps */
+
+#appList{
+    display:grid;
+    grid-template-columns:repeat(auto-fit,minmax(170px,1fr));
+    gap:20px;
+    padding:30px;
+    max-width:1200px;
+    margin:auto;
+}
+
+.app{
+    background:white;
+    border-radius:18px;
+    padding:20px;
+    text-align:center;
+    box-shadow:0 8px 25px rgba(0,0,0,.08);
+    transition:.25s;
+}
+
+.app:hover{
+    transform:translateY(-5px);
+}
 
 .app h3{
-    min-height:45px;
-    display:flex;
-    justify-content:center;
-    align-items:center;
+    color:#006DFF;
+    margin-bottom:15px;
 }
-
-/* ===========================
-   OPEN BUTTON
-=========================== */
 
 .app button{
-    width:90%;
-    margin:auto;
-    margin-bottom:20px;
+    border:none;
+    background:#006DFF;
+    color:white;
+    padding:10px 22px;
+    border-radius:30px;
+    cursor:pointer;
+    font-size:16px;
 }
 
-.app button:active{
-    transform:scale(.95);
+.app button:hover{
+    background:#0053d6;
 }
 
-/* ===========================
-   HOME FADE
-=========================== */
+/* Animation */
 
-#home.show{
-    display:block;
-    opacity:1;
-    animation:homeFade .6s ease;
-}
+@keyframes float{
 
-@keyframes homeFade{
     from{
-        opacity:0;
-        transform:translateY(20px);
+        transform:translateY(0px);
     }
+
     to{
-        opacity:1;
-        transform:translateY(0);
+        transform:translateY(-120vh);
     }
+
 }
