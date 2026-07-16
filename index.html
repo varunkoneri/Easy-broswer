@@ -1,66 +1,353 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Easy Browser</title>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Koneri</title>
+<style>
+*{box-sizing:border-box;}
+html,body{
+  margin:0;
+  height:100%;
+  font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;
+}
+body{
+  background: radial-gradient(circle at 15% 10%, #1b3a66, transparent 45%), linear-gradient(160deg, #0a1a33 0%, #050c1a 60%, #020509 100%);
+  color:#eef2fb;
+  min-height:100vh;
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  padding:64px 20px 40px;
+  transition:background .3s ease;
+}
+body[data-theme="navy"]{
+  background: radial-gradient(circle at 15% 10%, #1b3a66, transparent 45%), linear-gradient(160deg, #0a1a33 0%, #050c1a 60%, #020509 100%);
+}
+body[data-theme="midnight"]{
+  background: radial-gradient(circle at 15% 10%, #3a1f66, transparent 45%), linear-gradient(160deg, #1a1033 0%, #0c0819 60%, #030209 100%);
+}
+body[data-theme="forest"]{
+  background: radial-gradient(circle at 15% 10%, #1e6b45, transparent 45%), linear-gradient(160deg, #0d2418 0%, #081410 60%, #020806 100%);
+}
+body[data-theme="sunset"]{
+  background: radial-gradient(circle at 15% 10%, #8a3a2b, transparent 45%), linear-gradient(160deg, #3a1b1b 0%, #1f0f0f 60%, #0a0505 100%);
+}
+body[data-theme="slate"]{
+  background: radial-gradient(circle at 15% 10%, #4a5568, transparent 45%), linear-gradient(160deg, #20242c 0%, #14161c 60%, #08090b 100%);
+}
 
-    <link rel="stylesheet" href="style.css">
+.theme-switcher{
+  position:fixed;
+  top:18px;
+  right:20px;
+  display:flex;
+  gap:10px;
+  z-index:10;
+}
+.theme-dot{
+  width:26px;
+  height:26px;
+  border-radius:50%;
+  border:2px solid rgba(255,255,255,0.35);
+  cursor:pointer;
+  padding:0;
+  transition:transform .15s ease, border-color .15s ease;
+}
+.theme-dot:hover{transform:scale(1.12);}
+.theme-dot.active{border-color:#ffffff;}
+
+.search-wrap{
+  width:100%;
+  max-width:640px;
+  display:flex;
+  align-items:center;
+  gap:14px;
+  background:rgba(255,255,255,0.10);
+  border:1px solid rgba(255,255,255,0.22);
+  border-radius:999px;
+  padding:14px 22px;
+  backdrop-filter:blur(6px);
+}
+.search-wrap input{
+  flex:1;
+  background:transparent;
+  border:none;
+  outline:none;
+  color:#eef2fb;
+  font-size:17px;
+}
+.search-wrap input::placeholder{color:#c7d1e8;}
+
+.icon-btn{
+  background:none;
+  border:none;
+  color:#c7d1e8;
+  cursor:pointer;
+  display:flex;
+  align-items:center;
+  padding:4px;
+}
+.icon-btn:hover{color:#ffffff;}
+
+.grid{
+  margin-top:56px;
+  display:grid;
+  grid-template-columns:repeat(4, 1fr);
+  gap:28px 20px;
+  max-width:600px;
+  width:100%;
+}
+.app{
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  gap:10px;
+  text-decoration:none;
+  color:#eef2fb;
+}
+.tile{
+  width:64px;
+  height:64px;
+  border-radius:18px;
+  background:#ffffff;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  box-shadow:0 6px 16px rgba(0,0,0,0.45);
+  transition:transform .15s ease;
+}
+.app:hover .tile{transform:translateY(-3px) scale(1.04);}
+.label{font-size:13px; color:#eef2fb; opacity:0.95; text-shadow:0 1px 3px rgba(0,0,0,0.5);}
+.tile img{width:34px;height:34px;}
+
+@media (max-width:480px){
+  .grid{grid-template-columns:repeat(4,1fr); gap:20px 12px;}
+  .tile{width:52px;height:52px;border-radius:14px;}
+  .tile img{width:28px;height:28px;}
+}
+
+</style>
 </head>
-<body>
+<body data-theme="navy">
 
-    <!-- Splash Screen -->
-    <div id="splash">
+  <div class="theme-switcher" id="themeSwitcher">
+    <button class="theme-dot" data-theme="navy" style="background:#0a1a33" aria-label="Navy theme"></button>
+    <button class="theme-dot" data-theme="midnight" style="background:#1a1033" aria-label="Midnight theme"></button>
+    <button class="theme-dot" data-theme="forest" style="background:#0d2418" aria-label="Forest theme"></button>
+    <button class="theme-dot" data-theme="sunset" style="background:#3a1b1b" aria-label="Sunset theme"></button>
+    <button class="theme-dot" data-theme="slate" style="background:#20242c" aria-label="Slate theme"></button>
+  </div>
 
-        <!-- Blue Particles -->
-        <div id="particles"></div>
+  <div class="search-wrap">
+    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#9db0cf" stroke-width="2"><circle cx="11" cy="11" r="7"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+    <input type="text" id="searchInput" placeholder="Search or type web address" />
+    <button class="icon-btn" aria-label="Bookmark">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><polygon points="12 2 15 9 22 9.5 17 14.5 18.5 22 12 18 5.5 22 7 14.5 2 9.5 9 9"/></svg>
+    </button>
+    <button class="icon-btn" id="menuBtn" aria-label="Change background">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><line x1="4" y1="7" x2="20" y2="7"/><line x1="4" y1="12" x2="20" y2="12"/><line x1="4" y1="17" x2="20" y2="17"/></svg>
+    </button>
+  </div>
 
-        <div class="logoBox">
+  <div class="grid">
 
-            <img src="easy browser.jpeg" alt="Easy Browser Logo" class="logo">
+    <a class="app" href="https://mail.google.com" target="_blank" rel="noopener noreferrer">
+      <div class="tile">
+        <svg width="34" height="34" viewBox="0 0 48 48">
+          <path fill="#FBBC05" d="M4 12.6c0-3.1 3.6-4.9 6.1-3.1L24 19.5 37.9 9.5c2.5-1.8 6.1 0 6.1 3.1v2.6L24 28 4 15.2z"/>
+          <path fill="#EA4335" d="M4 15.2L24 28 44 15.2v20.2c0 1.4-1.2 2.6-2.6 2.6H39V19.4L24 30 9 19.4V38H6.6C5.2 38 4 36.8 4 35.4z"/>
+          <path fill="#4285F4" d="M39 19.4V38h2.4c1.4 0 2.6-1.2 2.6-2.6V15.2z"/>
+          <path fill="#34A853" d="M6.6 38H9V19.4L4 15.2v20.2C4 36.8 5.2 38 6.6 38z"/>
+        </svg>
+      </div>
+      <span class="label">Gmail</span>
+    </a>
 
-            <h1>Easy Browser</h1>
+    <a class="app" href="https://google.com" target="_blank" rel="noopener noreferrer">
+      <div class="tile"><img src="https://www.google.com/s2/favicons?domain=google.com&sz=64" alt="" width="34" height="34"></div>
+      <span class="label">Google</span>
+    </a>
 
-            <button id="continueBtn">
-                Continue
-            </button>
+    <a class="app" href="https://youtube.com" target="_blank" rel="noopener noreferrer">
+      <div class="tile"><img src="https://www.google.com/s2/favicons?domain=youtube.com&sz=64" alt="" width="34" height="34"></div>
+      <span class="label">YouTube</span>
+    </a>
 
-            <div class="loader">
-                <span></span>
-            </div>
+    <a class="app" href="https://facebook.com" target="_blank" rel="noopener noreferrer">
+      <div class="tile"><img src="https://www.google.com/s2/favicons?domain=facebook.com&sz=64" alt="" width="34" height="34"></div>
+      <span class="label">Facebook</span>
+    </a>
 
-        </div>
+    <a class="app" href="https://instagram.com" target="_blank" rel="noopener noreferrer">
+      <div class="tile"><img src="https://www.google.com/s2/favicons?domain=instagram.com&sz=64" alt="" width="34" height="34"></div>
+      <span class="label">Instagram</span>
+    </a>
 
-    </div>
+    <a class="app" href="https://whatsapp.com" target="_blank" rel="noopener noreferrer">
+      <div class="tile"><img src="https://www.google.com/s2/favicons?domain=whatsapp.com&sz=64" alt="" width="34" height="34"></div>
+      <span class="label">WhatsApp</span>
+    </a>
 
-    <!-- ===================== -->
-    <!-- Home Screen -->
-    <!-- ===================== -->
+    <a class="app" href="https://tiktok.com" target="_blank" rel="noopener noreferrer">
+      <div class="tile"><img src="https://www.google.com/s2/favicons?domain=tiktok.com&sz=64" alt="" width="34" height="34"></div>
+      <span class="label">TikTok</span>
+    </a>
 
-    <div id="home">
+    <a class="app" href="https://x.com" target="_blank" rel="noopener noreferrer">
+      <div class="tile"><img src="https://www.google.com/s2/favicons?domain=x.com&sz=64" alt="" width="34" height="34"></div>
+      <span class="label">X</span>
+    </a>
 
-        <header class="header">
+    <a class="app" href="https://amazon.com" target="_blank" rel="noopener noreferrer">
+      <div class="tile"><img src="https://www.google.com/s2/favicons?domain=amazon.com&sz=64" alt="" width="34" height="34"></div>
+      <span class="label">Amazon</span>
+    </a>
 
-            <img src="easy browser.jpeg" class="logo smallLogo">
+    <a class="app" href="https://netflix.com" target="_blank" rel="noopener noreferrer">
+      <div class="tile"><img src="https://www.google.com/s2/favicons?domain=netflix.com&sz=64" alt="" width="34" height="34"></div>
+      <span class="label">Netflix</span>
+    </a>
 
-            <h1>Easy Browser</h1>
+    <a class="app" href="https://wikipedia.org" target="_blank" rel="noopener noreferrer">
+      <div class="tile"><img src="https://www.google.com/s2/favicons?domain=wikipedia.org&sz=64" alt="" width="34" height="34"></div>
+      <span class="label">Wikipedia</span>
+    </a>
 
-            <p>Open your favorite websites</p>
+    <a class="app" href="https://chat.openai.com" target="_blank" rel="noopener noreferrer">
+      <div class="tile"><img src="https://www.google.com/s2/favicons?domain=chat.openai.com&sz=64" alt="" width="34" height="34"></div>
+      <span class="label">ChatGPT</span>
+    </a>
 
-        </header>
+    <a class="app" href="https://spotify.com" target="_blank" rel="noopener noreferrer">
+      <div class="tile"><img src="https://www.google.com/s2/favicons?domain=spotify.com&sz=64" alt="" width="34" height="34"></div>
+      <span class="label">Spotify</span>
+    </a>
 
-        <main>
+    <a class="app" href="https://linkedin.com" target="_blank" rel="noopener noreferrer">
+      <div class="tile"><img src="https://www.google.com/s2/favicons?domain=linkedin.com&sz=64" alt="" width="34" height="34"></div>
+      <span class="label">LinkedIn</span>
+    </a>
 
-            <div id="appList">
+    <a class="app" href="https://reddit.com" target="_blank" rel="noopener noreferrer">
+      <div class="tile"><img src="https://www.google.com/s2/favicons?domain=reddit.com&sz=64" alt="" width="34" height="34"></div>
+      <span class="label">Reddit</span>
+    </a>
 
-            </div>
+    <a class="app" href="https://maps.google.com" target="_blank" rel="noopener noreferrer">
+      <div class="tile"><img src="https://www.google.com/s2/favicons?domain=maps.google.com&sz=64" alt="" width="34" height="34"></div>
+      <span class="label">Maps</span>
+    </a>
 
-        </main>
+    <a class="app" href="https://microsoft.com" target="_blank" rel="noopener noreferrer">
+      <div class="tile"><img src="https://www.google.com/s2/favicons?domain=microsoft.com&sz=64" alt="" width="34" height="34"></div>
+      <span class="label">Microsoft</span>
+    </a>
 
-    </div>
+    <a class="app" href="https://github.com" target="_blank" rel="noopener noreferrer">
+      <div class="tile"><img src="https://www.google.com/s2/favicons?domain=github.com&sz=64" alt="" width="34" height="34"></div>
+      <span class="label">GitHub</span>
+    </a>
 
-    <script src="script.js"></script>
+    <a class="app" href="https://paypal.com" target="_blank" rel="noopener noreferrer">
+      <div class="tile"><img src="https://www.google.com/s2/favicons?domain=paypal.com&sz=64" alt="" width="34" height="34"></div>
+      <span class="label">PayPal</span>
+    </a>
 
+    <a class="app" href="https://snapchat.com" target="_blank" rel="noopener noreferrer">
+      <div class="tile"><img src="https://www.google.com/s2/favicons?domain=snapchat.com&sz=64" alt="" width="34" height="34"></div>
+      <span class="label">Snapchat</span>
+    </a>
+
+  </div>
+
+<script>
+const backgrounds = [
+  'radial-gradient(circle at 15% 10%, #1b3a66, transparent 45%), linear-gradient(160deg, #0a1a33 0%, #050c1a 60%, #020509 100%)',
+  'radial-gradient(circle at 85% 15%, #4a1b66, transparent 45%), linear-gradient(160deg, #2a0a33 0%, #0c0518 60%, #050208 100%)',
+  'radial-gradient(circle at 20% 80%, #0a4d3a, transparent 45%), linear-gradient(160deg, #05261e 0%, #051510 60%, #020a08 100%)',
+  'radial-gradient(circle at 80% 80%, #663d0a, transparent 45%), linear-gradient(160deg, #331f05 0%, #1a1004 60%, #0a0802 100%)',
+  'radial-gradient(circle at 50% 20%, #66102a, transparent 45%), linear-gradient(160deg, #33081a 0%, #18040c 60%, #0a0206 100%)'
+];
+
+const menuBtn = document.getElementById('menuBtn');
+let bgIndex = parseInt(localStorage.getItem('koneriBgIndex') || '0', 10);
+
+function applyBackground(index) {
+  document.body.style.background = backgrounds[index];
+}
+
+applyBackground(bgIndex);
+
+menuBtn.addEventListener('click', function () {
+  bgIndex = (bgIndex + 1) % backgrounds.length;
+  applyBackground(bgIndex);
+  localStorage.setItem('koneriBgIndex', String(bgIndex));
+});
+
+const searchInput = document.getElementById('searchInput');
+const appTiles = Array.from(document.querySelectorAll('.app'));
+
+// ---- Theme switcher ----
+const themeDots = Array.from(document.querySelectorAll('.theme-dot'));
+const bodyEl = document.body;
+
+function setTheme(theme) {
+  bodyEl.setAttribute('data-theme', theme);
+  themeDots.forEach(function (dot) {
+    dot.classList.toggle('active', dot.getAttribute('data-theme') === theme);
+  });
+  try { localStorage.setItem('koneri-theme', theme); } catch (e) {}
+}
+
+themeDots.forEach(function (dot) {
+  dot.addEventListener('click', function () {
+    setTheme(dot.getAttribute('data-theme'));
+  });
+});
+
+let savedTheme = 'navy';
+try { savedTheme = localStorage.getItem('koneri-theme') || 'navy'; } catch (e) {}
+setTheme(savedTheme);
+
+// Live-filter the app grid as the user types
+searchInput.addEventListener('input', function () {
+  const query = searchInput.value.trim().toLowerCase();
+
+  appTiles.forEach(function (tile) {
+    const label = tile.querySelector('.label').textContent.toLowerCase();
+    const matches = query === '' || label.includes(query);
+    tile.style.display = matches ? '' : 'none';
+  });
+});
+
+searchInput.addEventListener('keydown', function (e) {
+  if (e.key !== 'Enter') return;
+
+  const value = searchInput.value.trim();
+  if (!value) return;
+
+  // If exactly one app matches what's typed, Enter opens that app directly
+  const visibleTiles = appTiles.filter(function (tile) {
+    return tile.style.display !== 'none';
+  });
+  if (visibleTiles.length === 1) {
+    window.open(visibleTiles[0].getAttribute('href'), '_blank', 'noopener,noreferrer');
+    return;
+  }
+
+  const looksLikeUrl = /^(https?:\/\/)?[^\s]+\.[a-z]{2,}([/?#].*)?$/i.test(value);
+
+  let destination;
+  if (looksLikeUrl) {
+    destination = value.startsWith('http') ? value : 'https://' + value;
+  } else {
+    destination = 'https://www.google.com/search?q=' + encodeURIComponent(value);
+  }
+
+  window.open(destination, '_blank', 'noopener,noreferrer');
+});
+
+</script>
 </body>
 </html>
