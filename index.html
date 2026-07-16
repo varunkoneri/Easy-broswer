@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Koneri</title>
+<title>Easy-browser</title>
 <style>
 *{box-sizing:border-box;}
 html,body{
@@ -271,7 +271,13 @@ const backgrounds = [
 ];
 
 const menuBtn = document.getElementById('menuBtn');
-let bgIndex = parseInt(localStorage.getItem('koneriBgIndex') || '0', 10);
+const searchInput = document.getElementById('searchInput');
+const appTiles = Array.from(document.querySelectorAll('.app'));
+
+let bgIndex = 0;
+try {
+  bgIndex = parseInt(localStorage.getItem('koneriBgIndex') || '0', 10) || 0;
+} catch (e) {}
 
 function applyBackground(index) {
   document.body.style.background = backgrounds[index];
@@ -282,33 +288,8 @@ applyBackground(bgIndex);
 menuBtn.addEventListener('click', function () {
   bgIndex = (bgIndex + 1) % backgrounds.length;
   applyBackground(bgIndex);
-  localStorage.setItem('koneriBgIndex', String(bgIndex));
+  try { localStorage.setItem('koneriBgIndex', String(bgIndex)); } catch (e) {}
 });
-
-const searchInput = document.getElementById('searchInput');
-const appTiles = Array.from(document.querySelectorAll('.app'));
-
-// ---- Theme switcher ----
-const themeDots = Array.from(document.querySelectorAll('.theme-dot'));
-const bodyEl = document.body;
-
-function setTheme(theme) {
-  bodyEl.setAttribute('data-theme', theme);
-  themeDots.forEach(function (dot) {
-    dot.classList.toggle('active', dot.getAttribute('data-theme') === theme);
-  });
-  try { localStorage.setItem('koneri-theme', theme); } catch (e) {}
-}
-
-themeDots.forEach(function (dot) {
-  dot.addEventListener('click', function () {
-    setTheme(dot.getAttribute('data-theme'));
-  });
-});
-
-let savedTheme = 'navy';
-try { savedTheme = localStorage.getItem('koneri-theme') || 'navy'; } catch (e) {}
-setTheme(savedTheme);
 
 // Live-filter the app grid as the user types
 searchInput.addEventListener('input', function () {
