@@ -113,6 +113,74 @@
     box-shadow: 0 30px 60px rgba(0,4,20,0.45);
   }
   .card-head { text-align: center; margin-bottom: 22px; }
+
+  /* ---- Login method tabs ---- */
+  .method-tabs {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 6px;
+    background: rgba(255,255,255,0.04);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 5px;
+    margin-bottom: 20px;
+  }
+  .method-tab {
+    appearance: none; border: none; background: transparent;
+    color: var(--text-dim); font-family: 'Inter', sans-serif;
+    font-size: 13px; font-weight: 600;
+    padding: 9px 4px; border-radius: 8px; cursor: pointer;
+    transition: background 0.15s ease, color 0.15s ease;
+  }
+  .method-tab.active { background: var(--bg-card); color: var(--text); box-shadow: inset 0 0 0 1px var(--blue-deep); }
+
+  .method-panel { display: none; }
+  .method-panel.active { display: block; }
+
+  /* ---- Phone/OTP field ---- */
+  .phone-row { display: flex; gap: 8px; margin-bottom: 14px; }
+  .country-code {
+    width: 78px;
+    background: rgba(255,255,255,0.045);
+    border: 1px solid var(--border);
+    color: var(--text);
+    font-family: 'Inter', sans-serif;
+    font-size: 14.5px;
+    padding: 15px 8px;
+    border-radius: 14px;
+    outline: none;
+    text-align: center;
+  }
+  .country-code:focus { border-color: var(--blue); }
+  .phone-row .field { flex: 1; margin-bottom: 0; }
+
+  .otp-row { display: flex; gap: 8px; margin-bottom: 14px; }
+  .otp-row input {
+    flex: 1;
+    background: rgba(255,255,255,0.045);
+    border: 1px solid var(--border);
+    color: var(--text);
+    font-family: 'IBM Plex Mono', 'Inter', monospace;
+    font-size: 20px;
+    letter-spacing: 0.3em;
+    text-align: center;
+    padding: 13px 10px;
+    border-radius: 14px;
+    outline: none;
+  }
+  .otp-row input:focus { border-color: var(--blue); background: rgba(47,125,250,0.07); }
+
+  .send-otp-btn {
+    appearance: none; border: 1px solid var(--blue-deep); background: transparent;
+    color: var(--blue-light); font-family: 'Inter', sans-serif; font-weight: 700;
+    font-size: 12.5px; padding: 0 16px; border-radius: 12px; cursor: pointer;
+    white-space: nowrap; transition: background 0.15s ease;
+  }
+  .send-otp-btn:hover:not(:disabled) { background: rgba(47,125,250,0.12); }
+  .send-otp-btn:disabled { opacity: 0.5; cursor: not-allowed; }
+
+  .otp-hint { font-size: 12px; color: var(--text-dim); margin: -6px 0 16px 2px; }
+  .otp-hint strong { color: var(--blue-light); font-family: 'IBM Plex Mono', monospace; letter-spacing: 0.1em; }
   .card-title {
     font-family: 'Poppins', sans-serif;
     font-weight: 700;
@@ -497,31 +565,63 @@
     </div>
 
     <form id="login-form" novalidate>
-      <div class="field">
-        <svg class="field-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 12a4 4 0 100-8 4 4 0 000 8zM4 20c0-4 3.6-7 8-7s8 3 8 7" stroke-linecap="round" stroke-linejoin="round"/></svg>
-        <input type="text" id="username" placeholder="Username or email" autocomplete="username" />
+
+      <div class="method-tabs">
+        <button type="button" class="method-tab active" id="tab-password" data-method="password">Password</button>
+        <button type="button" class="method-tab" id="tab-phone" data-method="phone">Phone OTP</button>
       </div>
 
-      <div class="field has-toggle">
-        <svg class="field-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="4" y="10" width="16" height="10" rx="2"/><path d="M8 10V7a4 4 0 018 0v3" stroke-linecap="round"/></svg>
-        <input type="password" id="password" placeholder="Password" autocomplete="current-password" />
-        <button type="button" class="toggle-visibility" id="toggle-pw" aria-label="Show password">
-          <svg id="eye-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M1 12s4-7 11-7 11 7 11 7-4 7-11 7-11-7-11-7z" stroke-linecap="round" stroke-linejoin="round"/><circle cx="12" cy="12" r="3"/></svg>
+      <!-- ===== Password login panel ===== -->
+      <div class="method-panel active" id="panel-password">
+        <div class="field">
+          <svg class="field-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 12a4 4 0 100-8 4 4 0 000 8zM4 20c0-4 3.6-7 8-7s8 3 8 7" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          <input type="text" id="username" placeholder="Username or email" autocomplete="username" />
+        </div>
+
+        <div class="field has-toggle">
+          <svg class="field-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="4" y="10" width="16" height="10" rx="2"/><path d="M8 10V7a4 4 0 018 0v3" stroke-linecap="round"/></svg>
+          <input type="password" id="password" placeholder="Password" autocomplete="current-password" />
+          <button type="button" class="toggle-visibility" id="toggle-pw" aria-label="Show password">
+            <svg id="eye-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M1 12s4-7 11-7 11 7 11 7-4 7-11 7-11-7-11-7z" stroke-linecap="round" stroke-linejoin="round"/><circle cx="12" cy="12" r="3"/></svg>
+          </button>
+        </div>
+
+        <div class="form-row">
+          <label class="remember">
+            <input type="checkbox" id="remember" checked />
+            Remember me
+          </label>
+          <a href="#" class="forgot-link">Forgot password?</a>
+        </div>
+
+        <button type="submit" class="btn-login" id="submit-password">
+          Log in
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M5 12h14M13 6l6 6-6 6" stroke-linecap="round" stroke-linejoin="round"/></svg>
         </button>
       </div>
 
-      <div class="form-row">
-        <label class="remember">
-          <input type="checkbox" id="remember" checked />
-          Remember me
-        </label>
-        <a href="#" class="forgot-link">Forgot password?</a>
+      <!-- ===== Phone / OTP login panel ===== -->
+      <div class="method-panel" id="panel-phone">
+        <div class="phone-row">
+          <input type="text" class="country-code" id="country-code" value="+1" maxlength="4" aria-label="Country code" />
+          <div class="field" style="margin-bottom:0;">
+            <svg class="field-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M17 2H7a2 2 0 00-2 2v16a2 2 0 002 2h10a2 2 0 002-2V4a2 2 0 00-2-2z" stroke-linejoin="round"/><path d="M11 18h2" stroke-linecap="round"/></svg>
+            <input type="tel" id="phone-number" placeholder="Phone number" autocomplete="tel" inputmode="numeric" />
+          </div>
+        </div>
+
+        <div class="otp-row">
+          <input type="text" id="otp-input" placeholder="······" maxlength="6" inputmode="numeric" disabled />
+          <button type="button" class="send-otp-btn" id="send-otp-btn">Send OTP</button>
+        </div>
+        <div class="otp-hint" id="otp-hint" style="display:none;"></div>
+
+        <button type="submit" class="btn-login" id="submit-phone">
+          Verify &amp; log in
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M5 12h14M13 6l6 6-6 6" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </button>
       </div>
 
-      <button type="submit" class="btn-login">
-        Log in
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M5 12h14M13 6l6 6-6 6" stroke-linecap="round" stroke-linejoin="round"/></svg>
-      </button>
       <div class="form-msg" id="form-msg"></div>
     </form>
 
@@ -725,23 +825,117 @@
       : '<path d="M1 12s4-7 11-7 11 7 11 7-4 7-11 7-11-7-11-7z" stroke-linecap="round" stroke-linejoin="round"/><circle cx="12" cy="12" r="3"/>';
   });
 
+  // ---------- LOGIN METHOD TABS ----------
+  const tabPassword = document.getElementById("tab-password");
+  const tabPhone = document.getElementById("tab-phone");
+  const panelPassword = document.getElementById("panel-password");
+  const panelPhone = document.getElementById("panel-phone");
+
+  function setMethod(method) {
+    const isPassword = method === "password";
+    tabPassword.classList.toggle("active", isPassword);
+    tabPhone.classList.toggle("active", !isPassword);
+    panelPassword.classList.toggle("active", isPassword);
+    panelPhone.classList.toggle("active", !isPassword);
+    msg.textContent = "";
+  }
+  tabPassword.addEventListener("click", () => setMethod("password"));
+  tabPhone.addEventListener("click", () => setMethod("phone"));
+
+  // ---------- PHONE / OTP LOGIC ----------
+  // Front-end simulation only: no real SMS is sent. In a real deployment,
+  // "Send OTP" would call your backend/SMS provider (e.g. Twilio, Firebase
+  // Auth phone sign-in) which generates and sends the actual code.
+  const countryCode = document.getElementById("country-code");
+  const phoneInput = document.getElementById("phone-number");
+  const otpInput = document.getElementById("otp-input");
+  const sendOtpBtn = document.getElementById("send-otp-btn");
+  const otpHint = document.getElementById("otp-hint");
+  let currentOtp = null;
+  let otpCooldown = 0;
+  let otpCooldownTimer = null;
+
+  function startCooldown() {
+    otpCooldown = 30;
+    sendOtpBtn.disabled = true;
+    sendOtpBtn.textContent = `Resend (${otpCooldown}s)`;
+    otpCooldownTimer = setInterval(() => {
+      otpCooldown -= 1;
+      if (otpCooldown <= 0) {
+        clearInterval(otpCooldownTimer);
+        sendOtpBtn.disabled = false;
+        sendOtpBtn.textContent = "Resend OTP";
+      } else {
+        sendOtpBtn.textContent = `Resend (${otpCooldown}s)`;
+      }
+    }, 1000);
+  }
+
+  sendOtpBtn.addEventListener("click", () => {
+    const digits = phoneInput.value.replace(/\D/g, "");
+    if (digits.length < 7) {
+      msg.style.color = "#ff8a8a";
+      msg.textContent = "Enter a valid phone number first.";
+      return;
+    }
+    currentOtp = String(Math.floor(100000 + Math.random() * 900000));
+    otpInput.disabled = false;
+    otpInput.value = "";
+    otpInput.focus();
+    msg.textContent = "";
+    otpHint.style.display = "block";
+    otpHint.innerHTML = `Demo mode — no real SMS is sent. Your code is <strong>${currentOtp}</strong>`;
+    startCooldown();
+  });
+
+  otpInput.addEventListener("input", () => {
+    otpInput.value = otpInput.value.replace(/\D/g, "").slice(0, 6);
+  });
+
   const form = document.getElementById("login-form");
   const msg = document.getElementById("form-msg");
   const usernameInput = document.getElementById("username");
 
-  form.addEventListener("submit", (e) => {
-    e.preventDefault();
-    if (!usernameInput.value.trim() || !pwInput.value) {
-      msg.textContent = "Enter your username and password to continue.";
-      return;
-    }
-    try { localStorage.setItem("easyBrowserName", usernameInput.value.trim()); } catch (err) {}
+  function loginSuccess(name) {
+    try { localStorage.setItem("easyBrowserName", name); } catch (err) {}
     msg.style.color = "#7fd8a0";
     msg.textContent = "Login successful — taking you to Easy Browser…";
     setTimeout(() => {
       initMainScreen();
       showMain();
     }, 700);
+  }
+
+  form.addEventListener("submit", (e) => {
+    e.preventDefault();
+    const activeMethod = tabPhone.classList.contains("active") ? "phone" : "password";
+
+    if (activeMethod === "password") {
+      if (!usernameInput.value.trim() || !pwInput.value) {
+        msg.style.color = "#ff8a8a";
+        msg.textContent = "Enter your username and password to continue.";
+        return;
+      }
+      loginSuccess(usernameInput.value.trim());
+    } else {
+      const digits = phoneInput.value.replace(/\D/g, "");
+      if (digits.length < 7) {
+        msg.style.color = "#ff8a8a";
+        msg.textContent = "Enter your phone number first.";
+        return;
+      }
+      if (!currentOtp) {
+        msg.style.color = "#ff8a8a";
+        msg.textContent = "Tap \"Send OTP\" first to get your code.";
+        return;
+      }
+      if (otpInput.value !== currentOtp) {
+        msg.style.color = "#ff8a8a";
+        msg.textContent = "That code doesn't match — check and try again.";
+        return;
+      }
+      loginSuccess(`${countryCode.value.trim()} ${phoneInput.value.trim()}`);
+    }
   });
 
   // ---------- MAIN SCREEN LOGIC (runs once, after login) ----------
