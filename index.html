@@ -235,6 +235,18 @@ iEFAQMSCkBZgYzEwkiMsYQEXClQ3yFY7pIlzleuFL9D2WjrBfUNEEGAAAAAElFTkSuQmCC">
   /* ---------- chat bot screen ---------- */
   #chatScreen .settings-head{ display:flex;align-items:center;gap:10px;margin-bottom:12px;font-family:'Sora',sans-serif;font-weight:700;font-size:18px; }
   #chatFrame{ width:100%;height:calc(100vh - 110px);min-height:320px;border:0;background:transparent;display:block; }
+  .otp-modal{ position:fixed;inset:0;z-index:50;background:rgba(3,8,20,0.72);display:flex;align-items:center;justify-content:center;padding:20px;backdrop-filter:blur(4px);-webkit-backdrop-filter:blur(4px); }
+  .otp-card{ width:100%;max-width:360px;background:var(--panel);border:1px solid var(--stroke-strong);border-radius:20px;padding:24px 22px;box-shadow:0 30px 70px -20px #000;animation:otpPop .22s ease-out; }
+  @keyframes otpPop{ from{ opacity:0;transform:translateY(12px) scale(.97); } to{ opacity:1;transform:none; } }
+  .otp-card h3{ font-family:'Sora',sans-serif;font-size:18px;margin:0 0 6px; }
+  .otp-card p{ color:var(--muted);font-size:13px;margin:0 0 16px;line-height:1.5; }
+  .otp-card .field{ text-align:center;font-size:22px;letter-spacing:8px;margin-bottom:8px; }
+  .otp-links{ display:flex;justify-content:space-between;margin-top:12px; }
+  .link-btn{ background:none;border:none;color:rgb(var(--accent,100,150,230));font-size:13px;font-weight:600;cursor:pointer;padding:6px 2px;font-family:inherit; }
+  .link-btn:disabled{ color:var(--muted);cursor:default; }
+  .otp-status{ font-size:12px;min-height:16px;margin:-6px 0 12px;color:var(--muted);line-height:1.4; }
+  .otp-status.ok{ color:rgb(var(--accent,100,150,230)); }
+  .otp-status.err{ color:#ff8f8f; }
   .ask-bot{ display:flex;align-items:center;gap:10px;width:100%;margin:-6px 0 18px;padding:11px 14px;background:var(--panel-2);border:1px solid var(--stroke);border-radius:14px;color:var(--text);font-size:12.5px;cursor:pointer;text-align:left;font-family:inherit; }
   .ask-bot b{ color:rgb(var(--accent,100,150,230));margin-left:auto;font-weight:600; }
   .ask-bot:hover{ border-color:rgb(var(--accent,100,150,230)); }
@@ -413,7 +425,7 @@ YUUUVymh//Z"></div>
 
       <div class="tabs">
         <div class="tab active" id="tabPassword">Password</div>
-        <div class="tab" id="tabOtp">Phone OTP</div>
+        <div class="tab" id="tabOtp">Email OTP</div>
       </div>
 
       <div id="passwordPane">
@@ -434,14 +446,12 @@ YUUUVymh//Z"></div>
       </div>
 
       <div id="otpPane" style="display:none;">
-        <div class="field-label">Full name</div>
-        <input class="field" id="nameInputOtp" type="text" placeholder="Enter your username">
-        <div class="field-label">Phone number</div>
-        <input class="field" type="tel" placeholder="+91 00000 00000">
-        <button class="primary-btn" id="sendOtpBtn">Send OTP</button>
-        <div class="field-label">Enter OTP</div>
-        <input class="field" type="text" placeholder="• • • • • •">
-        <button class="primary-btn">Verify &amp; log in</button>
+        <div class="field-label">Username</div>
+        <input class="field" id="nameInputOtp" type="text" autocomplete="username" placeholder="Enter your username">
+        <div class="field-label">Gmail address</div>
+        <input class="field" id="emailInputOtp" type="email" inputmode="email" autocomplete="email" autocapitalize="off" spellcheck="false" placeholder="yourname@gmail.com">
+        <button class="primary-btn" id="sendOtpBtn" type="button">Send OTP</button>
+        <div class="otp-status" id="otpStatus" aria-live="polite"></div>
       </div>
 
       <div class="divider">or continue with</div>
@@ -862,6 +872,17 @@ YUUUVymh//Z"></div>
     <iframe id="chatFrame" title="Easy Bot" allow="microphone"></iframe>
   </div>
 
+</div>
+
+<div class="otp-modal" id="otpModal" style="display:none;" role="dialog" aria-modal="true" aria-labelledby="otpModalTitle">
+  <div class="otp-card">
+    <h3 id="otpModalTitle">Enter the OTP</h3>
+    <p id="otpModalText">We sent a 6-digit code to your email.</p>
+    <input class="field" id="otpCodeInput" type="text" inputmode="numeric" maxlength="6" autocomplete="one-time-code" placeholder="• • • • • •">
+    <div class="otp-status" id="otpModalStatus" aria-live="polite"></div>
+    <button class="primary-btn" id="verifyOtpBtn" type="button">Verify &amp; log in</button>
+    <div class="otp-links"><button type="button" id="otpResendBtn" class="link-btn">Resend OTP</button><button type="button" id="otpCancelBtn" class="link-btn">Cancel</button></div>
+  </div>
 </div>
 
 <script>
@@ -1784,7 +1805,64 @@ document.querySelector('#passwordPane .primary-btn').addEventListener('click', (
   // guest mode: both fields left empty
   logInAs((name || pass) ? name : '');
 });
-document.querySelector('#otpPane .primary-btn:last-child').addEventListener('click', () => logInAs(document.getElementById('nameInputOtp').value));
+// ---------- Email OTP (Gmail address verification through the Python OTP server) ----------
+// Same website + server:  leave OTP_API_BASE empty.
+// Website on GitHub Pages, server elsewhere (e.g. Render):  OTP_API_BASE = 'https://your-server.example.com'
+const OTP_API_BASE = '';
+(function(){
+  const $=id=>document.getElementById(id);
+  const nameEl=$('nameInputOtp'), emailEl=$('emailInputOtp'), sendBtn=$('sendOtpBtn'), stat=$('otpStatus');
+  const modal=$('otpModal'), codeEl=$('otpCodeInput'), mText=$('otpModalText'), mStat=$('otpModalStatus');
+  const verifyBtn=$('verifyOtpBtn'), resendBtn=$('otpResendBtn'), cancelBtn=$('otpCancelBtn');
+  let cool=null, pendingEmail='';
+  function say(el,msg,kind){ el.textContent=msg||''; el.className='otp-status'+(kind?' '+kind:''); }
+  const NO_SERVER='Email OTP is not connected on this site. Start the Python OTP server (python otp_server.py), or log in with the Password tab.';
+  async function call(path,body){
+    let r; try{ r=await fetch(OTP_API_BASE+path,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)}); }catch(e){ throw new Error('NO_SERVER'); }
+    try{ return await r.json(); }catch(e){ throw new Error('NO_SERVER'); }
+  }
+  function validEmail(s){ return /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(s); }
+  function startCooldown(s){
+    clearInterval(cool); resendBtn.disabled=true;
+    const tick=()=>{ if(s<=0){ clearInterval(cool); resendBtn.disabled=false; resendBtn.textContent='Resend OTP'; } else { resendBtn.textContent='Resend in '+s+'s'; s--; } };
+    tick(); cool=setInterval(tick,1000);
+  }
+  function openModal(hint){
+    mText.textContent='We sent a 6-digit code to '+(hint||pendingEmail)+'. Check your inbox (and spam folder).';
+    codeEl.value=''; say(mStat,''); modal.style.display='flex'; setTimeout(()=>codeEl.focus(),60);
+  }
+  function closeModal(){ modal.style.display='none'; clearInterval(cool); }
+  async function requestOtp(fromModal){
+    const email=(fromModal?pendingEmail:emailEl.value.trim().toLowerCase());
+    const out=fromModal?mStat:stat;
+    if(!nameEl.value.trim() && !fromModal){ say(out,'Enter your username.','err'); nameEl.focus(); return; }
+    if(!validEmail(email)){ say(out,'Enter a valid Gmail address, e.g. yourname@gmail.com','err'); emailEl.focus(); return; }
+    pendingEmail=email; sendBtn.disabled=true; say(out,'Sending OTP…');
+    try{
+      const j=await call('/api/send-otp',{email});
+      if(j.ok){ say(stat,''); openModal(j.email_hint); startCooldown(j.resend_in||30); if(fromModal) say(mStat,'A new OTP was sent.','ok'); }
+      else { say(out,j.error||'Could not send the OTP.','err'); if(j.wait&&fromModal) startCooldown(j.wait); }
+    }catch(e){ say(out,e.message==='NO_SERVER'?NO_SERVER:'Network problem. Try again.','err'); }
+    sendBtn.disabled=false;
+  }
+  sendBtn.addEventListener('click',()=>requestOtp(false));
+  resendBtn.addEventListener('click',()=>requestOtp(true));
+  cancelBtn.addEventListener('click',closeModal);
+  modal.addEventListener('click',e=>{ if(e.target===modal) closeModal(); });
+  codeEl.addEventListener('input',()=>{ codeEl.value=codeEl.value.replace(/\D/g,'').slice(0,6); if(codeEl.value.length===6) verifyBtn.click(); });
+  verifyBtn.addEventListener('click',async()=>{
+    const code=codeEl.value.replace(/\D/g,'');
+    if(code.length!==6){ say(mStat,'Enter the 6-digit OTP from your email.','err'); return; }
+    verifyBtn.disabled=true; say(mStat,'Checking…');
+    try{
+      const j=await call('/api/verify-otp',{email:pendingEmail,code});
+      if(j.ok){ const nm=nameEl.value.trim(); closeModal(); codeEl.value=''; logInAs(nm); }
+      else say(mStat,j.error||'Wrong OTP.','err');
+    }catch(e){ say(mStat,e.message==='NO_SERVER'?NO_SERVER:'Network problem. Try again.','err'); }
+    verifyBtn.disabled=false;
+  });
+  window.resetOtpForm=function(){ emailEl.value=''; codeEl.value=''; say(stat,''); say(mStat,''); closeModal(); pendingEmail=''; };
+})();
 
 // show / hide passcode
 document.getElementById('toggleEye').addEventListener('click', () => {
@@ -1794,7 +1872,7 @@ document.getElementById('toggleEye').addEventListener('click', () => {
 
 document.getElementById('logoutBtn').addEventListener('click', () => {
   document.getElementById('nameInput').value = '';
-  document.getElementById('nameInputOtp').value = '';
+  document.getElementById('nameInputOtp').value = ''; if(window.resetOtpForm) window.resetOtpForm();
   document.getElementById('passwordInput').value = '';
   document.getElementById('homeWelcome').textContent = 'Welcome!';
   document.getElementById('homeAvatar').textContent = '?';
@@ -2035,7 +2113,7 @@ fitVH(); window.addEventListener('resize',fitVH); window.addEventListener('orien
 if(window.visualViewport){ window.visualViewport.addEventListener('resize',fitVH); }
 window.addEventListener('error',function(e){ var s=document.getElementById('status'); if(s) s.textContent='Error: '+(e.message||'unknown')+' (line '+(e.lineno||'?')+')'; });
 if(window.parent!==window) document.documentElement.classList.add('embed');
-window.addEventListener('message',e=>{ const d=e.data||{}; if(d.type==='ezb-theme'){ if(d.accent) document.documentElement.style.setProperty('--acc','rgb('+d.accent+')'); if(typeof d.name==='string'){ GREET_NAME=d.name; var ht=document.getElementById('heroText'); if(ht) ht.textContent=greetText(); } } });
+window.addEventListener('message',e=>{ const d=e.data||{}; if(d.type==='ezb-theme'){ if(d.accent) document.documentElement.style.setProperty('--acc','rgb('+d.accent+')'); if(typeof d.name==='string'&&d.name){ GREET_NAME=d.name; var ht=document.getElementById('heroText'); if(ht) ht.textContent=greetText(); } } });
 function openUrl(url,force){
   var w=null;
   try{ w=window.open(url,'_blank'); if(w){ try{ w.opener=null; }catch(e){} } }catch(e){}
@@ -2147,10 +2225,21 @@ const KB = [
  {id:'weather', keys:['weather','rain','temperature','forecast'], intro:'For weather:',
   sites:[{n:'Weather.com',u:'https://weather.com',d:'Detailed forecasts.',t:['forecast']},
          {n:'Windy',u:'https://windy.com',d:'Live rain and wind maps.',t:['rain','map','storm']}]},
- {id:'money', keys:['stock','stocks','invest','investing','mutual fund','mutual funds','finance','money','sip','crypto','share market'], intro:'For money and investing:',
-  sites:[{n:'Google Finance',u:'https://google.com/finance',d:'Quick stock prices and news.',t:['stock','stocks','price']},
-         {n:'Groww',u:'https://groww.in',d:'Easy investing in India.',t:['invest','mutual fund','sip','india']},
-         {n:'TradingView',u:'https://tradingview.com',d:'Charts for traders.',t:['charts','trading','crypto']}]},
+ {id:'money', max:5, w:1, keys:['financial app','finance app','financial apps','finance apps','money app','money apps','finance','financial','money','invest','investing','investment','stock','stocks','share market','trading','demat','mutual fund','mutual funds','sip','upi','payment app','payments','pay bills','bank','banking','loan','credit score','credit card','tax','tax filing','income tax','itr','insurance','budget','expense','expenses','savings','crypto'], intro:'For money and finance apps:',
+  sites:[
+   {n:'Cruise Money',u:'https://www.cruise.money/',d:'AI companion for Indian investors: a complete view of your money, plain-language insights and next steps, with no commissions.',t:['financial app','finance app','financial apps','finance apps','money app','money apps','finance','financial','money','wealth','portfolio','invest','investing','investment','mutual fund','mutual funds','sip','savings','net worth','ai']},
+   {n:'Groww',u:'https://groww.in',d:'Easy stocks, mutual funds and SIP investing for beginners.',t:['invest','investing','investment','stock','stocks','mutual fund','mutual funds','sip','demat','share market','savings']},
+   {n:'Zerodha',u:'https://zerodha.com',d:'Low-cost stock trading with the Kite app and Coin for mutual funds.',t:['trading','stock','stocks','demat','share market']},
+   {n:'ET Money',u:'https://www.etmoney.com',d:'Mutual funds, tax saving and tracking all your money in one place.',t:['mutual fund','mutual funds','sip','budget','expense','expenses','savings']},
+   {n:'Google Pay',u:'https://pay.google.com',d:'UPI payments, bill payments and sending money.',t:['upi','payment app','payments','pay bills']},
+   {n:'PhonePe',u:'https://www.phonepe.com',d:'UPI payments, recharges and bill payments.',t:['upi','payment app','payments','pay bills']},
+   {n:'CRED',u:'https://cred.club',d:'Pay credit card bills and track your credit score.',t:['credit card','credit score','loan','bank','banking']},
+   {n:'ClearTax',u:'https://cleartax.in',d:'File income tax returns and save tax.',t:['tax','itr','filing','file','return','returns','income']},
+   {n:'PolicyBazaar',u:'https://www.policybazaar.com',d:'Compare and buy insurance.',t:['insurance']},
+   {n:'Money View',u:'https://moneyview.in',d:'Track expenses and get personal loans.',t:['expense','expenses','budget','loan']},
+   {n:'CoinDCX',u:'https://coindcx.com',d:'Buy and sell crypto in India.',t:['crypto']},
+   {n:'Google Finance',u:'https://google.com/finance',d:'Quick stock prices and market news.',t:['stock','stocks','price']},
+   {n:'TradingView',u:'https://tradingview.com',d:'Charts and analysis for traders.',t:['trading','charts','crypto']}]},
  {id:'search', keys:['search','find','google','look up','answer','answers'], intro:'For searching the web:',
   sites:[{n:'Google',u:'https://google.com',d:'Best general web search.',t:['search']},
          {n:'Perplexity',u:'https://perplexity.ai',d:'Search with AI answers and sources.',t:['sources','ai','answers']},
@@ -2158,7 +2247,7 @@ const KB = [
          {n:'DuckDuckGo',u:'https://duckduckgo.com',d:'Private search.',t:['private','privacy']}]}
 ];
 
-const QUICK = ['best site for watching videos','open youtube','play lofi on spotify','weather in Chennai','what is 25 times 4','tell me a joke','help'];
+const QUICK = ['best site for watching videos','open youtube','play lofi on spotify','weather in Chennai','what is 25 times 4','best finance app','what is my name','help'];
 
 // ---------- matching ----------
 const norm = s => ' ' + s.toLowerCase().replace(/[^a-z0-9\s\-]/g,' ').replace(/\s+/g,' ').trim() + ' ';
@@ -2167,6 +2256,7 @@ function findCategory(q){
   for(const c of KB){
     let sc=0;
     for(const k of c.keys){ if(s.includes(' '+k+' ')) sc += 2 + k.split(' ').length; }
+    if(sc>0) sc+=(c.w||0);
     if(sc>score){score=sc;best=c;}
   }
   return best;
@@ -2269,7 +2359,7 @@ function nextJoke(){
     if(jokeBag.length>1&&jokeBag[jokeBag.length-1]===lastJoke){ const t=jokeBag[0]; jokeBag[0]=jokeBag[jokeBag.length-1]; jokeBag[jokeBag.length-1]=t; } }
   lastJoke=jokeBag.pop(); return lastJoke;
 }
-const HELP="Here is what you can say or type:\n• buy iPhone 17 (I will ask which shop), or buy iPhone 17 on Amazon\n• which website is best for videos / music / coding…\n• open youtube / open whatsapp\n• search python tutorials\n• play arijit singh songs (YouTube)\n• play lofi on spotify\n• directions to Chennai / map of Madurai\n• translate good morning to hindi\n• weather in Chennai\n• what is 25 times 4 (calculator)\n• who is Abdul Kalam / define gravity\n• what time is it / what is today's date\n• set timer 5 minutes\n• tell me a joke\n• change voice / speak faster / speak slower\n• repeat / clear / mute / unmute / help";
+const HELP="Here is what you can say or type:\n• buy iPhone 17 (I will ask which shop), or buy iPhone 17 on Amazon\n• which website is best for videos / music / coding…\n• open youtube / open whatsapp\n• search python tutorials\n• play arijit singh songs (YouTube)\n• play lofi on spotify\n• directions to Chennai / map of Madurai\n• translate good morning to hindi\n• weather in Chennai\n• what is 25 times 4 (calculator)\n• who is Abdul Kalam / define gravity\n• what time is it / what is today's date\n• set timer 5 minutes\n• tell me a joke\n• change voice / speak faster / speak slower\n• what is my name / my name is Ganesh\n• best finance app / UPI app / tax app\n• what is photosynthesis (I look up facts)\n• repeat / clear / mute / unmute / help";
 let lastBot='';
 function openLink(label,url,note){
   bubble('bot',label);
@@ -2394,6 +2484,62 @@ function shopFlow(q){
   }
   return false;
 }
+
+// ---------- personal + small talk ----------
+try{ if(!GREET_NAME){ var sn=localStorage.getItem('ezb_name'); if(sn){ GREET_NAME=sn; } } }catch(e){}
+function setName(n){
+  n=n.replace(/[^A-Za-zÀ-ɏऀ-෿ .'-]/g,'').trim().replace(/\s+/g,' ').slice(0,30); if(!n) return false;
+  n=n.replace(/\b\w/g,function(ch){return ch.toUpperCase();});
+  GREET_NAME=n; try{ localStorage.setItem('ezb_name',n); }catch(e){}
+  var ht=document.getElementById('heroText'); if(ht) ht.textContent=greetText(); return n;
+}
+function smallTalk(q){
+  const s=norm(q), raw=q.trim(); let m;
+  if((m=raw.match(/^(?:my name is|i am|i m|im|call me|this is)\s+([A-Za-z][A-Za-z .'-]{0,28})$/i)) && !/^(fine|good|ok|okay|here|back|hungry|tired|sad|happy|bored|sorry|ready|new|a |an |the )/i.test(m[1])){
+    const n=setName(m[1]); if(n){ bubble('bot','Nice to meet you, '+n+'! I will remember your name.'); return true; } }
+  if(/ (what is my name|what s my name|whats my name|who am i|do you know my name|tell me my name|my name) /.test(s) && /^ (what|who|do you|tell|my name) /.test(s) && !/ is /.test(s.replace(' what is my name ',' ').replace(' my name is ',' '))){
+    bubble('bot',GREET_NAME?('Your name is '+GREET_NAME+'.'):'I do not know your name yet. Log in with your name, or tell me: "my name is Ganesh".'); return true; }
+  if(/ (what is your name|what s your name|whats your name|who are you|your name) /.test(s)){ bubble('bot','I am Easy Bot, the helper inside Easy Browser. I find the best website or app for anything, and I can open it for you.'); return true; }
+  if(/ (how are you|how r u|how are u|how do you do|whats up|what s up|sup) /.test(s)){ bubble('bot','I am doing great, thanks for asking'+(GREET_NAME?', '+GREET_NAME:'')+'! What would you like to find today?'); return true; }
+  if(/ (good morning|good afternoon|good evening|good night) /.test(s)){ const w=(s.match(/good (morning|afternoon|evening|night)/)||[])[0]||'hello'; bubble('bot',w.charAt(0).toUpperCase()+w.slice(1)+(GREET_NAME?', '+GREET_NAME:'')+'! How can I help?'); return true; }
+  if(/ (who made you|who created you|who built you|who developed you|who is your (?:creator|owner|developer)|made you) /.test(s)){ bubble('bot','I was built for Easy Browser, to help you find the right website for what you want to do.'); return true; }
+  if(/ (are you (?:an )?(?:ai|robot|bot|human|real|chatgpt|claude)|is this ai) /.test(s)){ bubble('bot','I am a helper bot inside Easy Browser. I am not a person. I recommend websites and apps, and I look up quick facts.'); return true; }
+  if(/ (i love you|you are great|you re great|you are awesome|good bot|nice bot|well done|great job) /.test(s)){ bubble('bot','Thank you! That is kind of you. What else can I help with?'); return true; }
+  if(/ (what can you do|what do you do|how can you help|what can i ask) /.test(s)){ bubble('bot',HELP); return true; }
+  return false;
+}
+
+// ---------- look up facts for questions the list does not cover ----------
+function googleCard(q,msg){
+  bubble('bot',msg||"I am not sure about that one, but here is a Google search for it:");
+  cards([{n:'Search Google for "'+q+'"',u:'https://www.google.com/search?q='+encodeURIComponent(q),d:'Open Google results',t:[]}]);
+}
+function fetchJson(url,ms){
+  return new Promise(function(res,rej){
+    var done=false, t=setTimeout(function(){ if(!done){ done=true; rej(new Error('timeout')); } },ms||6000);
+    fetch(url).then(function(r){ if(!r.ok) throw new Error('http'); return r.json(); }).then(function(j){ if(!done){ done=true; clearTimeout(t); res(j); } }).catch(function(e){ if(!done){ done=true; clearTimeout(t); rej(e); } });
+  });
+}
+function lookup(q){
+  const factRe=/^(?:please\s+)?(?:tell me about|what is|what are|what was|what were|who is|who was|who are|explain|define|meaning of|about|how does|how do|why is|why do|where is|when was|when did)\s+/i;
+  const topic=q.replace(factRe,'').replace(/[?.!]+$/,'').replace(/^(?:a|an|the)\s+/i,'').trim();
+  if(!factRe.test(q)||topic.length<2){ googleCard(q); return; }
+  const t=typing();
+  fetchJson('https://en.wikipedia.org/w/api.php?action=query&list=search&srsearch='+encodeURIComponent(topic)+'&srlimit=1&format=json&origin=*')
+  .then(function(j){
+    const hit=j&&j.query&&j.query.search&&j.query.search[0]; if(!hit) throw new Error('none');
+    return fetchJson('https://en.wikipedia.org/api/rest_v1/page/summary/'+encodeURIComponent(hit.title.replace(/ /g,'_')));
+  })
+  .then(function(sm){
+    t.remove(); thinkOff();
+    if(!sm||!sm.extract||sm.type==='disambiguation') throw new Error('nosummary');
+    let ex=sm.extract; const sents=ex.match(/[^.!?]+[.!?]+(\s|$)/g); if(sents&&sents.length>2) ex=sents.slice(0,2).join('').trim(); if(ex.length>360) ex=ex.slice(0,357).replace(/\s+\S*$/,'')+'...';
+    bubble('bot',sm.title+': '+ex);
+    const page=(sm.content_urls&&sm.content_urls.desktop&&sm.content_urls.desktop.page)||('https://en.wikipedia.org/wiki/'+encodeURIComponent(sm.title));
+    cards([{n:'Read more on Wikipedia',u:page,d:'Source: Wikipedia',t:[]},{n:'Search Google',u:'https://www.google.com/search?q='+encodeURIComponent(q),d:'More results',t:[]}]);
+  })
+  .catch(function(){ try{ t.remove(); thinkOff(); }catch(e){} googleCard(q); });
+}
 let speakOn=true;
 let voiceName='', voiceRate=0.97;
 try{ voiceName=localStorage.getItem('ezb_voice')||''; var vr=parseFloat(localStorage.getItem('ezb_rate')); if(vr>0.5&&vr<1.6) voiceRate=vr; }catch(e){}
@@ -2438,16 +2584,13 @@ bubble=function(role,text){ const r=_bubble(role,text); if(role==='bot'){ lastBo
 function answer(q){
   if(shopFlow(q)) return;
   if(command(q)) return;
+  if(smallTalk(q)) return;
   const s=norm(q);
   if(/^ (hi|hello|hey|hii|hlo) /.test(s)) return bubble('bot','Hi! Ask me which website is best for anything, like videos, music, coding, shopping or study.');
   if(/ (thanks|thank you|thx) /.test(s)) return bubble('bot','You are welcome! Ask me anything else.');
   const cat=findCategory(q);
-  if(!cat){
-    bubble('bot',"I'm not sure about that one yet. Try asking about videos, movies, music, coding, study, shopping, food, travel, news or design. Or I can search Google for you:");
-    cards([{n:'Search Google for "'+q+'"',u:'https://www.google.com/search?q='+encodeURIComponent(q),d:'Open Google results',t:[]}]);
-    return;
-  }
-  const list=rank(cat,q).slice(0,4);
+  if(!cat){ lookup(q); return; }
+  const list=rank(cat,q).slice(0,cat.max||4);
   bubble('bot',list[0].n+' is the best pick. '+cat.intro);
   cards(list);
 }
