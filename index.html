@@ -250,6 +250,10 @@ iEFAQMSCkBZgYzEwkiMsYQEXClQ3yFY7pIlzleuFL9D2WjrBfUNEEGAAAAAElFTkSuQmCC">
   .ask-bot{ display:flex;align-items:center;gap:10px;width:100%;margin:-6px 0 18px;padding:11px 14px;background:var(--panel-2);border:1px solid var(--stroke);border-radius:14px;color:var(--text);font-size:12.5px;cursor:pointer;text-align:left;font-family:inherit; }
   .ask-bot b{ color:rgb(var(--accent,100,150,230));margin-left:auto;font-weight:600; }
   .ask-bot:hover{ border-color:rgb(var(--accent,100,150,230)); }
+.cloud-state{font-size:13px;line-height:1.5;color:#9db0cf;word-break:break-word}
+.cloud-state.ok{color:#6fe3a5}.cloud-state.bad{color:#ffb86b}
+select.field{appearance:auto;-webkit-appearance:menulist;color:inherit}
+select.field option{background:#0d2040;color:#eef3fb}
 </style>
 </head>
 <body>
@@ -452,9 +456,12 @@ YUUUVymh//Z"></div>
         <input class="field" id="emailInputOtp" type="email" inputmode="email" autocomplete="email" autocapitalize="off" spellcheck="false" placeholder="yourname@gmail.com">
         <button class="primary-btn" id="sendOtpBtn" type="button">Send OTP</button>
         <div class="otp-status" id="otpStatus" aria-live="polite"></div>
+        <button type="button" class="link-btn" id="otpUsePwd" style="display:none;">Log in with Password instead ›</button>
       </div>
 
       <div class="divider">or continue with</div>
+      <button type="button" class="primary-btn" id="passkeyLoginBtn" style="display:none;margin-top:12px;">&#128274; Sign in with Face ID / fingerprint</button>
+      <div class="otp-status" id="passkeyStatus" aria-live="polite"></div>
       <div class="signup-line">Don't have an account? <a href="#">Sign up</a></div>
 
       <div class="feature-row">
@@ -826,6 +833,30 @@ YUUUVymh//Z"></div>
     </div>
     <div class="settings-label">Appearance</div>
     <div class="theme-row" id="themeRow"></div>
+
+    <div class="settings-label" style="margin-top:26px;">Language</div>
+    <div class="update-card">
+      <select class="field" id="langSelect" aria-label="Language" style="margin:0;"></select>
+      <label class="remember" style="margin-top:12px;display:flex;align-items:center;gap:10px;"><input type="checkbox" id="kbToggle"> <span>On-screen keyboard</span></label>
+      <p class="dev-note" id="kbNote"></p>
+      <p class="dev-note">Names, search and the chat bot accept letters from any language. Menu text is translated for the main screens; the rest stays in English.</p>
+    </div>
+
+    <div class="settings-label" style="margin-top:26px;">Passkey (Face ID / fingerprint)</div>
+    <div class="update-card">
+      <div class="cloud-state" id="pkState"></div>
+      <button class="primary-btn" id="pkSetupBtn" type="button" style="margin:12px 0 0;">Set up passkey</button>
+      <button class="primary-btn" id="pkRemoveBtn" type="button" style="margin:10px 0 0;display:none;">Remove passkey</button>
+      <div class="update-status" id="pkMsg"></div>
+      <p class="dev-note">Uses this device's Face ID, Touch ID or fingerprint through WebAuthn. Your face or fingerprint never leaves the device. The passkey works only on this device and only on a secure (https) address.</p>
+    </div>
+
+    <div class="settings-label" style="margin-top:26px;">Account &amp; Cloud sync</div>
+    <div class="update-card">
+      <div class="cloud-state" id="cloudState"></div>
+      <button class="primary-btn" id="syncNowBtn" type="button" style="margin:12px 0 0;">Sync now</button>
+      <p class="dev-note">Log in with a verified Gmail (Email OTP) and your history, theme, language and profile photo are saved to that account — encrypted on the server, readable only after you verify the same Gmail. Logging out removes them from this device.</p>
+    </div>
 
     <div class="settings-label" style="margin-top:26px;">Software Update</div>
     <div class="update-card">
@@ -1689,7 +1720,7 @@ const voiceBtn = document.getElementById('voiceSearchBtn');
 const SpeechRecognitionAPI = window.SpeechRecognition || window.webkitSpeechRecognition;
 if(SpeechRecognitionAPI){
   const recognition = new SpeechRecognitionAPI();
-  recognition.lang = 'en-US';
+  recognition.lang = window.EZB_SPEECH||'en-US'; window.addEventListener('ezb-langchange',()=>{ recognition.lang = window.EZB_SPEECH||'en-US'; });
   recognition.interimResults = false;
   recognition.maxAlternatives = 1;
 
@@ -1783,6 +1814,11 @@ function showSplashThen(name, next){
   setTimeout(next, 3000);
 }
 
+function ezbFirst(s){
+  s=String(s||'').trim(); if(!s) return '';
+  try{ if(window.Intl&&Intl.Segmenter){ var it=new Intl.Segmenter(undefined,{granularity:'grapheme'}).segment(s)[Symbol.iterator]().next(); if(!it.done) return it.value.segment.toLocaleUpperCase(); } }catch(e){}
+  return Array.from(s)[0].toLocaleUpperCase();
+}
 function logInAs(name){
   const trimmed = (name || '').trim();
   const homeWelcome = document.getElementById('homeWelcome');
@@ -1790,10 +1826,10 @@ function logInAs(name){
   showSplashThen(trimmed, () => {
     if(trimmed){
       homeWelcome.textContent = trimmed;
-      if(!homeAvatar.querySelector('img')) homeAvatar.textContent = trimmed.charAt(0).toUpperCase();
+      if(!homeAvatar.querySelector('img') && !homeAvatar.style.backgroundImage) homeAvatar.textContent = ezbFirst(trimmed);
     } else {
       homeWelcome.textContent = 'Guest';
-      if(!homeAvatar.querySelector('img')) homeAvatar.textContent = 'G';
+      if(!homeAvatar.querySelector('img') && !homeAvatar.style.backgroundImage) homeAvatar.textContent = 'G';
     }
     showScreen('homeScreen');
   });
@@ -1816,7 +1852,10 @@ const OTP_API_BASE = '';
   const verifyBtn=$('verifyOtpBtn'), resendBtn=$('otpResendBtn'), cancelBtn=$('otpCancelBtn');
   let cool=null, pendingEmail='';
   function say(el,msg,kind){ el.textContent=msg||''; el.className='otp-status'+(kind?' '+kind:''); }
-  const NO_SERVER='Email OTP is not connected on this site. Start the Python OTP server (python otp_server.py), or log in with the Password tab.';
+  const NO_SERVER='Email OTP needs the OTP server, which is not running on this site yet. You can still log in with your name on the Password tab.';
+  const usePwd=$('otpUsePwd');
+  usePwd.addEventListener('click',()=>{ say(stat,''); usePwd.style.display='none'; $('tabPassword').click(); });
+  function noServer(el){ say(el,NO_SERVER,'err'); usePwd.style.display='inline-block'; }
   async function call(path,body){
     let r; try{ r=await fetch(OTP_API_BASE+path,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)}); }catch(e){ throw new Error('NO_SERVER'); }
     try{ return await r.json(); }catch(e){ throw new Error('NO_SERVER'); }
@@ -1840,9 +1879,9 @@ const OTP_API_BASE = '';
     pendingEmail=email; sendBtn.disabled=true; say(out,'Sending OTP…');
     try{
       const j=await call('/api/send-otp',{email});
-      if(j.ok){ say(stat,''); openModal(j.email_hint); startCooldown(j.resend_in||30); if(fromModal) say(mStat,'A new OTP was sent.','ok'); }
+      if(j.ok){ say(stat,''); usePwd.style.display='none'; openModal(j.email_hint); startCooldown(j.resend_in||30); if(fromModal) say(mStat,'A new OTP was sent.','ok'); }
       else { say(out,j.error||'Could not send the OTP.','err'); if(j.wait&&fromModal) startCooldown(j.wait); }
-    }catch(e){ say(out,e.message==='NO_SERVER'?NO_SERVER:'Network problem. Try again.','err'); }
+    }catch(e){ if(e.message==='NO_SERVER'){ closeModal(); noServer(stat); } else say(out,'Network problem. Try again.','err'); }
     sendBtn.disabled=false;
   }
   sendBtn.addEventListener('click',()=>requestOtp(false));
@@ -1856,9 +1895,9 @@ const OTP_API_BASE = '';
     verifyBtn.disabled=true; say(mStat,'Checking…');
     try{
       const j=await call('/api/verify-otp',{email:pendingEmail,code});
-      if(j.ok){ const nm=nameEl.value.trim(); closeModal(); codeEl.value=''; logInAs(nm); }
+      if(j.ok){ let nm=nameEl.value.trim(); if(window.ezbCloudLogin){ try{ nm=window.ezbCloudLogin(j,nm)||nm; }catch(e){} } closeModal(); codeEl.value=''; logInAs(nm); }
       else say(mStat,j.error||'Wrong OTP.','err');
-    }catch(e){ say(mStat,e.message==='NO_SERVER'?NO_SERVER:'Network problem. Try again.','err'); }
+    }catch(e){ if(e.message==='NO_SERVER'){ closeModal(); noServer(stat); } else say(mStat,'Network problem. Try again.','err'); }
     verifyBtn.disabled=false;
   });
   window.resetOtpForm=function(){ emailEl.value=''; codeEl.value=''; say(stat,''); say(mStat,''); closeModal(); pendingEmail=''; };
@@ -2113,7 +2152,7 @@ fitVH(); window.addEventListener('resize',fitVH); window.addEventListener('orien
 if(window.visualViewport){ window.visualViewport.addEventListener('resize',fitVH); }
 window.addEventListener('error',function(e){ var s=document.getElementById('status'); if(s) s.textContent='Error: '+(e.message||'unknown')+' (line '+(e.lineno||'?')+')'; });
 if(window.parent!==window) document.documentElement.classList.add('embed');
-window.addEventListener('message',e=>{ const d=e.data||{}; if(d.type==='ezb-theme'){ if(d.accent) document.documentElement.style.setProperty('--acc','rgb('+d.accent+')'); if(typeof d.name==='string'&&d.name){ GREET_NAME=d.name; var ht=document.getElementById('heroText'); if(ht) ht.textContent=greetText(); } } });
+window.addEventListener('message',e=>{ const d=e.data||{}; if(d.type==='ezb-lang'){ applyLang(d); return; } if(d.type==='ezb-theme'){ if(d.accent) document.documentElement.style.setProperty('--acc','rgb('+d.accent+')'); if(typeof d.name==='string'&&d.name){ GREET_NAME=d.name; var ht=document.getElementById('heroText'); if(ht) ht.textContent=greetText(); } } });
 function openUrl(url,force){
   var w=null;
   try{ w=window.open(url,'_blank'); if(w){ try{ w.opener=null; }catch(e){} } }catch(e){}
@@ -2272,8 +2311,10 @@ function rank(cat,q){
 
 // ---------- greeting + E logo ----------
 let GREET_NAME='';
+let LANG='en', SPEECH_LANG='en-IN', WB='', CHAT_PH='', CHAT_SUB='';
+function gUrl(q){ return 'https://www.google.com/search?q='+encodeURIComponent(q)+(LANG!=='en'?'&hl='+LANG:''); }
 function makeLogo(px,think){ const l=document.createElement('div'); l.className='elogo'+(think?' think':''); l.style.fontSize=px+'px'; l.innerHTML='<i></i><i></i><i></i>'; return l; }
-function greetText(){ return GREET_NAME ? GREET_NAME+' returns!' : 'Welcome back!'; }
+function greetText(){ if(LANG!=='en'&&WB) return (GREET_NAME?GREET_NAME+', ':'')+WB+'!'; return GREET_NAME ? GREET_NAME+' returns!' : 'Welcome back!'; }
 function showHero(){
   const h=document.createElement('div'); h.className='hero'; h.id='hero';
   const row=document.createElement('div'); row.className='hl';
@@ -2487,15 +2528,16 @@ function shopFlow(q){
 
 // ---------- personal + small talk ----------
 try{ if(!GREET_NAME){ var sn=localStorage.getItem('ezb_name'); if(sn){ GREET_NAME=sn; } } }catch(e){}
+const NAME_NATIVE=/^(?:मेरा नाम|मेरे नाम|माझे नाव|என் பெயர்|నా పేరు|ನನ್ನ ಹೆಸರು|എന്റെ പേര്|আমার নাম|મારું નામ|ਮੇਰਾ ਨਾਮ|میرا نام|اسمي|me llamo|mi nombre es|je m'appelle|je m’appelle|ich hei(?:ß|ss)e|mein name ist|meu nome é|me chamo|меня зовут|我叫|我的名字是|私の名前は|私は|제 이름은|저는)\s*([\p{L}][\p{L}\p{M} .'-]{0,28}?)(?:\s*(?:है|हूँ|हूं|आहे|ஆகும்|అని|ಆಗಿದೆ|ആണ്|হয়|છે|ਹੈ|ہے|です|입니다|이에요))?$/iu;
 function setName(n){
-  n=n.replace(/[^A-Za-zÀ-ɏऀ-෿ .'-]/g,'').trim().replace(/\s+/g,' ').slice(0,30); if(!n) return false;
-  n=n.replace(/\b\w/g,function(ch){return ch.toUpperCase();});
+  n=n.replace(/[^\p{L}\p{M} .'-]/gu,'').trim().replace(/\s+/g,' ').slice(0,30); if(!n) return false;
+  n=n.replace(/(^|[\s.'-])(\p{Ll})/gu,function(a,b,c){return b+c.toLocaleUpperCase();});
   GREET_NAME=n; try{ localStorage.setItem('ezb_name',n); }catch(e){}
   var ht=document.getElementById('heroText'); if(ht) ht.textContent=greetText(); return n;
 }
 function smallTalk(q){
   const s=norm(q), raw=q.trim(); let m;
-  if((m=raw.match(/^(?:my name is|i am|i m|im|call me|this is)\s+([A-Za-z][A-Za-z .'-]{0,28})$/i)) && !/^(fine|good|ok|okay|here|back|hungry|tired|sad|happy|bored|sorry|ready|new|a |an |the )/i.test(m[1])){
+  if((m=raw.match(/^(?:my name is|i am|i m|im|call me|this is)\s+([\p{L}][\p{L}\p{M} .'-]{0,28})$/iu)||raw.match(NAME_NATIVE)) && !/^(fine|good|ok|okay|here|back|hungry|tired|sad|happy|bored|sorry|ready|new|a |an |the )/i.test(m[1])){
     const n=setName(m[1]); if(n){ bubble('bot','Nice to meet you, '+n+'! I will remember your name.'); return true; } }
   if(/ (what is my name|what s my name|whats my name|who am i|do you know my name|tell me my name|my name) /.test(s) && /^ (what|who|do you|tell|my name) /.test(s) && !/ is /.test(s.replace(' what is my name ',' ').replace(' my name is ',' '))){
     bubble('bot',GREET_NAME?('Your name is '+GREET_NAME+'.'):'I do not know your name yet. Log in with your name, or tell me: "my name is Ganesh".'); return true; }
@@ -2512,7 +2554,7 @@ function smallTalk(q){
 // ---------- look up facts for questions the list does not cover ----------
 function googleCard(q,msg){
   bubble('bot',msg||"I am not sure about that one, but here is a Google search for it:");
-  cards([{n:'Search Google for "'+q+'"',u:'https://www.google.com/search?q='+encodeURIComponent(q),d:'Open Google results',t:[]}]);
+  cards([{n:'Search Google for "'+q+'"',u:gUrl(q),d:'Open Google results',t:[]}]);
 }
 function fetchJson(url,ms){
   return new Promise(function(res,rej){
@@ -2523,20 +2565,22 @@ function fetchJson(url,ms){
 function lookup(q){
   const factRe=/^(?:please\s+)?(?:tell me about|what is|what are|what was|what were|who is|who was|who are|explain|define|meaning of|about|how does|how do|why is|why do|where is|when was|when did)\s+/i;
   const topic=q.replace(factRe,'').replace(/[?.!]+$/,'').replace(/^(?:a|an|the)\s+/i,'').trim();
-  if(!factRe.test(q)||topic.length<2){ googleCard(q); return; }
+  const free=(LANG!=='en'&&!factRe.test(q)&&q.trim().length>=2&&q.trim().split(/\s+/).length<=6);
+  if((!factRe.test(q)&&!free)||topic.length<2){ googleCard(q); return; }
+  const WIKI='https://'+(LANG||'en')+'.wikipedia.org';
   const t=typing();
-  fetchJson('https://en.wikipedia.org/w/api.php?action=query&list=search&srsearch='+encodeURIComponent(topic)+'&srlimit=1&format=json&origin=*')
+  fetchJson(WIKI+'/w/api.php?action=query&list=search&srsearch='+encodeURIComponent(topic)+'&srlimit=1&format=json&origin=*')
   .then(function(j){
     const hit=j&&j.query&&j.query.search&&j.query.search[0]; if(!hit) throw new Error('none');
-    return fetchJson('https://en.wikipedia.org/api/rest_v1/page/summary/'+encodeURIComponent(hit.title.replace(/ /g,'_')));
+    return fetchJson(WIKI+'/api/rest_v1/page/summary/'+encodeURIComponent(hit.title.replace(/ /g,'_')));
   })
   .then(function(sm){
     t.remove(); thinkOff();
     if(!sm||!sm.extract||sm.type==='disambiguation') throw new Error('nosummary');
     let ex=sm.extract; const sents=ex.match(/[^.!?]+[.!?]+(\s|$)/g); if(sents&&sents.length>2) ex=sents.slice(0,2).join('').trim(); if(ex.length>360) ex=ex.slice(0,357).replace(/\s+\S*$/,'')+'...';
     bubble('bot',sm.title+': '+ex);
-    const page=(sm.content_urls&&sm.content_urls.desktop&&sm.content_urls.desktop.page)||('https://en.wikipedia.org/wiki/'+encodeURIComponent(sm.title));
-    cards([{n:'Read more on Wikipedia',u:page,d:'Source: Wikipedia',t:[]},{n:'Search Google',u:'https://www.google.com/search?q='+encodeURIComponent(q),d:'More results',t:[]}]);
+    const page=(sm.content_urls&&sm.content_urls.desktop&&sm.content_urls.desktop.page)||(WIKI+'/wiki/'+encodeURIComponent(sm.title));
+    cards([{n:'Read more on Wikipedia',u:page,d:'Source: Wikipedia',t:[]},{n:'Search Google',u:gUrl(q),d:'More results',t:[]}]);
   })
   .catch(function(){ try{ t.remove(); thinkOff(); }catch(e){} googleCard(q); });
 }
@@ -2545,8 +2589,8 @@ let voiceName='', voiceRate=0.97;
 try{ voiceName=localStorage.getItem('ezb_voice')||''; var vr=parseFloat(localStorage.getItem('ezb_rate')); if(vr>0.5&&vr<1.6) voiceRate=vr; }catch(e){}
 function voiceScore(v){
   const n=v.name.toLowerCase(), l=(v.lang||'').toLowerCase().replace('_','-'); let s=0;
-  if(!/^en/.test(l)) return -1;
-  if(l==='en-in') s+=30; else if(l==='en-gb'||l==='en-us'||l==='en-au') s+=18; else s+=8;
+  const want=(LANG||'en'); if(l.slice(0,2)!==want) return -1;
+  if(want!=='en'){ s+=(l===SPEECH_LANG.toLowerCase()?30:12); } else if(l==='en-in') s+=30; else if(l==='en-gb'||l==='en-us'||l==='en-au') s+=18; else s+=8;
   if(/neural|natural|online|premium|enhanced/.test(n)) s+=40;
   if(/google/.test(n)) s+=25;
   if(/samantha|aria|jenny|neerja|rishi|veena|karen|moira|daniel|serena|ava|zoe|allison|susan/.test(n)) s+=20;
@@ -2568,7 +2612,7 @@ function say(text){
     t=cleanForSpeech(t); if(!t) return;
     const parts=t.match(/[^.!?;:]+[.!?;:]*/g)||[t]; const v=pickVoice();
     parts.forEach(function(part){ part=part.trim(); if(!part) return;
-      const u=new SpeechSynthesisUtterance(part); if(v){ u.voice=v; u.lang=v.lang; } else u.lang='en-IN';
+      const u=new SpeechSynthesisUtterance(part); if(v){ u.voice=v; u.lang=v.lang; } else u.lang=SPEECH_LANG;
       u.rate=voiceRate; u.pitch=1; u.volume=1; speechSynthesis.speak(u); });
   }catch(e){}
 }
@@ -2615,7 +2659,7 @@ mic.onclick=()=>{
   if(!SR){ setStatus('Voice input is not supported in this browser. Use Chrome, Edge or Safari.'); return; }
   if(listening){ rec&&rec.stop(); return; }
   try{ if('speechSynthesis' in window) speechSynthesis.cancel(); }catch(e){}
-  rec=new SR(); rec.lang='en-IN'; rec.interimResults=true; rec.continuous=false;
+  rec=new SR(); rec.lang=SPEECH_LANG; rec.interimResults=true; rec.continuous=false;
   let finalText='';
   rec.onstart=()=>{listening=true; mic.classList.add('on'); setStatus('Listening… speak now');};
   rec.onresult=e=>{
@@ -2636,7 +2680,433 @@ mic.onclick=()=>{
 const chips=document.getElementById('chips');
 QUICK.forEach(p=>{const c=document.createElement('div'); c.className='chip'; c.textContent=p; c.onclick=()=>ask(p); chips.appendChild(c)});
 showHero();
+/* ===== Easy Browser on-screen keyboard (shared) ===== */
+var EZB_LAYOUTS = {
+  deva:{n:'देवनागरी',r:['अ आ इ ई उ ऊ ऋ ए ऐ ओ औ अं अः','क ख ग घ ङ च छ ज झ ञ','ट ठ ड ढ ण त थ द ध न','प फ ब भ म य र ल व श','ष स ह ळ क्ष त्र ज्ञ ् ा ि','ी ु ू ृ े ै ो ौ ं ः ँ','० १ २ ३ ४ ५ ६ ७ ८ ९']},
+  taml:{n:'தமிழ்',r:['அ ஆ இ ஈ உ ஊ எ ஏ ஐ ஒ ஓ ஔ ஃ','க ங ச ஞ ட ண த ந ப ம','ய ர ல வ ழ ள ற ன ஜ ஷ','ஸ ஹ க்ஷ ஸ்ரீ ா ி ீ ு ூ','ெ ே ை ொ ோ ௌ ்']},
+  telu:{n:'తెలుగు',r:['అ ఆ ఇ ఈ ఉ ఊ ఋ ఎ ఏ ఐ ఒ ఓ ఔ అం అః','క ఖ గ ఘ ఙ చ ఛ జ ఝ ఞ','ట ఠ డ ఢ ణ త థ ద ధ న','ప ఫ బ భ మ య ర ల వ శ','ష స హ ళ క్ష ్ ా ి ీ ు','ూ ృ ె ే ై ొ ో ౌ ం ః']},
+  knda:{n:'ಕನ್ನಡ',r:['ಅ ಆ ಇ ಈ ಉ ಊ ಋ ಎ ಏ ಐ ಒ ಓ ಔ ಅಂ ಅಃ','ಕ ಖ ಗ ಘ ಙ ಚ ಛ ಜ ಝ ಞ','ಟ ಠ ಡ ಢ ಣ ತ ಥ ದ ಧ ನ','ಪ ಫ ಬ ಭ ಮ ಯ ರ ಲ ವ ಶ','ಷ ಸ ಹ ಳ ್ ಾ ಿ ೀ ು ೂ','ೃ ೆ ೇ ೈ ೊ ೋ ೌ ಂ ಃ']},
+  mlym:{n:'മലയാളം',r:['അ ആ ഇ ഈ ഉ ഊ ഋ എ ഏ ഐ ഒ ഓ ഔ അം അഃ','ക ഖ ഗ ഘ ങ ച ഛ ജ ഝ ഞ','ട ഠ ഡ ഢ ണ ത ഥ ദ ധ ന','പ ഫ ബ ഭ മ യ ര ല വ ശ','ഷ സ ഹ ള ഴ റ ് ാ ി ീ','ു ൂ ൃ െ േ ൈ ൊ ോ ൌ ം ഃ']},
+  beng:{n:'বাংলা',r:['অ আ ই ঈ উ ঊ ঋ এ ঐ ও ঔ অং অঃ','ক খ গ ঘ ঙ চ ছ জ ঝ ঞ','ট ঠ ড ঢ ণ ত থ দ ধ ন','প ফ ব ভ ম য র ল শ ষ','স হ ড় ঢ় য় ্ া ি ী ু','ূ ৃ ে ৈ ো ৌ ং ঃ ঁ']},
+  gujr:{n:'ગુજરાતી',r:['અ આ ઇ ઈ ઉ ઊ ઋ એ ઐ ઓ ઔ અં અઃ','ક ખ ગ ઘ ઙ ચ છ જ ઝ ઞ','ટ ઠ ડ ઢ ણ ત થ દ ધ ન','પ ફ બ ભ મ ય ર લ વ શ','ષ સ હ ળ ્ ા િ ી ુ ૂ','ૃ ે ૈ ો ૌ ં ઃ ઁ']},
+  guru:{n:'ਪੰਜਾਬੀ',r:['ੳ ਅ ੲ ਸ ਹ','ਕ ਖ ਗ ਘ ਙ ਚ ਛ ਜ ਝ ਞ','ਟ ਠ ਡ ਢ ਣ ਤ ਥ ਦ ਧ ਨ','ਪ ਫ ਬ ਭ ਮ ਯ ਰ ਲ ਵ ੜ','ਾ ਿ ੀ ੁ ੂ ੇ ੈ ੋ ੌ','ਂ ੰ ੱ ਁ ੍ ਆ ਇ ਈ ਉ ਊ ਏ ਐ ਓ ਔ']},
+  arab:{n:'العربية / اردو',r:['ا ب پ ت ٹ ث ج چ ح خ','د ڈ ذ ر ڑ ز ژ س ش ص','ض ط ظ ع غ ف ق ک گ ل','م ن ں و ہ ھ ء ی ے ۓ','آ أ إ ؤ ئ ة ى َ ُ ِ','ً ّ ْ ، ؟']},
+  cyrl:{n:'Русский',r:['й ц у к е н г ш щ з х ъ','ф ы в а п р о л д ж э','я ч с м и т ь б ю ё']},
+  latn:{n:'Accents',r:['á à â ä ã å æ ç','é è ê ë í ì î ï','ñ ó ò ô ö õ œ ø','ú ù û ü ý ÿ ß','¿ ¡ « » € £']},
+  kana:{n:'ひらがな',r:['あ い う え お か き く け こ','さ し す せ そ た ち つ て と','な に ぬ ね の は ひ ふ へ ほ','ま み む め も や ゆ よ','ら り る れ ろ わ を ん ー']}
+};
+var EZB_LANG_SCRIPT = {hi:'deva',mr:'deva',ta:'taml',te:'telu',kn:'knda',ml:'mlym',bn:'beng',gu:'gujr',pa:'guru',ur:'arab',ar:'arab',ru:'cyrl',es:'latn',fr:'latn',de:'latn',pt:'latn',ja:'kana'};
+var ezbKB = (function(){
+  var panel=null, keysBox=null, current=null, opts={}, enabled=false, langCode='en';
+  function layout(){ return EZB_LAYOUTS[EZB_LANG_SCRIPT[langCode]]; }
+  function isTextInput(el){
+    if(!el||el.tagName!=='INPUT') return false;
+    var t=(el.getAttribute('type')||'text').toLowerCase();
+    return (t==='text'||t==='search'||t==='')&&!el.readOnly&&!el.disabled&&!el.hasAttribute('data-novk');
+  }
+  function build(){
+    if(panel) return;
+    panel=document.createElement('div'); panel.id='ezbVK'; panel.setAttribute('aria-label','On-screen keyboard');
+    panel.innerHTML='<div class="vk-head"><span class="vk-title"></span><button type="button" class="vk-x" aria-label="Hide keyboard">✕</button></div><div class="vk-keys"></div><div class="vk-bottom"><button type="button" class="vk-k vk-wide" data-act="space">space</button><button type="button" class="vk-k" data-act="bksp" aria-label="Backspace">⌫</button><button type="button" class="vk-k vk-wide" data-act="enter">⏎</button></div>';
+    keysBox=panel.querySelector('.vk-keys');
+    var st=document.createElement('style');
+    st.textContent='#ezbVK{background:#0d2040;border-top:1px solid rgba(255,255,255,.14);padding:8px 8px calc(8px + env(safe-area-inset-bottom,0px));z-index:60;color:#eef3fb;font-family:inherit;user-select:none;-webkit-user-select:none}'
+     +'#ezbVK.vk-fixed{position:fixed;left:0;right:0;bottom:0;box-shadow:0 -12px 30px -10px rgba(0,0,0,.6)}'
+     +'#ezbVK .vk-head{display:flex;justify-content:space-between;align-items:center;font-size:12px;color:#8fa0c2;margin-bottom:6px;padding:0 4px}'
+     +'#ezbVK .vk-x{background:none;border:0;color:#8fa0c2;font-size:16px;padding:2px 8px;cursor:pointer}'
+     +'#ezbVK .vk-keys{display:flex;flex-direction:column;gap:5px;max-height:34vh;overflow-y:auto;-webkit-overflow-scrolling:touch}'
+     +'#ezbVK .vk-row{display:flex;flex-wrap:wrap;gap:5px;justify-content:center}'
+     +'#ezbVK .vk-k{min-width:34px;height:38px;padding:0 8px;border-radius:9px;border:1px solid rgba(255,255,255,.12);background:#17294a;color:#eef3fb;font-size:18px;cursor:pointer;touch-action:manipulation}'
+     +'#ezbVK .vk-k:active{background:rgb(var(--accent,100,150,230));color:#04150f}'
+     +'#ezbVK .vk-bottom{display:flex;gap:5px;margin-top:6px}#ezbVK .vk-wide{flex:1;font-size:13px}';
+    panel.appendChild(st);
+    ['pointerdown','mousedown','touchstart'].forEach(function(ev){ panel.addEventListener(ev,function(e){ if(e.target.closest('.vk-k')) e.preventDefault(); },{passive:false}); });
+    panel.addEventListener('click',function(e){
+      var x=e.target.closest('.vk-x'); if(x){ hide(); return; }
+      var k=e.target.closest('.vk-k'); if(!k||!current) return;
+      var act=k.getAttribute('data-act'); if(act==='bksp') back(); else if(act==='space') put(' '); else if(act==='enter') enter(); else put(k.textContent);
+      try{ current.focus(); }catch(err){}
+    });
+  }
+  function fill(){
+    var L=layout(); if(!L) return; keysBox.innerHTML='';
+    panel.querySelector('.vk-title').textContent='⌨ '+L.n;
+    L.r.forEach(function(row){ var d=document.createElement('div'); d.className='vk-row';
+      row.split(' ').forEach(function(ch){ if(!ch) return; var b=document.createElement('button'); b.type='button'; b.className='vk-k'; b.textContent=ch; d.appendChild(b); });
+      keysBox.appendChild(d); });
+  }
+  function put(ch){
+    var t=current; if(!t) return; var s=t.selectionStart, e=t.selectionEnd;
+    if(s==null){ t.value+=ch; } else { t.setRangeText(ch,s,e,'end'); }
+    t.dispatchEvent(new Event('input',{bubbles:true}));
+  }
+  function back(){
+    var t=current; if(!t) return; var s=t.selectionStart, e=t.selectionEnd; if(s==null){ t.value=Array.from(t.value).slice(0,-1).join(''); }
+    else if(s!==e){ t.setRangeText('',s,e,'end'); }
+    else if(s>0){ var before=t.value.slice(0,s), n=1;
+      if(window.Intl&&Intl.Segmenter){ var seg=Array.from(new Intl.Segmenter(undefined,{granularity:'grapheme'}).segment(before)); n=seg.length?seg[seg.length-1].segment.length:1; }
+      else if(/[\uDC00-\uDFFF]$/.test(before)) n=2;
+      t.setRangeText('',s-n,s,'end'); }
+    t.dispatchEvent(new Event('input',{bubbles:true}));
+  }
+  function enter(){
+    var t=current; if(!t) return;
+    t.dispatchEvent(new KeyboardEvent('keydown',{key:'Enter',code:'Enter',keyCode:13,bubbles:true,cancelable:true}));
+    if(t.form&&t.form.requestSubmit){ try{ t.form.requestSubmit(); }catch(err){} }
+  }
+  function show(el){
+    if(!enabled||!layout()||!isTextInput(el)) return;
+    build(); fill(); current=el;
+    if(!panel.parentNode){
+      if(opts.mount){ panel.classList.remove('vk-fixed'); opts.mount.appendChild(panel); }
+      else { panel.classList.add('vk-fixed'); document.body.appendChild(panel); }
+    }
+    panel.style.display='block'; if(opts.onShow) opts.onShow(panel);
+    if(!opts.mount){ document.documentElement.style.paddingBottom=(panel.offsetHeight+10)+'px'; try{ el.scrollIntoView({block:'center'}); }catch(err){} }
+  }
+  function hide(){ if(panel){ panel.style.display='none'; } current=null; if(!opts.mount) document.documentElement.style.paddingBottom=''; if(opts.onHide) opts.onHide(); }
+  function init(o){
+    opts=o||{};
+    document.addEventListener('focusin',function(e){
+      if(isTextInput(e.target)) show(e.target);
+      else if(panel&&panel.style.display!=='none'&&/^(INPUT|TEXTAREA)$/.test(e.target.tagName)) hide();
+    });
+    /* hide only AFTER the click has been delivered, so the layout never shifts under a tap */
+    document.addEventListener('click',function(e){ if(!panel||panel.style.display==='none') return; if(e.target.closest('#ezbVK')||isTextInput(e.target)) return; setTimeout(hide,0); },true);
+  }
+  function configure(code,on){ langCode=code; enabled=!!on&&!!layout(); if(!enabled) hide(); else if(document.activeElement&&isTextInput(document.activeElement)) show(document.activeElement); }
+  return {init:init,configure:configure,hide:hide,hasLayout:function(c){ return !!EZB_LAYOUTS[EZB_LANG_SCRIPT[c]]; }};
+})();
+
+function applyLang(d){
+  LANG=d.lang||'en'; SPEECH_LANG=d.speech||'en-IN'; WB=d.wb||'';
+  var q=document.getElementById('q'), sub=document.querySelector('header p');
+  q.placeholder=d.ph||'Type or tap the mic and speak'; if(sub) sub.textContent=d.sub||'Ask which website is best for anything';
+  document.documentElement.setAttribute('lang',LANG); q.setAttribute('dir','auto');
+  var ht=document.getElementById('heroText'); if(ht) ht.textContent=greetText();
+  var on=!!d.kb&&ezbKB.hasLayout(LANG); ezbKB.configure(LANG,on);
+  if(on) q.setAttribute('inputmode','none'); else q.removeAttribute('inputmode');
+  try{ speechSynthesis.cancel(); }catch(e){}
+}
+ezbKB.init({mount:document.querySelector('.app'),onShow:function(){ var t=document.getElementById('thread'); if(t) setTimeout(function(){ t.scrollTop=t.scrollHeight; },30); }});
 </script>
 </template>
+<script>
+/* ===== Easy Browser on-screen keyboard (shared) ===== */
+var EZB_LAYOUTS = {
+  deva:{n:'देवनागरी',r:['अ आ इ ई उ ऊ ऋ ए ऐ ओ औ अं अः','क ख ग घ ङ च छ ज झ ञ','ट ठ ड ढ ण त थ द ध न','प फ ब भ म य र ल व श','ष स ह ळ क्ष त्र ज्ञ ् ा ि','ी ु ू ृ े ै ो ौ ं ः ँ','० १ २ ३ ४ ५ ६ ७ ८ ९']},
+  taml:{n:'தமிழ்',r:['அ ஆ இ ஈ உ ஊ எ ஏ ஐ ஒ ஓ ஔ ஃ','க ங ச ஞ ட ண த ந ப ம','ய ர ல வ ழ ள ற ன ஜ ஷ','ஸ ஹ க்ஷ ஸ்ரீ ா ி ீ ு ூ','ெ ே ை ொ ோ ௌ ்']},
+  telu:{n:'తెలుగు',r:['అ ఆ ఇ ఈ ఉ ఊ ఋ ఎ ఏ ఐ ఒ ఓ ఔ అం అః','క ఖ గ ఘ ఙ చ ఛ జ ఝ ఞ','ట ఠ డ ఢ ణ త థ ద ధ న','ప ఫ బ భ మ య ర ల వ శ','ష స హ ళ క్ష ్ ా ి ీ ు','ూ ృ ె ే ై ొ ో ౌ ం ః']},
+  knda:{n:'ಕನ್ನಡ',r:['ಅ ಆ ಇ ಈ ಉ ಊ ಋ ಎ ಏ ಐ ಒ ಓ ಔ ಅಂ ಅಃ','ಕ ಖ ಗ ಘ ಙ ಚ ಛ ಜ ಝ ಞ','ಟ ಠ ಡ ಢ ಣ ತ ಥ ದ ಧ ನ','ಪ ಫ ಬ ಭ ಮ ಯ ರ ಲ ವ ಶ','ಷ ಸ ಹ ಳ ್ ಾ ಿ ೀ ು ೂ','ೃ ೆ ೇ ೈ ೊ ೋ ೌ ಂ ಃ']},
+  mlym:{n:'മലയാളം',r:['അ ആ ഇ ഈ ഉ ഊ ഋ എ ഏ ഐ ഒ ഓ ഔ അം അഃ','ക ഖ ഗ ഘ ങ ച ഛ ജ ഝ ഞ','ട ഠ ഡ ഢ ണ ത ഥ ദ ധ ന','പ ഫ ബ ഭ മ യ ര ല വ ശ','ഷ സ ഹ ള ഴ റ ് ാ ി ീ','ു ൂ ൃ െ േ ൈ ൊ ോ ൌ ം ഃ']},
+  beng:{n:'বাংলা',r:['অ আ ই ঈ উ ঊ ঋ এ ঐ ও ঔ অং অঃ','ক খ গ ঘ ঙ চ ছ জ ঝ ঞ','ট ঠ ড ঢ ণ ত থ দ ধ ন','প ফ ব ভ ম য র ল শ ষ','স হ ড় ঢ় য় ্ া ি ী ু','ূ ৃ ে ৈ ো ৌ ং ঃ ঁ']},
+  gujr:{n:'ગુજરાતી',r:['અ આ ઇ ઈ ઉ ઊ ઋ એ ઐ ઓ ઔ અં અઃ','ક ખ ગ ઘ ઙ ચ છ જ ઝ ઞ','ટ ઠ ડ ઢ ણ ત થ દ ધ ન','પ ફ બ ભ મ ય ર લ વ શ','ષ સ હ ળ ્ ા િ ી ુ ૂ','ૃ ે ૈ ો ૌ ં ઃ ઁ']},
+  guru:{n:'ਪੰਜਾਬੀ',r:['ੳ ਅ ੲ ਸ ਹ','ਕ ਖ ਗ ਘ ਙ ਚ ਛ ਜ ਝ ਞ','ਟ ਠ ਡ ਢ ਣ ਤ ਥ ਦ ਧ ਨ','ਪ ਫ ਬ ਭ ਮ ਯ ਰ ਲ ਵ ੜ','ਾ ਿ ੀ ੁ ੂ ੇ ੈ ੋ ੌ','ਂ ੰ ੱ ਁ ੍ ਆ ਇ ਈ ਉ ਊ ਏ ਐ ਓ ਔ']},
+  arab:{n:'العربية / اردو',r:['ا ب پ ت ٹ ث ج چ ح خ','د ڈ ذ ر ڑ ز ژ س ش ص','ض ط ظ ع غ ف ق ک گ ل','م ن ں و ہ ھ ء ی ے ۓ','آ أ إ ؤ ئ ة ى َ ُ ِ','ً ّ ْ ، ؟']},
+  cyrl:{n:'Русский',r:['й ц у к е н г ш щ з х ъ','ф ы в а п р о л д ж э','я ч с м и т ь б ю ё']},
+  latn:{n:'Accents',r:['á à â ä ã å æ ç','é è ê ë í ì î ï','ñ ó ò ô ö õ œ ø','ú ù û ü ý ÿ ß','¿ ¡ « » € £']},
+  kana:{n:'ひらがな',r:['あ い う え お か き く け こ','さ し す せ そ た ち つ て と','な に ぬ ね の は ひ ふ へ ほ','ま み む め も や ゆ よ','ら り る れ ろ わ を ん ー']}
+};
+var EZB_LANG_SCRIPT = {hi:'deva',mr:'deva',ta:'taml',te:'telu',kn:'knda',ml:'mlym',bn:'beng',gu:'gujr',pa:'guru',ur:'arab',ar:'arab',ru:'cyrl',es:'latn',fr:'latn',de:'latn',pt:'latn',ja:'kana'};
+var ezbKB = (function(){
+  var panel=null, keysBox=null, current=null, opts={}, enabled=false, langCode='en';
+  function layout(){ return EZB_LAYOUTS[EZB_LANG_SCRIPT[langCode]]; }
+  function isTextInput(el){
+    if(!el||el.tagName!=='INPUT') return false;
+    var t=(el.getAttribute('type')||'text').toLowerCase();
+    return (t==='text'||t==='search'||t==='')&&!el.readOnly&&!el.disabled&&!el.hasAttribute('data-novk');
+  }
+  function build(){
+    if(panel) return;
+    panel=document.createElement('div'); panel.id='ezbVK'; panel.setAttribute('aria-label','On-screen keyboard');
+    panel.innerHTML='<div class="vk-head"><span class="vk-title"></span><button type="button" class="vk-x" aria-label="Hide keyboard">✕</button></div><div class="vk-keys"></div><div class="vk-bottom"><button type="button" class="vk-k vk-wide" data-act="space">space</button><button type="button" class="vk-k" data-act="bksp" aria-label="Backspace">⌫</button><button type="button" class="vk-k vk-wide" data-act="enter">⏎</button></div>';
+    keysBox=panel.querySelector('.vk-keys');
+    var st=document.createElement('style');
+    st.textContent='#ezbVK{background:#0d2040;border-top:1px solid rgba(255,255,255,.14);padding:8px 8px calc(8px + env(safe-area-inset-bottom,0px));z-index:60;color:#eef3fb;font-family:inherit;user-select:none;-webkit-user-select:none}'
+     +'#ezbVK.vk-fixed{position:fixed;left:0;right:0;bottom:0;box-shadow:0 -12px 30px -10px rgba(0,0,0,.6)}'
+     +'#ezbVK .vk-head{display:flex;justify-content:space-between;align-items:center;font-size:12px;color:#8fa0c2;margin-bottom:6px;padding:0 4px}'
+     +'#ezbVK .vk-x{background:none;border:0;color:#8fa0c2;font-size:16px;padding:2px 8px;cursor:pointer}'
+     +'#ezbVK .vk-keys{display:flex;flex-direction:column;gap:5px;max-height:34vh;overflow-y:auto;-webkit-overflow-scrolling:touch}'
+     +'#ezbVK .vk-row{display:flex;flex-wrap:wrap;gap:5px;justify-content:center}'
+     +'#ezbVK .vk-k{min-width:34px;height:38px;padding:0 8px;border-radius:9px;border:1px solid rgba(255,255,255,.12);background:#17294a;color:#eef3fb;font-size:18px;cursor:pointer;touch-action:manipulation}'
+     +'#ezbVK .vk-k:active{background:rgb(var(--accent,100,150,230));color:#04150f}'
+     +'#ezbVK .vk-bottom{display:flex;gap:5px;margin-top:6px}#ezbVK .vk-wide{flex:1;font-size:13px}';
+    panel.appendChild(st);
+    ['pointerdown','mousedown','touchstart'].forEach(function(ev){ panel.addEventListener(ev,function(e){ if(e.target.closest('.vk-k')) e.preventDefault(); },{passive:false}); });
+    panel.addEventListener('click',function(e){
+      var x=e.target.closest('.vk-x'); if(x){ hide(); return; }
+      var k=e.target.closest('.vk-k'); if(!k||!current) return;
+      var act=k.getAttribute('data-act'); if(act==='bksp') back(); else if(act==='space') put(' '); else if(act==='enter') enter(); else put(k.textContent);
+      try{ current.focus(); }catch(err){}
+    });
+  }
+  function fill(){
+    var L=layout(); if(!L) return; keysBox.innerHTML='';
+    panel.querySelector('.vk-title').textContent='⌨ '+L.n;
+    L.r.forEach(function(row){ var d=document.createElement('div'); d.className='vk-row';
+      row.split(' ').forEach(function(ch){ if(!ch) return; var b=document.createElement('button'); b.type='button'; b.className='vk-k'; b.textContent=ch; d.appendChild(b); });
+      keysBox.appendChild(d); });
+  }
+  function put(ch){
+    var t=current; if(!t) return; var s=t.selectionStart, e=t.selectionEnd;
+    if(s==null){ t.value+=ch; } else { t.setRangeText(ch,s,e,'end'); }
+    t.dispatchEvent(new Event('input',{bubbles:true}));
+  }
+  function back(){
+    var t=current; if(!t) return; var s=t.selectionStart, e=t.selectionEnd; if(s==null){ t.value=Array.from(t.value).slice(0,-1).join(''); }
+    else if(s!==e){ t.setRangeText('',s,e,'end'); }
+    else if(s>0){ var before=t.value.slice(0,s), n=1;
+      if(window.Intl&&Intl.Segmenter){ var seg=Array.from(new Intl.Segmenter(undefined,{granularity:'grapheme'}).segment(before)); n=seg.length?seg[seg.length-1].segment.length:1; }
+      else if(/[\uDC00-\uDFFF]$/.test(before)) n=2;
+      t.setRangeText('',s-n,s,'end'); }
+    t.dispatchEvent(new Event('input',{bubbles:true}));
+  }
+  function enter(){
+    var t=current; if(!t) return;
+    t.dispatchEvent(new KeyboardEvent('keydown',{key:'Enter',code:'Enter',keyCode:13,bubbles:true,cancelable:true}));
+    if(t.form&&t.form.requestSubmit){ try{ t.form.requestSubmit(); }catch(err){} }
+  }
+  function show(el){
+    if(!enabled||!layout()||!isTextInput(el)) return;
+    build(); fill(); current=el;
+    if(!panel.parentNode){
+      if(opts.mount){ panel.classList.remove('vk-fixed'); opts.mount.appendChild(panel); }
+      else { panel.classList.add('vk-fixed'); document.body.appendChild(panel); }
+    }
+    panel.style.display='block'; if(opts.onShow) opts.onShow(panel);
+    if(!opts.mount){ document.documentElement.style.paddingBottom=(panel.offsetHeight+10)+'px'; try{ el.scrollIntoView({block:'center'}); }catch(err){} }
+  }
+  function hide(){ if(panel){ panel.style.display='none'; } current=null; if(!opts.mount) document.documentElement.style.paddingBottom=''; if(opts.onHide) opts.onHide(); }
+  function init(o){
+    opts=o||{};
+    document.addEventListener('focusin',function(e){
+      if(isTextInput(e.target)) show(e.target);
+      else if(panel&&panel.style.display!=='none'&&/^(INPUT|TEXTAREA)$/.test(e.target.tagName)) hide();
+    });
+    /* hide only AFTER the click has been delivered, so the layout never shifts under a tap */
+    document.addEventListener('click',function(e){ if(!panel||panel.style.display==='none') return; if(e.target.closest('#ezbVK')||isTextInput(e.target)) return; setTimeout(hide,0); },true);
+  }
+  function configure(code,on){ langCode=code; enabled=!!on&&!!layout(); if(!enabled) hide(); else if(document.activeElement&&isTextInput(document.activeElement)) show(document.activeElement); }
+  return {init:init,configure:configure,hide:hide,hasLayout:function(c){ return !!EZB_LAYOUTS[EZB_LANG_SCRIPT[c]]; }};
+})();
+
+/* ===== Easy Browser: languages, keyboards, secure Gmail sync ===== */
+(function(){
+  var EN=["Welcome back", "Log in to continue to Easy Browser", "Log in", "Password", "Email OTP", "Settings", "Language", "Appearance", "Quick Access", "Recent Websites", "Search or enter website", "Enter your username", "Send OTP", "Gmail address", "Username", "Account & Cloud sync", "Sync now", "On-screen keyboard"], T={"hi": ["वापसी पर स्वागत है", "Easy Browser पर जारी रखने के लिए लॉग इन करें", "लॉग इन", "पासवर्ड", "ईमेल OTP", "सेटिंग्स", "भाषा", "रूप-रंग", "त्वरित पहुँच", "हाल की वेबसाइटें", "खोजें या वेबसाइट दर्ज करें", "अपना उपयोगकर्ता नाम दर्ज करें", "OTP भेजें", "Gmail पता", "उपयोगकर्ता नाम", "खाता और क्लाउड सिंक", "अभी सिंक करें", "ऑन-स्क्रीन कीबोर्ड"], "ta": ["மீண்டும் வருக", "Easy Browser-ஐ தொடர உள்நுழையவும்", "உள்நுழை", "கடவுச்சொல்", "மின்னஞ்சல் OTP", "அமைப்புகள்", "மொழி", "தோற்றம்", "விரைவு அணுகல்", "சமீபத்திய தளங்கள்", "தேடு அல்லது இணையதளம் உள்ளிடு", "உங்கள் பயனர்பெயரை உள்ளிடவும்", "OTP அனுப்பு", "Gmail முகவரி", "பயனர்பெயர்", "கணக்கு & கிளவுட் ஒத்திசைவு", "இப்போது ஒத்திசை", "திரை விசைப்பலகை"], "te": ["తిరిగి స్వాగతం", "Easy Browser కొనసాగించడానికి లాగిన్ చేయండి", "లాగిన్", "పాస్‌వర్డ్", "ఇమెయిల్ OTP", "సెట్టింగ్‌లు", "భాష", "రూపం", "త్వరిత యాక్సెస్", "ఇటీవలి వెబ్‌సైట్లు", "వెతకండి లేదా వెబ్‌సైట్ నమోదు చేయండి", "మీ వినియోగదారు పేరు నమోదు చేయండి", "OTP పంపండి", "Gmail చిరునామా", "వినియోగదారు పేరు", "ఖాతా & క్లౌడ్ సింక్", "ఇప్పుడే సింక్ చేయండి", "ఆన్-స్క్రీన్ కీబోర్డ్"], "kn": ["ಮರಳಿ ಸ್ವಾಗತ", "Easy Browser ಮುಂದುವರಿಸಲು ಲಾಗಿನ್ ಮಾಡಿ", "ಲಾಗಿನ್", "ಪಾಸ್‌ವರ್ಡ್", "ಇಮೇಲ್ OTP", "ಸೆಟ್ಟಿಂಗ್‌ಗಳು", "ಭಾಷೆ", "ನೋಟ", "ತ್ವರಿತ ಪ್ರವೇಶ", "ಇತ್ತೀಚಿನ ವೆಬ್‌ಸೈಟ್‌ಗಳು", "ಹುಡುಕಿ ಅಥವಾ ವೆಬ್‌ಸೈಟ್ ನಮೂದಿಸಿ", "ನಿಮ್ಮ ಬಳಕೆದಾರ ಹೆಸರನ್ನು ನಮೂದಿಸಿ", "OTP ಕಳುಹಿಸಿ", "Gmail ವಿಳಾಸ", "ಬಳಕೆದಾರ ಹೆಸರು", "ಖಾತೆ & ಕ್ಲೌಡ್ ಸಿಂಕ್", "ಈಗ ಸಿಂಕ್ ಮಾಡಿ", "ಆನ್-ಸ್ಕ್ರೀನ್ ಕೀಬೋರ್ಡ್"], "ml": ["വീണ്ടും സ്വാഗതം", "Easy Browser തുടരാൻ ലോഗിൻ ചെയ്യുക", "ലോഗിൻ", "പാസ്‌വേഡ്", "ഇമെയിൽ OTP", "ക്രമീകരണങ്ങൾ", "ഭാഷ", "രൂപം", "ദ്രുത ആക്സസ്", "സമീപകാല വെബ്‌സൈറ്റുകൾ", "തിരയുക അല്ലെങ്കിൽ വെബ്‌സൈറ്റ് നൽകുക", "നിങ്ങളുടെ ഉപയോക്തൃനാമം നൽകുക", "OTP അയയ്ക്കുക", "Gmail വിലാസം", "ഉപയോക്തൃനാമം", "അക്കൗണ്ട് & ക്ലൗഡ് സമന്വയം", "ഇപ്പോൾ സമന്വയിപ്പിക്കുക", "ഓൺ-സ്ക്രീൻ കീബോർഡ്"], "bn": ["আবার স্বাগতম", "Easy Browser চালিয়ে যেতে লগ ইন করুন", "লগ ইন", "পাসওয়ার্ড", "ইমেইল OTP", "সেটিংস", "ভাষা", "চেহারা", "দ্রুত অ্যাক্সেস", "সাম্প্রতিক ওয়েবসাইট", "খুঁজুন বা ওয়েবসাইট লিখুন", "আপনার ব্যবহারকারীর নাম লিখুন", "OTP পাঠান", "Gmail ঠিকানা", "ব্যবহারকারীর নাম", "অ্যাকাউন্ট ও ক্লাউড সিঙ্ক", "এখনই সিঙ্ক করুন", "অন-স্ক্রিন কীবোর্ড"], "mr": ["पुन्हा स्वागत", "Easy Browser सुरू ठेवण्यासाठी लॉग इन करा", "लॉग इन", "पासवर्ड", "ईमेल OTP", "सेटिंग्ज", "भाषा", "स्वरूप", "जलद प्रवेश", "अलीकडील वेबसाइट", "शोधा किंवा वेबसाइट टाका", "तुमचे वापरकर्तानाव टाका", "OTP पाठवा", "Gmail पत्ता", "वापरकर्तानाव", "खाते आणि क्लाउड सिंक", "आता सिंक करा", "ऑन-स्क्रीन कीबोर्ड"], "gu": ["ફરી સ્વાગત છે", "Easy Browser ચાલુ રાખવા લૉગ ઇન કરો", "લૉગ ઇન", "પાસવર્ડ", "ઇમેઇલ OTP", "સેટિંગ્સ", "ભાષા", "દેખાવ", "ઝડપી ઍક્સેસ", "તાજેતરની વેબસાઇટ્સ", "શોધો અથવા વેબસાઇટ દાખલ કરો", "તમારું વપરાશકર્તા નામ દાખલ કરો", "OTP મોકલો", "Gmail સરનામું", "વપરાશકર્તા નામ", "ખાતું અને ક્લાઉડ સિંક", "હમણાં સિંક કરો", "ઑન-સ્ક્રીન કીબોર્ડ"], "pa": ["ਜੀ ਆਇਆਂ ਨੂੰ", "Easy Browser ਜਾਰੀ ਰੱਖਣ ਲਈ ਲਾਗਇਨ ਕਰੋ", "ਲਾਗਇਨ", "ਪਾਸਵਰਡ", "ਈਮੇਲ OTP", "ਸੈਟਿੰਗਾਂ", "ਭਾਸ਼ਾ", "ਦਿੱਖ", "ਤੁਰੰਤ ਪਹੁੰਚ", "ਹਾਲੀਆ ਵੈੱਬਸਾਈਟਾਂ", "ਖੋਜੋ ਜਾਂ ਵੈੱਬਸਾਈਟ ਦਾਖਲ ਕਰੋ", "ਆਪਣਾ ਯੂਜ਼ਰਨੇਮ ਦਾਖਲ ਕਰੋ", "OTP ਭੇਜੋ", "Gmail ਪਤਾ", "ਯੂਜ਼ਰਨੇਮ", "ਖਾਤਾ ਅਤੇ ਕਲਾਊਡ ਸਿੰਕ", "ਹੁਣੇ ਸਿੰਕ ਕਰੋ", "ਆਨ-ਸਕ੍ਰੀਨ ਕੀਬੋਰਡ"], "ur": ["خوش آمدید", "جاری رکھنے کے لیے Easy Browser میں لاگ ان کریں", "لاگ ان", "پاس ورڈ", "ای میل OTP", "ترتیبات", "زبان", "ظاہری شکل", "فوری رسائی", "حالیہ ویب سائٹس", "تلاش کریں یا ویب سائٹ درج کریں", "اپنا صارف نام درج کریں", "OTP بھیجیں", "Gmail ایڈریس", "صارف نام", "اکاؤنٹ اور کلاؤڈ سنک", "ابھی سنک کریں", "آن اسکرین کی بورڈ"], "ar": ["مرحباً بعودتك", "سجّل الدخول للمتابعة إلى Easy Browser", "تسجيل الدخول", "كلمة المرور", "رمز البريد OTP", "الإعدادات", "اللغة", "المظهر", "وصول سريع", "المواقع الأخيرة", "ابحث أو أدخل موقعاً", "أدخل اسم المستخدم", "إرسال OTP", "عنوان Gmail", "اسم المستخدم", "الحساب والمزامنة السحابية", "زامن الآن", "لوحة المفاتيح على الشاشة"], "es": ["Bienvenido de nuevo", "Inicia sesión para continuar en Easy Browser", "Iniciar sesión", "Contraseña", "OTP por correo", "Ajustes", "Idioma", "Apariencia", "Acceso rápido", "Sitios recientes", "Busca o escribe un sitio web", "Escribe tu nombre de usuario", "Enviar OTP", "Dirección de Gmail", "Nombre de usuario", "Cuenta y sincronización en la nube", "Sincronizar ahora", "Teclado en pantalla"], "fr": ["Bon retour", "Connectez-vous pour continuer sur Easy Browser", "Se connecter", "Mot de passe", "OTP par e-mail", "Réglages", "Langue", "Apparence", "Accès rapide", "Sites récents", "Rechercher ou saisir un site", "Saisissez votre nom d’utilisateur", "Envoyer l’OTP", "Adresse Gmail", "Nom d’utilisateur", "Compte et synchro cloud", "Synchroniser", "Clavier à l’écran"], "de": ["Willkommen zurück", "Melde dich an, um mit Easy Browser fortzufahren", "Anmelden", "Passwort", "E-Mail-OTP", "Einstellungen", "Sprache", "Darstellung", "Schnellzugriff", "Zuletzt besucht", "Suchen oder Website eingeben", "Benutzernamen eingeben", "OTP senden", "Gmail-Adresse", "Benutzername", "Konto & Cloud-Sync", "Jetzt synchronisieren", "Bildschirmtastatur"], "pt": ["Bem-vindo de volta", "Entre para continuar no Easy Browser", "Entrar", "Senha", "OTP por e-mail", "Configurações", "Idioma", "Aparência", "Acesso rápido", "Sites recentes", "Pesquise ou digite um site", "Digite seu nome de usuário", "Enviar OTP", "Endereço do Gmail", "Nome de usuário", "Conta e sincronização na nuvem", "Sincronizar agora", "Teclado na tela"], "ru": ["С возвращением", "Войдите, чтобы продолжить в Easy Browser", "Войти", "Пароль", "OTP по почте", "Настройки", "Язык", "Оформление", "Быстрый доступ", "Недавние сайты", "Поиск или адрес сайта", "Введите имя пользователя", "Отправить OTP", "Адрес Gmail", "Имя пользователя", "Аккаунт и облачная синхронизация", "Синхронизировать", "Экранная клавиатура"], "zh": ["欢迎回来", "登录以继续使用 Easy Browser", "登录", "密码", "邮箱验证码", "设置", "语言", "外观", "快速访问", "最近网站", "搜索或输入网址", "输入用户名", "发送验证码", "Gmail 地址", "用户名", "账户与云同步", "立即同步", "屏幕键盘"], "ja": ["おかえりなさい", "Easy Browser を続けるにはログイン", "ログイン", "パスワード", "メールOTP", "設定", "言語", "外観", "クイックアクセス", "最近のサイト", "検索またはサイトを入力", "ユーザー名を入力", "OTPを送信", "Gmailアドレス", "ユーザー名", "アカウントとクラウド同期", "今すぐ同期", "画面キーボード"], "ko": ["다시 오신 것을 환영합니다", "Easy Browser를 계속하려면 로그인하세요", "로그인", "비밀번호", "이메일 OTP", "설정", "언어", "화면 스타일", "빠른 접근", "최근 웹사이트", "검색 또는 웹사이트 입력", "사용자 이름 입력", "OTP 보내기", "Gmail 주소", "사용자 이름", "계정 및 클라우드 동기화", "지금 동기화", "화면 키보드"]}, NAMES=[["en", "English"], ["hi", "हिन्दी"], ["ta", "தமிழ்"], ["te", "తెలుగు"], ["kn", "ಕನ್ನಡ"], ["ml", "മലയാളം"], ["bn", "বাংলা"], ["mr", "मराठी"], ["gu", "ગુજરાતી"], ["pa", "ਪੰਜਾਬੀ"], ["ur", "اردو"], ["ar", "العربية"], ["es", "Español"], ["fr", "Français"], ["de", "Deutsch"], ["pt", "Português"], ["ru", "Русский"], ["zh", "中文"], ["ja", "日本語"], ["ko", "한국어"]], SPEECH={"en": "en-US", "hi": "hi-IN", "ta": "ta-IN", "te": "te-IN", "kn": "kn-IN", "ml": "ml-IN", "bn": "bn-IN", "mr": "mr-IN", "gu": "gu-IN", "pa": "pa-IN", "ur": "ur-PK", "ar": "ar-SA", "es": "es-ES", "fr": "fr-FR", "de": "de-DE", "pt": "pt-BR", "ru": "ru-RU", "zh": "zh-CN", "ja": "ja-JP", "ko": "ko-KR"}, CHATT={"en": ["Type or tap the mic and speak", "Ask which website is best for anything"], "hi": ["टाइप करें या माइक दबाकर बोलें", "पूछें कि किसी भी चीज़ के लिए कौन-सी वेबसाइट सबसे अच्छी है"], "ta": ["தட்டச்சு செய்யவும் அல்லது மைக்கை தட்டிப் பேசவும்", "எதற்கும் எந்த இணையதளம் சிறந்தது என்று கேளுங்கள்"], "te": ["టైప్ చేయండి లేదా మైక్ నొక్కి మాట్లాడండి", "ఏదైనా దానికి ఏ వెబ్‌సైట్ ఉత్తమమో అడగండి"], "kn": ["ಟೈಪ್ ಮಾಡಿ ಅಥವಾ ಮೈಕ್ ಒತ್ತಿ ಮಾತನಾಡಿ", "ಯಾವುದಕ್ಕೂ ಯಾವ ವೆಬ್‌ಸೈಟ್ ಉತ್ತಮ ಎಂದು ಕೇಳಿ"], "ml": ["ടൈപ്പ് ചെയ്യുക അല്ലെങ്കിൽ മൈക്ക് അമർത്തി സംസാരിക്കുക", "ഏതിനും ഏത് വെബ്‌സൈറ്റാണ് മികച്ചതെന്ന് ചോദിക്കുക"], "bn": ["টাইপ করুন বা মাইক চেপে বলুন", "যেকোনো কিছুর জন্য কোন ওয়েবসাইট সেরা জিজ্ঞাসা করুন"], "mr": ["टाइप करा किंवा माइक दाबून बोला", "कशासाठीही कोणती वेबसाइट सर्वोत्तम ते विचारा"], "gu": ["ટાઇપ કરો અથવા માઇક દબાવીને બોલો", "કોઈ પણ વસ્તુ માટે કઈ વેબસાઇટ શ્રેષ્ઠ છે તે પૂછો"], "pa": ["ਟਾਈਪ ਕਰੋ ਜਾਂ ਮਾਈਕ ਦਬਾ ਕੇ ਬੋਲੋ", "ਕਿਸੇ ਵੀ ਚੀਜ਼ ਲਈ ਕਿਹੜੀ ਵੈੱਬਸਾਈਟ ਵਧੀਆ ਹੈ, ਪੁੱਛੋ"], "ur": ["ٹائپ کریں یا مائیک دبا کر بولیں", "پوچھیں کہ کسی بھی چیز کے لیے کون سی ویب سائٹ بہترین ہے"], "ar": ["اكتب أو اضغط على الميكروفون وتحدّث", "اسأل عن أفضل موقع لأي شيء"], "es": ["Escribe o toca el micrófono y habla", "Pregunta qué sitio web es el mejor para cualquier cosa"], "fr": ["Écrivez ou touchez le micro et parlez", "Demandez quel site est le meilleur pour tout"], "de": ["Tippe oder tippe aufs Mikrofon und sprich", "Frag, welche Website für alles am besten ist"], "pt": ["Digite ou toque no microfone e fale", "Pergunte qual é o melhor site para qualquer coisa"], "ru": ["Введите текст или нажмите микрофон и говорите", "Спросите, какой сайт лучше для чего угодно"], "zh": ["输入文字，或点击麦克风说话", "问问做任何事哪个网站最好"], "ja": ["入力するか、マイクをタップして話してください", "何に最適なサイトか聞いてみてください"], "ko": ["입력하거나 마이크를 눌러 말하세요", "무엇이든 어떤 웹사이트가 가장 좋은지 물어보세요"]};
+  var $=function(id){ return document.getElementById(id); };
+  var EN2I={}; EN.forEach(function(s,i){ EN2I[s]=i; });
+  var lang='en', curTheme='blue', ready=true;
+  function ls(k,v){ try{ if(v===undefined) return localStorage.getItem(k); if(v===null) localStorage.removeItem(k); else localStorage.setItem(k,v); }catch(e){} return null; }
+
+  /* ---------- translate visible UI ---------- */
+  function translate(code){
+    var tr=(code==='en')?EN:(T[code]||EN), tw=document.createTreeWalker(document.body,NodeFilter.SHOW_TEXT), n;
+    while((n=tw.nextNode())){
+      var p=n.parentNode; if(!p||(p.closest&&p.closest('script,style,template,iframe,#ezbVK'))) continue;
+      if(n.__en===undefined){ var t=n.nodeValue.trim(); n.__en=(Object.prototype.hasOwnProperty.call(EN2I,t))?t:null; }
+      if(n.__en){ var s=tr[EN2I[n.__en]]; n.nodeValue=n.nodeValue.replace(/\S[\s\S]*\S|\S/,function(){ return s; }); }
+    }
+    document.querySelectorAll('input[placeholder]').forEach(function(i){
+      if(i.__enph===undefined){ var t=i.getAttribute('placeholder'); i.__enph=Object.prototype.hasOwnProperty.call(EN2I,t)?t:null; }
+      if(i.__enph) i.setAttribute('placeholder',tr[EN2I[i.__enph]]);
+    });
+  }
+
+  /* ---------- on-screen keyboard ---------- */
+  function kbWanted(){ var v=ls('ezb_kb'); if(v==='1') return true; if(v==='0') return false; return lang!=='en'; }
+  function applyKb(){
+    var on=kbWanted()&&ezbKB.hasLayout(lang);
+    ezbKB.configure(lang,on);
+    document.querySelectorAll('input[type=text],input[type=search]').forEach(function(i){
+      if(i.hasAttribute('data-novk')) return;
+      if(on){ if(!i.hasAttribute('data-im0')){ i.setAttribute('data-im0',i.getAttribute('inputmode')||''); } i.setAttribute('inputmode','none'); }
+      else if(i.hasAttribute('data-im0')){ var o=i.getAttribute('data-im0'); if(o) i.setAttribute('inputmode',o); else i.removeAttribute('inputmode'); i.removeAttribute('data-im0'); }
+    });
+    var tg=$('kbToggle'); if(tg){ tg.checked=kbWanted(); tg.disabled=!ezbKB.hasLayout(lang); }
+    var note=$('kbNote'); if(note) note.textContent=ezbKB.hasLayout(lang)?'':(lang==='en'||lang==='zh'||lang==='ko'?'Your device keyboard already types this language. Any characters work in names and search.':'');
+  }
+  function postLang(){
+    try{ $('chatFrame').contentWindow.postMessage({type:'ezb-lang',lang:lang,speech:SPEECH[lang]||'en-US',kb:kbWanted()&&ezbKB.hasLayout(lang),ph:(CHATT[lang]||[])[0],sub:(CHATT[lang]||[])[1],wb:lang==='en'?'':(T[lang]||[])[0]},'*'); }catch(e){}
+  }
+  function setLang(code,user){
+    if(!SPEECH[code]) code='en'; lang=code; ls('ezb_lang',code);
+    document.documentElement.setAttribute('lang',code);
+    window.EZB_SPEECH=SPEECH[code]; try{ window.dispatchEvent(new Event('ezb-langchange')); }catch(e){}
+    translate(code); applyKb(); postLang();
+    var sel=$('langSelect'); if(sel&&sel.value!==code) sel.value=code;
+    if(user) schedule();
+  }
+  window.ezbSetLang=setLang;
+
+  /* ---------- secure account sync (Gmail via Email OTP) ---------- */
+  var CK='ezb_cloud', cloud=null, timer=null, state='', lastSync=0;
+  try{ cloud=JSON.parse(ls(CK)||'null'); }catch(e){ cloud=null; }
+  function saveCloud(){ if(cloud) ls(CK,JSON.stringify(cloud)); else ls(CK,null); }
+  function api(method,path,body){
+    var h={'Content-Type':'application/json'}; if(cloud&&cloud.token) h.Authorization='Bearer '+cloud.token;
+    return fetch(OTP_API_BASE+path,{method:method,headers:h,body:body?JSON.stringify(body):undefined}).then(function(r){ return r.json().then(function(j){ return {s:r.status,j:j}; },function(){ return {s:r.status,j:{}}; }); });
+  }
+  function avatarData(){ var a=$('homeAvatar'); var m=/url\(["']?(data:image\/[^"')]+)["']?\)/.exec((a&&a.style.backgroundImage)||''); return m?m[1]:''; }
+  function setAvatar(src){ var a=$('homeAvatar'); if(!a||!src) return; a.textContent=''; a.style.backgroundImage='url('+src+')'; a.style.backgroundSize='cover'; a.style.backgroundPosition='center'; }
+  function collect(){
+    var d={history:getHistory(),theme:curTheme,lang:lang,name:(cloud&&cloud.name)||'',updated:Date.now()};
+    var av=avatarData(); if(av) d.avatar=av; return d;
+  }
+  function render(){
+    var s=$('cloudState'), b=$('syncNowBtn'); if(!s) return;
+    if(!cloud){ s.className='cloud-state'; s.textContent='Not signed in. Log in with the Email OTP tab (Gmail) to sync your history, theme, language and photo to your account.'; return; }
+    var t=state==='busy'?'Syncing…':state==='offline'?'Offline — will retry when you are back online.':state==='expired'?'Session expired. Please log in again.':(lastSync?'Synced '+new Date(lastSync).toLocaleTimeString():'Signed in');
+    s.className='cloud-state '+(state==='offline'||state==='expired'?'bad':'ok');
+    s.textContent='✓ '+cloud.email+' — '+t+'  (encrypted on the server)';
+  }
+  function push(){
+    clearTimeout(timer); if(!cloud||!ready) return Promise.resolve();
+    state='busy'; render();
+    return api('PUT','/api/data',{data:collect()}).then(function(r){
+      if(r.s===401){ cloud=null; saveCloud(); state='expired'; }
+      else if(r.j&&r.j.ok){ state='ok'; lastSync=Date.now(); } else state='offline';
+      render();
+    }).catch(function(){ state='offline'; render(); });
+  }
+  function schedule(){ if(!cloud||!ready) return; clearTimeout(timer); timer=setTimeout(push,1500); }
+  window.addEventListener('online',function(){ if(cloud&&ready&&state==='offline') push(); });
+  function applyData(d){
+    if(!d||typeof d!=='object') return;
+    var seen={}, merged=[];
+    (Array.isArray(d.history)?d.history:[]).concat(getHistory()).sort(function(a,b){ return (b.time||0)-(a.time||0); }).forEach(function(x){
+      if(!x||typeof x.site!=='string') return; var k=x.site+'|'+x.time; if(!seen[k]){ seen[k]=1; merged.push(x); } });
+    try{ localStorage.setItem(HISTORY_KEY,JSON.stringify(merged.slice(0,200))); }catch(e){}
+    try{ renderHistory(); }catch(e){}
+    if(d.theme){ try{ applyTheme(d.theme); }catch(e){} }
+    if(d.lang&&SPEECH[d.lang]) setLang(d.lang,false);
+    if(d.avatar) setAvatar(d.avatar);
+  }
+  /* called by the Email-OTP verify step; returns the name to log in with */
+  window.ezbCloudLogin=function(j,typed){
+    cloud={token:j.token,email:j.email,name:typed||''};
+    var d=j.data; if(d&&typeof d==='object'&&Object.keys(d).length){ applyData(d); if(!cloud.name&&d.name) cloud.name=d.name; }
+    ready=true; saveCloud(); lastSync=0; state='busy'; render(); setTimeout(push,800);
+    return cloud.name;
+  };
+  /* wrap things that change user data so they sync */
+  var _lh=window.logHistory; if(typeof _lh==='function') window.logHistory=function(){ var r=_lh.apply(this,arguments); schedule(); return r; };
+  var _at=window.applyTheme; if(typeof _at==='function') window.applyTheme=function(k){ var r=_at.apply(this,arguments); if(typeof k==='string'){ curTheme=k; ls('ezb_theme',k); schedule(); } return r; };
+  var av=$('homeAvatar'); if(av&&window.MutationObserver) new MutationObserver(function(){ schedule(); }).observe(av,{attributes:true,attributeFilter:['style']});
+  /* logout: final sync, end the server session, remove personal data from this device */
+  $('logoutBtn').addEventListener('click',function(){
+    if(!cloud) return;
+    var c=cloud, data=collect(); cloud=null; saveCloud(); clearTimeout(timer); state=''; lastSync=0;
+    var h={'Content-Type':'application/json',Authorization:'Bearer '+c.token};
+    fetch(OTP_API_BASE+'/api/data',{method:'PUT',headers:h,body:JSON.stringify({data:data})}).catch(function(){}).then(function(){
+      return fetch(OTP_API_BASE+'/api/logout',{method:'POST',headers:h,body:'{}'}).catch(function(){}); });
+    ls('ezb_history',null); try{ renderHistory(); }catch(e){} render();
+  },true);
+
+  /* ---------- Settings UI ---------- */
+  var sel=$('langSelect');
+  if(sel){ NAMES.forEach(function(p){ var o=document.createElement('option'); o.value=p[0]; o.textContent=p[1]; sel.appendChild(o); });
+    sel.addEventListener('change',function(){ setLang(sel.value,true); }); }
+  var tg=$('kbToggle'); if(tg) tg.addEventListener('change',function(){ ls('ezb_kb',tg.checked?'1':'0'); applyKb(); postLang(); });
+  var sn=$('syncNowBtn'); if(sn) sn.addEventListener('click',function(){ if(!cloud){ render(); return; } push(); });
+  $('chatFrame').addEventListener('load',postLang);
+  var otpc=$('otpCodeInput'); if(otpc) otpc.setAttribute('data-novk','');
+  document.querySelectorAll('input.field,#searchInput').forEach(function(i){ if(i.type==='text'||i.type==='search') i.setAttribute('dir','auto'); });
+
+  /* ---------- start ---------- */
+  ezbKB.init({});
+  var savedT=ls('ezb_theme'); if(savedT){ try{ applyTheme(savedT); }catch(e){} }
+  setLang(ls('ezb_lang')||'en',false);
+  render();
+  function restore(){
+    if(!cloud||!cloud.token) return;
+    ready=false;
+    api('GET','/api/data').then(function(r){
+      if(r.s===200&&r.j&&r.j.ok){
+        applyData(r.j.data); if(!cloud.name&&r.j.data&&r.j.data.name) cloud.name=r.j.data.name; saveCloud(); ready=true; state='ok'; lastSync=Date.now(); render();
+        if($('loginScreen').classList.contains('active')) logInAs(cloud.name||'');
+        push();
+      } else if(r.s===401){ cloud=null; saveCloud(); ready=true; state='expired'; render(); }
+      else { state='offline'; render(); }
+    }).catch(function(){ state='offline'; render(); });
+  }
+  window.addEventListener('online',function(){ if(cloud&&!ready) restore(); });
+  restore();
+})();
+
+</script>
+<script>
+/* ---------- Passkey: Face ID / fingerprint via WebAuthn (device-local unlock) ---------- */
+(function(){
+  var KEY='ezb_passkey', $=function(i){return document.getElementById(i);};
+  function load(){ try{ return JSON.parse(localStorage.getItem(KEY)||'null'); }catch(e){ return null; } }
+  function save(v){ try{ if(v) localStorage.setItem(KEY,JSON.stringify(v)); else localStorage.removeItem(KEY); }catch(e){} }
+  function b64(buf){ var s=''; new Uint8Array(buf).forEach(function(c){s+=String.fromCharCode(c);}); return btoa(s).replace(/\+/g,'-').replace(/\//g,'_').replace(/=+$/,''); }
+  function unb64(t){ t=t.replace(/-/g,'+').replace(/_/g,'/'); while(t.length%4) t+='='; var r=atob(t), u=new Uint8Array(r.length); for(var i=0;i<r.length;i++) u[i]=r.charCodeAt(i); return u; }
+  function rnd(n){ return crypto.getRandomValues(new Uint8Array(n)); }
+  function msg(el,t){ if(el) el.textContent=t||''; }
+  var supported=false;
+  function why(){
+    if(!window.PublicKeyCredential||!navigator.credentials) return 'This browser does not support passkeys.';
+    if(!window.isSecureContext) return 'Passkeys need a secure address (https:// or localhost), not a local file.';
+    if(!supported) return 'No Face ID / fingerprint is set up on this device.';
+    return '';
+  }
+  function refresh(){
+    var pk=load(), ok=!why();
+    var lb=$('passkeyLoginBtn'); if(lb) lb.style.display=(pk&&ok)?'block':'none';
+    var st=$('pkState'), sb=$('pkSetupBtn'), rb=$('pkRemoveBtn');
+    if(st) st.textContent = pk ? ('Passkey is on for "'+pk.name+'" on this device.') : (ok ? 'Not set up.' : why());
+    if(sb){ sb.style.display=(!pk&&ok)?'block':'none'; }
+    if(rb){ rb.style.display=pk?'block':'none'; }
+  }
+  function detect(){
+    try{
+      if(window.PublicKeyCredential&&PublicKeyCredential.isUserVerifyingPlatformAuthenticatorAvailable){
+        PublicKeyCredential.isUserVerifyingPlatformAuthenticatorAvailable().then(function(v){supported=!!v;refresh();},function(){refresh();});
+        return;
+      }
+    }catch(e){}
+    refresh();
+  }
+  function errText(e){
+    if(e&&e.name==='NotAllowedError') return 'Cancelled or not recognised. Try again.';
+    if(e&&e.name==='InvalidStateError') return 'A passkey already exists for this device.';
+    if(e&&e.name==='SecurityError') return 'Passkeys need a secure (https) address.';
+    return 'Could not use the passkey: '+((e&&e.message)||e);
+  }
+  $('pkSetupBtn').addEventListener('click',function(){
+    var m=$('pkMsg'), name=($('homeWelcome')&&$('homeWelcome').textContent||'').trim();
+    if(why()){ msg(m,why()); return; }
+    if(!name||name==='Guest'){ msg(m,'Log in with a username first, then set up the passkey.'); return; }
+    msg(m,'Waiting for Face ID / fingerprint...');
+    navigator.credentials.create({publicKey:{
+      challenge:rnd(32), rp:{name:'Easy Browser', id:location.hostname},
+      user:{id:rnd(16), name:name, displayName:name},
+      pubKeyCredParams:[{type:'public-key',alg:-7},{type:'public-key',alg:-257}],
+      authenticatorSelection:{authenticatorAttachment:'platform',userVerification:'required',residentKey:'preferred'},
+      timeout:60000, attestation:'none'
+    }}).then(function(c){
+      save({id:b64(c.rawId), name:name}); msg(m,'Passkey saved. You can now sign in with Face ID / fingerprint.'); refresh();
+    }).catch(function(e){ msg(m,errText(e)); });
+  });
+  $('pkRemoveBtn').addEventListener('click',function(){
+    save(null); msg($('pkMsg'),'Passkey removed from this device.'); refresh();
+  });
+  $('passkeyLoginBtn').addEventListener('click',function(){
+    var pk=load(), m=$('passkeyStatus');
+    if(!pk){ refresh(); return; }
+    msg(m,'Waiting for Face ID / fingerprint...');
+    navigator.credentials.get({publicKey:{
+      challenge:rnd(32), rpId:location.hostname, timeout:60000, userVerification:'required',
+      allowCredentials:[{type:'public-key',id:unb64(pk.id),transports:['internal']}]
+    }}).then(function(a){
+      if(!a) throw new Error('No result');
+      msg(m,''); logInAs(pk.name);
+    }).catch(function(e){ msg(m,errText(e)); });
+  });
+  document.addEventListener('DOMContentLoaded',detect);
+  if(document.readyState!=='loading') detect();
+})();
+</script>
 </body>
 </html>
