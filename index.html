@@ -1,3 +1,8 @@
+Gmail	Varun KG <varunkoneriganesh@gmail.com>
+(no subject)
+Ganesh KV <ganesh.kv@gmail.com>	Fri, Oct 16, 2026 at 7:06 PM
+To: Varun KG <varunkoneriganesh@gmail.com>
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -61,6 +66,9 @@ iEFAQMSCkBZgYzEwkiMsYQEXClQ3yFY7pIlzleuFL9D2WjrBfUNEEGAAAAAElFTkSuQmCC">
     position:relative;overflow-x:hidden;
   }
   #starsBg{ position:fixed;inset:0;width:100%;height:100%;z-index:-1; }
+  #photoBg{ position:fixed;inset:0;z-index:-1;display:none;background-size:cover;background-position:center;background-repeat:no-repeat; }
+  #photoBg.on{ display:block; }
+  #photoBg::after{ content:'';position:absolute;inset:0;background:linear-gradient(180deg,rgba(5,12,28,.55),rgba(5,12,28,.72)); }
   .wrap{ max-width:440px;width:100%;margin:0 auto;position:relative; }
   .screen{ display:none; }
   .screen.active{ display:block; }
@@ -244,6 +252,7 @@ iEFAQMSCkBZgYzEwkiMsYQEXClQ3yFY7pIlzleuFL9D2WjrBfUNEEGAAAAAElFTkSuQmCC">
   .otp-links{ display:flex;justify-content:space-between;margin-top:12px; }
   .link-btn{ background:none;border:none;color:rgb(var(--accent,100,150,230));font-size:13px;font-weight:600;cursor:pointer;padding:6px 2px;font-family:inherit; }
   .link-btn:disabled{ color:var(--muted);cursor:default; }
+  #tabOtp,#otpPane,.login-card .tabs{ display:none !important; }
   .otp-status{ font-size:12px;min-height:16px;margin:-6px 0 12px;color:var(--muted);line-height:1.4; }
   .otp-status.ok{ color:rgb(var(--accent,100,150,230)); }
   .otp-status.err{ color:#ff8f8f; }
@@ -258,17 +267,12 @@ select.field option{background:#0d2040;color:#eef3fb}
 </head>
 <body>
 <canvas id="starsBg"></canvas>
+<div id="photoBg"></div>
 
 <div class="wrap">
 
   <!-- LOGIN -->
   <div class="screen active" id="loginScreen">
-    <div class="top-corner">
-      <button class="icon-circle" id="openSettingsFromLogin" aria-label="Settings">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 11-2.83 2.83l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-4 0v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 11-2.83-2.83l.06-.06A1.65 1.65 0 004.6 15a1.65 1.65 0 00-1.51-1H3a2 2 0 010-4h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 112.83-2.83l.06.06A1.65 1.65 0 009 4.6a1.65 1.65 0 001-1.51V3a2 2 0 014 0v.09A1.65 1.65 0 0015 4.6a1.65 1.65 0 001.82-.33l.06-.06a2 2 0 112.83 2.83l-.06.06A1.65 1.65 0 0019.4 9c.36.14.68.38 1 .5H21a2 2 0 010 4h-.09a1.65 1.65 0 00-1.51 1z"/></svg>
-      </button>
-    </div>
-
     <div class="brand">
       <div class="logo-wrap"><img id="loginLogo" src="data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAAD/2wBDAAcFBQYFBAcGBgYIBwcICxILCwoKCxYPEA0SGhYbGhkWG
 RgcICgiHB4mHhgZIzAkJiorLS4tGyIyNTEsNSgsLSz/2wBDAQcICAsJCxULCxUsHRkdLCwsLCwsLCwsLCwsLCwsLCwsLCwsLCwsL
@@ -435,18 +439,34 @@ YUUUVymh//Z"></div>
       <div id="passwordPane">
         <div class="field-label">Full name or email</div>
         <input class="field" id="nameInput" type="text" placeholder="Enter your username">
-        <div class="field-label">Password</div>
+        <div class="field-label">PIN (4 digits)</div>
         <div class="password-wrap">
-          <input class="field" id="passwordInput" type="password" placeholder="Enter your passcode">
+          <input class="field" id="passwordInput" type="password" inputmode="numeric" pattern="[0-9]*" maxlength="4" autocomplete="off" data-novk placeholder="4-digit PIN">
           <button type="button" class="eye-btn" id="toggleEye" aria-label="Show password">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-7 11-7 11 7 11 7-4 7-11 7-11-7-11-7z"/><circle cx="12" cy="12" r="3"/></svg>
           </button>
         </div>
         <div class="row-between">
           <label class="remember"><input type="checkbox"> Remember me</label>
-          <a href="#">Forgot password?</a>
+          <a href="#" id="forgotPin">Forgot PIN?</a>
         </div>
-        <button class="primary-btn">Log in</button>
+        <button class="primary-btn" id="pinLoginBtn" type="button">Log in</button>
+        <div class="otp-status" id="pinStatus" aria-live="polite" style="margin-top:10px;"></div>
+      </div>
+
+      <div id="signupPane" style="display:none;">
+        <div class="field-label">Choose a username</div>
+        <input class="field" id="signupName" type="text" autocomplete="username" placeholder="Your username">
+        <button class="primary-btn" id="signupBtn" type="button">Create account</button>
+        <div class="otp-status" id="signupStatus" aria-live="polite" style="margin-top:10px;"></div>
+        <button type="button" class="link-btn" id="backToLogin">‹ Back to log in</button>
+      </div>
+
+      <div id="pinReveal" style="display:none;text-align:center;">
+        <div class="field-label">Your PIN</div>
+        <div id="pinBig" style="font-size:44px;font-weight:800;letter-spacing:12px;margin:8px 0 4px;">0000</div>
+        <p class="dev-note">Save this PIN now. It is shown only once. You need your username and this PIN to log in on any device.</p>
+        <button class="primary-btn" id="pinContinue" type="button">I saved it, continue</button>
       </div>
 
       <div id="otpPane" style="display:none;">
@@ -462,7 +482,7 @@ YUUUVymh//Z"></div>
       <div class="divider">or continue with</div>
       <button type="button" class="primary-btn" id="passkeyLoginBtn" style="display:none;margin-top:12px;">&#128274; Sign in with Face ID / fingerprint</button>
       <div class="otp-status" id="passkeyStatus" aria-live="polite"></div>
-      <div class="signup-line">Don't have an account? <a href="#">Sign up</a></div>
+      <div class="signup-line" id="signupLine">Don't have an account? <a href="#" id="goSignup">Sign up</a></div>
 
       <div class="feature-row">
         <div class="feature"><div class="icon"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M13 2L4 14h6l-1 8 9-12h-6z"/></svg></div><span>Lightning fast</span></div>
@@ -644,10 +664,11 @@ YUUUVymh//Z"></div>
 
     <form class="search-wrap" id="searchForm">
       <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#9db0cf" stroke-width="2"><circle cx="11" cy="11" r="7"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
-      <input type="text" id="searchInput" placeholder="Search or enter website" autocomplete="off">
+      <input type="text" id="searchInput" placeholder="Search or enter website" autocomplete="off" autocapitalize="off" autocorrect="off" spellcheck="false" enterkeyhint="search">
       <button type="button" class="icon-btn" id="voiceSearchBtn" aria-label="Voice search">
         <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="9" y="2" width="6" height="12" rx="3"/><path d="M5 10a7 7 0 0014 0M12 19v3" stroke-linecap="round"/></svg>
       </button>
+      <button type="submit" class="icon-btn" id="searchGoBtn" aria-label="Search"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M13 6l6 6-6 6"/></svg></button>
     </form>
 
     <button type="button" class="ask-bot" id="askBotBtn"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M21 12a8 8 0 01-11.5 7.2L4 20l1-4.5A8 8 0 1121 12z"/></svg>Not sure which site to use? Ask Easy Bot<b>Ask ›</b></button>
@@ -834,6 +855,15 @@ YUUUVymh//Z"></div>
     <div class="settings-label">Appearance</div>
     <div class="theme-row" id="themeRow"></div>
 
+    <div class="settings-label" style="margin-top:26px;">Background photo</div>
+    <div class="update-card">
+      <button class="primary-btn" id="bgPick" type="button" style="margin:0;">Choose a photo</button>
+      <button class="primary-btn" id="bgClear" type="button" style="margin:10px 0 0;display:none;">Use theme background</button>
+      <div class="update-status" id="bgMsg"></div>
+      <p class="dev-note">Your photo becomes the app background. It is saved on this device and, when you are logged in, with your account together with your profile photo.</p>
+    </div>
+    <input type="file" id="bgFile" accept="image/*" style="display:none">
+
     <div class="settings-label" style="margin-top:26px;">Language</div>
     <div class="update-card">
       <select class="field" id="langSelect" aria-label="Language" style="margin:0;"></select>
@@ -855,7 +885,7 @@ YUUUVymh//Z"></div>
     <div class="update-card">
       <div class="cloud-state" id="cloudState"></div>
       <button class="primary-btn" id="syncNowBtn" type="button" style="margin:12px 0 0;">Sync now</button>
-      <p class="dev-note">Log in with a verified Gmail (Email OTP) and your history, theme, language and profile photo are saved to that account — encrypted on the server, readable only after you verify the same Gmail. Logging out removes them from this device.</p>
+      <p class="dev-note">Log in with your username and PIN and your history, theme, language and profile photo are saved to that account, encrypted on the server. Log in with the same username and PIN on any device to get them back. Logging out removes them from this device.</p>
     </div>
 
     <div class="settings-label" style="margin-top:26px;">Software Update</div>
@@ -1711,7 +1741,6 @@ function showScreen(id){
   document.getElementById(id).classList.add('active');
 }
 
-document.getElementById('openSettingsFromLogin').addEventListener('click', () => { lastScreen='loginScreen'; showScreen('settingsScreen'); });
 document.getElementById('openSettingsFromHome').addEventListener('click', () => { lastScreen='homeScreen'; showScreen('settingsScreen'); });
 document.getElementById('closeSettingsBtn').addEventListener('click', () => showScreen(lastScreen));
 
@@ -1783,6 +1812,9 @@ document.getElementById('searchForm').addEventListener('submit', (e) => {
   window.location.href = url;
 });
 
+document.getElementById('searchInput').addEventListener('keydown', (e) => {
+  if(e.key === 'Enter' || e.keyCode === 13){ e.preventDefault(); document.getElementById('searchForm').requestSubmit ? document.getElementById('searchForm').requestSubmit() : document.getElementById('searchGoBtn').click(); }
+});
 document.getElementById('tabPassword').addEventListener('click', () => {
   document.getElementById('tabPassword').classList.add('active');
   document.getElementById('tabOtp').classList.remove('active');
@@ -1835,12 +1867,8 @@ function logInAs(name){
   });
 }
 
-document.querySelector('#passwordPane .primary-btn').addEventListener('click', () => {
-  const name = document.getElementById('nameInput').value;
-  const pass = document.getElementById('passwordInput').value;
-  // guest mode: both fields left empty
-  logInAs((name || pass) ? name : '');
-});
+/* log in is handled by the PIN script at the end of the page */
+
 // ---------- Email OTP (Gmail address verification through the Python OTP server) ----------
 // Same website + server:  leave OTP_API_BASE empty.
 // Website on GitHub Pages, server elsewhere (e.g. Render):  OTP_API_BASE = 'https://your-server.example.com'
@@ -1929,15 +1957,8 @@ document.getElementById('homeAvatar').addEventListener('click', () => avatarFile
 avatarFileInput.addEventListener('change', () => {
   const file = avatarFileInput.files[0];
   if(!file) return;
-  const reader = new FileReader();
-  reader.onload = () => {
-    const avatar = document.getElementById('homeAvatar');
-    avatar.textContent = '';
-    avatar.style.backgroundImage = `url(${reader.result})`;
-    avatar.style.backgroundSize = 'cover';
-    avatar.style.backgroundPosition = 'center';
-  };
-  reader.readAsDataURL(file);
+  window.ezbShrink(file, 320, 0.82, true).then(src => { window.ezbSetAvatar(src, true); }).catch(()=>{});
+  avatarFileInput.value = '';
 });
 
 // history screen — a real, growing log of what's actually been searched/opened,
@@ -1976,13 +1997,17 @@ function renderHistory(){
     historyList.innerHTML = `<p style="color:var(--muted);font-size:13px;">Nothing searched yet — sites you visit from the search bar or Quick Access will show up here.</p>`;
     return;
   }
-  list.forEach(h => {
+  const seenSites = new Map();
+  list.forEach(h => { const k=String(h.site).toLowerCase(); const e=seenSites.get(k); if(e) e.n++; else seenSites.set(k,{h:h,n:1}); });
+  seenSites.forEach(({h,n}) => {
     const a = document.createElement('a');
     a.className = 'history-item';
     a.href = h.site.startsWith('http') ? h.site : `https://${h.site}`;
     a.target = '_blank';
     a.rel = 'noopener';
-    a.innerHTML = `<span class="site">${h.site}</span><span class="time">${relativeTime(h.time)}</span>`;
+    a.innerHTML = `<span class="site"></span><span class="time"></span>`;
+    a.querySelector('.site').textContent = h.site + (n>1 ? '  \u00d7'+n : '');
+    a.querySelector('.time').textContent = relativeTime(h.time);
     historyList.appendChild(a);
   });
 }
@@ -2950,14 +2975,14 @@ var ezbKB = (function(){
   function setAvatar(src){ var a=$('homeAvatar'); if(!a||!src) return; a.textContent=''; a.style.backgroundImage='url('+src+')'; a.style.backgroundSize='cover'; a.style.backgroundPosition='center'; }
   function collect(){
     var d={history:getHistory(),theme:curTheme,lang:lang,name:(cloud&&cloud.name)||'',updated:Date.now()};
-    var av=avatarData(); if(av) d.avatar=av; return d;
+    var av=avatarData(); if(av) d.avatar=av; var bg=ls('ezb_bgphoto'); if(bg) d.bg=bg; return d;
   }
   function render(){
     var s=$('cloudState'), b=$('syncNowBtn'); if(!s) return;
-    if(!cloud){ s.className='cloud-state'; s.textContent='Not signed in. Log in with the Email OTP tab (Gmail) to sync your history, theme, language and photo to your account.'; return; }
+    if(!cloud){ s.className='cloud-state'; s.textContent='Not signed in. Log in with your username and PIN to sync your history, theme, language and photo to your account.'; return; }
     var t=state==='busy'?'Syncing…':state==='offline'?'Offline — will retry when you are back online.':state==='expired'?'Session expired. Please log in again.':(lastSync?'Synced '+new Date(lastSync).toLocaleTimeString():'Signed in');
     s.className='cloud-state '+(state==='offline'||state==='expired'?'bad':'ok');
-    s.textContent='✓ '+cloud.email+' — '+t+'  (encrypted on the server)';
+    s.textContent='✓ '+String(cloud.email).replace(/^pin:/,'')+' — '+t+'  (encrypted on the server)';
   }
   function push(){
     clearTimeout(timer); if(!cloud||!ready) return Promise.resolve();
@@ -2968,6 +2993,7 @@ var ezbKB = (function(){
       render();
     }).catch(function(){ state='offline'; render(); });
   }
+  window.ezbSchedule=function(){ schedule(); };
   function schedule(){ if(!cloud||!ready) return; clearTimeout(timer); timer=setTimeout(push,1500); }
   window.addEventListener('online',function(){ if(cloud&&ready&&state==='offline') push(); });
   function applyData(d){
@@ -2980,6 +3006,7 @@ var ezbKB = (function(){
     if(d.theme){ try{ applyTheme(d.theme); }catch(e){} }
     if(d.lang&&SPEECH[d.lang]) setLang(d.lang,false);
     if(d.avatar) setAvatar(d.avatar);
+    if(d.bg&&window.ezbSetBg) window.ezbSetBg(d.bg,false);
   }
   /* called by the Email-OTP verify step; returns the name to log in with */
   window.ezbCloudLogin=function(j,typed){
@@ -3108,5 +3135,184 @@ var ezbKB = (function(){
   if(document.readyState!=='loading') detect();
 })();
 </script>
+<script>
+/* ---------- Username + 4-digit PIN accounts (server = synced; no server = this device only) ---------- */
+(function(){
+  var $=function(i){return document.getElementById(i);}, LK='ezb_local_accts';
+  var pending=null;
+  function say(id,t,cls){ var e=$(id); if(e){ e.textContent=t||''; e.className='otp-status'+(cls?' '+cls:''); } }
+  function post(path,body){
+    return fetch(OTP_API_BASE+path,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)})
+      .then(function(r){ return r.json().then(function(j){return {s:r.status,j:j};}); });
+  }
+  function hasServer(){
+    return fetch(OTP_API_BASE+'/api/status',{cache:'no-store'}).then(function(r){return r.json();}).then(function(j){return !!(j&&j.ok);}).catch(function(){return false;});
+  }
+  /* device-only accounts, used when no server is reachable */
+  function lget(){ try{return JSON.parse(localStorage.getItem(LK)||'{}');}catch(e){return {};} }
+  function lset(v){ try{localStorage.setItem(LK,JSON.stringify(v));}catch(e){} }
+  function sha(t){ return crypto.subtle.digest('SHA-256',new TextEncoder().encode(t)).then(function(b){ return Array.from(new Uint8Array(b)).map(function(x){return ('0'+x.toString(16)).slice(-2);}).join(''); }); }
+  function clean(u){ return String(u||'').normalize('NFKC').trim().replace(/\s+/g,' '); }
+
+  /* device-only accounts keep their own history under the username */
+  var LU=null;
+  function hk(n){ return 'ezb_lh:'+n.toLowerCase(); }
+  window.ezbLU=function(){ return LU; };
+  function useLocal(n){
+    LU=n; try{ localStorage.setItem('ezb_history',localStorage.getItem(hk(n))||'[]'); }catch(e){}
+    try{ renderHistory(); }catch(e){}
+    try{ var lp=JSON.parse(localStorage.getItem('ezb_lp:'+n.toLowerCase())||'null'); if(lp){ if(window.ezbSetBg) ezbSetBg(lp.b||'',false); if(lp.a&&window.ezbSetAvatar) ezbSetAvatar(lp.a,false); } }catch(e){}
+  }
+  var _lh2=window.logHistory;
+  if(typeof _lh2==='function') window.logHistory=function(){ var r=_lh2.apply(this,arguments); if(LU){ try{ localStorage.setItem(hk(LU),localStorage.getItem('ezb_history')||'[]'); }catch(e){} } return r; };
+  $('logoutBtn').addEventListener('click',function(){ if(LU){ LU=null; try{ localStorage.removeItem('ezb_history'); renderHistory(); }catch(e){} } },true);
+  function show(which){
+    $('passwordPane').style.display=which==='login'?'':'none';
+    $('signupPane').style.display=which==='signup'?'':'none';
+    $('pinReveal').style.display=which==='reveal'?'':'none';
+    $('otpPane').style.display='none';
+    var tabs=document.querySelector('.login-card .tabs'); if(tabs) tabs.style.display=which==='login'?'':'none';
+    $('signupLine').style.display=which==='login'?'':'none';
+    var d=document.querySelector('.login-card .divider'); if(d) d.style.display=which==='login'?'':'none';
+    var h=document.querySelector('.login-card h2'), sb=document.querySelector('.login-card .sub');
+    if(which==='signup'){ h.textContent='Create account'; sb.textContent='Only a username. We give you a 4-digit PIN.'; }
+    else if(which==='reveal'){ h.textContent='Account created'; sb.textContent='Keep your PIN safe.'; }
+    else { h.textContent='Welcome back'; sb.textContent='Log in to continue to Easy Browser'; if($('tabPassword')) $('tabPassword').click(); }
+  }
+  $('goSignup').addEventListener('click',function(e){ e.preventDefault(); say('signupStatus',''); show('signup'); });
+  $('backToLogin').addEventListener('click',function(){ show('login'); });
+  $('forgotPin').addEventListener('click',function(e){
+    e.preventDefault();
+    var u=clean($('nameInput').value);
+    if(!u){ say('pinStatus','Type your username above first, then tap Forgot PIN.','err'); return; }
+    if(!confirm('A PIN cannot be recovered.\n\nDelete the account "'+u+'" and ALL its saved data, then create a new account?')) return;
+    say('pinStatus','Deleting...');
+    hasServer().then(function(srv){
+      if(srv) return post('/api/delete-account',{username:u,confirm:true}).then(function(r){ if(!r.j.ok) throw new Error(r.j.error||'failed'); });
+      var a=lget(); delete a[u.toLowerCase()]; lset(a); try{ localStorage.removeItem(hk(u)); }catch(x){}
+    }).then(function(){
+      say('pinStatus',''); $('passwordInput').value=''; show('signup'); $('signupName').value=u; say('signupStatus','Old account deleted. Create it again to get a new PIN.','ok');
+    }).catch(function(x){ say('pinStatus',(x&&x.message)||'Could not delete. Try again.','err'); });
+  });
+
+  $('signupBtn').addEventListener('click',function(){
+    var u=clean($('signupName').value), b=$('signupBtn');
+    if(u.length<2||u.length>30){ say('signupStatus','Enter a username (2 to 30 characters).','err'); return; }
+    b.disabled=true; say('signupStatus','Creating...');
+    hasServer().then(function(srv){
+      if(srv){
+        return post('/api/signup',{username:u}).then(function(r){
+          if(!r.j.ok){ say('signupStatus',r.j.error||'Could not create the account.','err'); return; }
+          pending={name:r.j.username,j:r.j}; reveal(r.j.pin,true);
+        });
+      }
+      var a=lget(), k=u.toLowerCase();
+      if(a[k]){ say('signupStatus','That username is taken on this device. Choose another.','err'); return; }
+      var pin=('000'+(crypto.getRandomValues(new Uint32Array(1))[0]%10000)).slice(-4), salt=Math.random().toString(36).slice(2);
+      return sha(salt+pin).then(function(h){ a[k]={name:u,salt:salt,hash:h}; lset(a); pending={name:u,j:null}; reveal(pin,false); });
+    }).catch(function(){ say('signupStatus','Something went wrong. Try again.','err'); }).then(function(){ b.disabled=false; });
+  });
+  function reveal(pin,srv){
+    $('pinBig').textContent=pin; show('reveal');
+    var n=$('pinReveal').querySelector('.dev-note');
+    n.textContent='Save this PIN now. It is shown only once. '+(srv?'Use your username and this PIN to log in on any device and your data will sync.':'No sync server is connected, so this account works on this device only.');
+  }
+  $('pinContinue').addEventListener('click',function(){
+    if(!pending) return; var p=pending; pending=null; var nm=p.name;
+    if(p.j&&window.ezbCloudLogin){ try{ nm=window.ezbCloudLogin(p.j,p.name)||nm; }catch(e){} }
+    $('pinBig').textContent='----'; $('signupName').value='';
+    if(!p.j) useLocal(nm);
+    logInAs(nm); show('login');
+  });
+
+  $('pinLoginBtn').addEventListener('click',function(){
+    var u=clean($('nameInput').value), pin=$('passwordInput').value.replace(/\D/g,''), b=$('pinLoginBtn');
+    if(!u&&!pin){ logInAs(''); return; }                       /* guest */
+    if(!u){ say('pinStatus','Enter your username.','err'); return; }
+    if(pin.length!==4){ say('pinStatus','Enter your 4-digit PIN.','err'); return; }
+    b.disabled=true; say('pinStatus','Checking...');
+    hasServer().then(function(srv){
+      if(srv){
+        return post('/api/login',{username:u,pin:pin}).then(function(r){
+          if(!r.j.ok){ say('pinStatus',r.j.error||'Login failed.','err'); return; }
+          try{ localStorage.setItem('ezb_history','[]'); }catch(e){}
+          var nm=r.j.username; if(window.ezbCloudLogin){ try{ nm=window.ezbCloudLogin(r.j,r.j.username)||nm; }catch(e){} }
+          say('pinStatus',''); $('passwordInput').value=''; logInAs(nm);
+        });
+      }
+      var rec=lget()[u.toLowerCase()];
+      if(!rec){ say('pinStatus','Wrong username or PIN.','err'); return; }
+      return sha(rec.salt+pin).then(function(h){
+        if(h!==rec.hash){ say('pinStatus','Wrong username or PIN.','err'); return; }
+        say('pinStatus',''); $('passwordInput').value=''; useLocal(rec.name); logInAs(rec.name);
+      });
+    }).catch(function(){ say('pinStatus','Something went wrong. Try again.','err'); }).then(function(){ b.disabled=false; });
+  });
+  [$('nameInput'),$('passwordInput')].forEach(function(i){ i.addEventListener('keydown',function(e){ if(e.key==='Enter') $('pinLoginBtn').click(); }); });
+  $('passwordInput').addEventListener('input',function(){ this.value=this.value.replace(/\D/g,'').slice(0,4); });
+})();
+</script>
+<script>
+/* ---------- Profile photo + background photo: compressed, saved locally and with the account ---------- */
+(function(){
+  var $=function(i){return document.getElementById(i);}, BK='ezb_bgphoto', AK='ezb_avatar';
+  function lsGet(k){ try{return localStorage.getItem(k);}catch(e){return null;} }
+  function lsSet(k,v){ try{ if(v) localStorage.setItem(k,v); else localStorage.removeItem(k); return true; }catch(e){ return false; } }
+  /* shrink a photo to a small JPEG data URL */
+  window.ezbShrink=function(file,max,q,square){
+    return new Promise(function(res,rej){
+      var url=URL.createObjectURL(file), im=new Image();
+      im.onload=function(){
+        var w=im.naturalWidth, h=im.naturalHeight, sx=0, sy=0, sw=w, sh=h, cw, ch;
+        if(square){ var m=Math.min(w,h); sx=(w-m)/2; sy=(h-m)/2; sw=sh=m; cw=ch=Math.min(max,m); }
+        else { var k=Math.min(1,max/Math.max(w,h)); cw=Math.round(w*k); ch=Math.round(h*k); }
+        var c=document.createElement('canvas'); c.width=cw; c.height=ch;
+        var x=c.getContext('2d'); x.fillStyle='#000'; x.fillRect(0,0,cw,ch); x.drawImage(im,sx,sy,sw,sh,0,0,cw,ch);
+        URL.revokeObjectURL(url); res(c.toDataURL('image/jpeg',q));
+      };
+      im.onerror=function(){ URL.revokeObjectURL(url); rej(new Error('bad image')); };
+      im.src=url;
+    });
+  };
+  function saveLocalUser(){
+    var u=window.ezbLU&&window.ezbLU(); if(!u) return;
+    lsSet('ezb_lp:'+u.toLowerCase(),JSON.stringify({a:lsGet(AK)||'',b:lsGet(BK)||''}));
+  }
+  window.ezbSetAvatar=function(src,user){
+    var a=$('homeAvatar'); if(!a||!src) return;
+    a.textContent=''; a.style.backgroundImage='url('+src+')'; a.style.backgroundSize='cover'; a.style.backgroundPosition='center';
+    lsSet(AK,src); if(user){ saveLocalUser(); if(window.ezbSchedule) window.ezbSchedule(); }
+  };
+  window.ezbSetBg=function(src,user){
+    var el=$('photoBg'); if(!el) return;
+    if(src){ el.style.backgroundImage='url('+src+')'; el.classList.add('on'); } else { el.style.backgroundImage=''; el.classList.remove('on'); }
+    $('bgClear').style.display=src?'block':'none';
+    lsSet(BK,src||null);
+    if(user){ saveLocalUser(); if(window.ezbSchedule) window.ezbSchedule(); }
+  };
+  $('bgPick').addEventListener('click',function(){ $('bgFile').click(); });
+  $('bgClear').addEventListener('click',function(){ window.ezbSetBg('',true); $('bgMsg').textContent='Background reset.'; });
+  $('bgFile').addEventListener('change',function(){
+    var f=this.files[0]; this.value=''; if(!f) return;
+    $('bgMsg').textContent='Preparing photo...';
+    window.ezbShrink(f,1100,0.68,false).then(function(src){
+      if(src.length>550000) return window.ezbShrink(f,800,0.55,false);
+      return src;
+    }).then(function(src){ window.ezbSetBg(src,true); $('bgMsg').textContent='Background saved.'; })
+      .catch(function(){ $('bgMsg').textContent='Could not use that photo. Try another.'; });
+  });
+  /* restore on load */
+  var b0=lsGet(BK), a0=lsGet(AK); if(b0) window.ezbSetBg(b0,false); if(a0) window.ezbSetAvatar(a0,false);
+  /* logout: photos leave this device (the account keeps them) */
+  $('logoutBtn').addEventListener('click',function(){
+    setTimeout(function(){
+      window.ezbSetBg('',false); lsSet(AK,null);
+      var a=$('homeAvatar'); if(a){ a.style.backgroundImage=''; a.textContent='?'; }
+    },0);
+  },true);
+})();
+</script>
 </body>
 </html>
+--
+Ganesh
