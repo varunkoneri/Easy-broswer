@@ -8,7 +8,12 @@
 <link rel="icon" type="image/png" sizes="32x32" href="favicon-32.png">
 <link rel="icon" type="image/png" sizes="16x16" href="favicon-16.png">
 <link rel="apple-touch-icon" sizes="180x180" href="apple-touch-icon.png">
-<link rel="manifest" href="site.webmanifest">
+<link rel="manifest" href="manifest.json">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Easy Browser">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="theme-color" content="#0a1a33">
 <meta name="theme-color" content="#0a1a33">
 <link rel="icon" type="image/png" sizes="32x32" href="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAIAAAD8GO2jAAAJS0lEQVR4nD2WW4xdZRXH/+v7vn09Z5
 8zZ+bMdObMtExnaKdXqEILIkgsNxEBE8UgqAHCg9eQGBOjGOMDJvJCfDHxQY2JEB9MaAJEE8GCFCj0wq2XKaWd6XTuc+bMue599j
@@ -63,7 +68,8 @@ iEFAQMSCkBZgYzEwkiMsYQEXClQ3yFY7pIlzleuFL9D2WjrBfUNEEGAAAAAElFTkSuQmCC">
   #starsBg{ position:fixed;inset:0;width:100%;height:100%;z-index:-1; }
   #photoBg{ position:fixed;inset:0;z-index:-1;display:none;background-size:cover;background-position:center;background-repeat:no-repeat; }
   #photoBg.on{ display:block; }
-  #photoBg::after{ content:'';position:absolute;inset:0;background:linear-gradient(180deg,rgba(5,12,28,.55),rgba(5,12,28,.72)); }
+  #photoBg.on ~ .wrap{ text-shadow:0 1px 8px rgba(0,0,0,.6); }
+  #photoBg::after{ content:'';position:absolute;inset:0;background:linear-gradient(180deg,rgba(5,12,28,.18),rgba(5,12,28,.40)); }
   .wrap{ max-width:440px;width:100%;margin:0 auto;position:relative; }
   .screen{ display:none; }
   .screen.active{ display:block; }
@@ -248,6 +254,76 @@ iEFAQMSCkBZgYzEwkiMsYQEXClQ3yFY7pIlzleuFL9D2WjrBfUNEEGAAAAAElFTkSuQmCC">
   .link-btn{ background:none;border:none;color:rgb(var(--accent,100,150,230));font-size:13px;font-weight:600;cursor:pointer;padding:6px 2px;font-family:inherit; }
   .link-btn:disabled{ color:var(--muted);cursor:default; }
   #tabOtp,#otpPane,.login-card .tabs{ display:none !important; }
+
+  /* ---------- browser chrome: tabs, toolbar, bookmarks bar ---------- */
+  :root{ --chrome-h:122px; }
+  #chrome{ position:fixed;top:0;left:0;right:0;z-index:100;background:rgba(9,18,38,.94);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);border-bottom:1px solid var(--stroke);user-select:none;-webkit-user-select:none; }
+  #tabStrip{ display:flex;align-items:flex-end;height:40px;padding:6px 8px 0;gap:2px; }
+  #tabList{ display:flex;align-items:flex-end;gap:2px;overflow-x:auto;flex:0 1 auto;max-width:calc(100% - 44px);scrollbar-width:none; }
+  #tabList::-webkit-scrollbar{ display:none; }
+  .ctab{ display:flex;align-items:center;gap:8px;min-width:96px;max-width:210px;flex:0 0 auto;height:34px;padding:0 8px 0 11px;border-radius:10px 10px 0 0;color:#9db0cf;font-size:12.5px;cursor:pointer;background:transparent;border:0; }
+  .ctab:hover{ background:rgba(255,255,255,.06); }
+  .ctab.active{ background:#14264a;color:#fff; }
+  .ctab .tfav{ width:16px;height:16px;border-radius:4px;flex:0 0 16px;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:700;background:rgb(var(--accent,100,150,230));color:#06122a;overflow:hidden; }
+  .ctab .tfav img{ width:16px;height:16px;object-fit:cover; }
+  .ctab .ttl{ flex:1;overflow:hidden;white-space:nowrap;text-overflow:ellipsis; }
+  .ctab .tx{ flex:0 0 18px;width:18px;height:18px;border-radius:50%;border:0;background:transparent;color:inherit;font-size:14px;line-height:18px;cursor:pointer;padding:0; }
+  .ctab .tx:hover{ background:rgba(255,255,255,.18); }
+  #newTabBtn{ width:30px;height:30px;margin:0 0 3px 4px;border-radius:50%;border:0;background:transparent;color:#cfe0ff;font-size:20px;cursor:pointer;flex:0 0 30px; }
+  #newTabBtn:hover{ background:rgba(255,255,255,.1); }
+  #toolbar{ display:flex;align-items:center;gap:4px;height:44px;padding:0 8px;background:#14264a; }
+  #toolbar .tb{ width:34px;height:34px;border-radius:50%;border:0;background:transparent;color:#cfe0ff;cursor:pointer;display:flex;align-items:center;justify-content:center;flex:0 0 34px;padding:0; }
+  #toolbar .tb:hover:not(:disabled){ background:rgba(255,255,255,.1); }
+  #toolbar .tb:disabled{ opacity:.35;cursor:default; }
+  #toolbar .tb svg{ width:18px;height:18px; }
+  #addrForm{ flex:1;display:flex;align-items:center;gap:8px;height:34px;border-radius:999px;background:#0c1a36;border:1px solid var(--stroke);padding:0 14px;min-width:0; }
+  #addrForm:focus-within{ border-color:rgb(var(--accent,100,150,230)); }
+  #addrForm svg{ width:15px;height:15px;color:#9db0cf;flex:0 0 15px; }
+  #addrInput{ flex:1;min-width:0;background:transparent;border:0;outline:0;color:#eef3fb;font-size:16px;font-family:inherit; }
+  #tbStar.on svg{ fill:#ffc94d;color:#ffc94d; }
+  #tbProfile{ overflow:hidden;font-weight:700;font-size:13px;background:rgb(var(--accent,100,150,230))!important;color:#06122a!important; }
+  #bmBar{ display:flex;align-items:center;gap:4px;height:32px;padding:0 10px;overflow-x:auto;scrollbar-width:none;background:#0f1e3d; }
+  #bmBar::-webkit-scrollbar{ display:none; }
+  .bm{ display:flex;align-items:center;gap:6px;flex:0 0 auto;height:24px;padding:0 9px;border-radius:7px;border:0;background:transparent;color:#cfe0ff;font-size:12px;cursor:pointer;white-space:nowrap; }
+  .bm:hover{ background:rgba(255,255,255,.09); }
+  .bm .tfav{ width:14px;height:14px;border-radius:3px;font-size:9px;font-weight:700;display:flex;align-items:center;justify-content:center;background:rgb(var(--accent,100,150,230));color:#06122a;overflow:hidden; }
+  .bm .tfav img{ width:14px;height:14px; }
+  .bm.sep{ width:1px;padding:0;margin:0 4px;background:var(--stroke);height:16px;cursor:default; }
+  #menuPop{ position:absolute;right:8px;top:86px;min-width:200px;background:#14264a;border:1px solid var(--stroke);border-radius:12px;padding:6px;box-shadow:0 12px 30px rgba(0,0,0,.5); }
+  #menuPop button{ display:block;width:100%;text-align:left;background:transparent;border:0;color:#eef3fb;font-size:14px;padding:9px 12px;border-radius:8px;cursor:pointer;font-family:inherit; }
+  #menuPop button:hover{ background:rgba(255,255,255,.09); }
+  #tabView{ position:fixed;left:0;right:0;bottom:0;top:var(--chrome-h);z-index:90;background:#0a1a33;display:none;flex-direction:column; }
+  #tvBanner{ flex:0 0 auto;display:flex;align-items:center;gap:10px;justify-content:space-between;padding:6px 12px;background:#101f3c;border-bottom:1px solid var(--stroke);font-size:12px;color:#9db0cf; }
+  #tvBanner button, #tvCard button{ background:rgb(var(--accent,100,150,230));color:#06122a;border:0;border-radius:999px;font-weight:700;font-size:13px;padding:7px 14px;cursor:pointer;font-family:inherit;white-space:nowrap; }
+  #tvFrame{ flex:1;width:100%;border:0;background:#fff; }
+  #tvCard{ flex:1;display:none;flex-direction:column;align-items:center;justify-content:center;gap:14px;text-align:center;padding:24px;color:#eef3fb; }
+  #tvCard .big{ width:84px;height:84px;border-radius:22px;background:rgb(var(--accent,100,150,230));color:#06122a;font-size:40px;font-weight:800;display:flex;align-items:center;justify-content:center;overflow:hidden; }
+  #tvCard .big img{ width:84px;height:84px;object-fit:cover; }
+  #tvCard p{ margin:0;max-width:420px;color:#9db0cf;font-size:14px;line-height:1.5; }
+  body.in-app{ padding-top:calc(var(--chrome-h) + 14px); }
+  @media (min-width:900px){ body.in-app .wrap{ max-width:640px; } }
+  @media (max-width:560px){ .ctab{ min-width:80px; } #tbStar{ display:none; } }
+
+  /* ---------- 1.0.1: fixed bottom bar, clean new-tab page, NEW badges ---------- */
+  :root{ --nav-h:70px; }
+  #homeScreen .brand, #homeScreen .home-topbar, #homeScreen .stats{ display:none; }
+  #ntTitle{ text-align:center;margin:clamp(24px,7vh,80px) 0 0;font-family:'Sora','Inter',sans-serif;font-weight:800;font-size:clamp(34px,6vw,52px);letter-spacing:-.02em;color:#eef3fb; }
+  #ntTitle span{ color:rgb(var(--accent,100,150,230)); }
+  #homeScreen .search-wrap{ margin-top:22px; }
+  #homeScreen{ padding-bottom:calc(var(--nav-h) + 24px); }
+  #homeScreen .bottom-nav{ position:fixed;left:0;right:0;bottom:0;margin:0;z-index:95;background:rgba(9,18,38,.97);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);
+    padding:10px max(18px,calc((100vw - 560px)/2)) calc(8px + env(safe-area-inset-bottom)); }
+  #tabView{ bottom:var(--nav-h); }
+  .new-badge{ display:none;margin-left:8px;padding:2px 7px;border-radius:999px;background:#ffc94d;color:#241a00;font-size:10px;font-weight:800;letter-spacing:.04em;vertical-align:middle; }
+  body.has-new .new-badge{ display:inline-block; }
+  #whatsNew{ position:fixed;inset:0;z-index:9000;background:rgba(3,8,20,.78);display:none;align-items:center;justify-content:center;padding:18px; }
+  #whatsNew .wn-card{ width:100%;max-width:420px;max-height:86vh;overflow:auto;background:#101f3c;border:1px solid var(--stroke);border-radius:20px;padding:22px; }
+  #whatsNew h3{ margin:0 0 4px;font-size:20px; }
+  #whatsNew .wn-sub{ color:#9db0cf;font-size:13px;margin:0 0 14px; }
+  #whatsNew ul{ list-style:none;margin:0 0 16px;padding:0;display:flex;flex-direction:column;gap:10px; }
+  #whatsNew li{ font-size:14px;line-height:1.45;padding-left:0; }
+  #whatsNew li b{ display:block; }
+  #whatsNew li span{ color:#9db0cf;font-size:12.5px; }
   .otp-status{ font-size:12px;min-height:16px;margin:-6px 0 12px;color:var(--muted);line-height:1.4; }
   .otp-status.ok{ color:rgb(var(--accent,100,150,230)); }
   .otp-status.err{ color:#ff8f8f; }
@@ -262,6 +338,54 @@ select.field option{background:#0d2040;color:#eef3fb}
 </head>
 <body>
 <canvas id="starsBg"></canvas>
+<div id="whatsNew" role="dialog" aria-modal="true" aria-label="What's new">
+  <div class="wn-card">
+    <h3>What's new in 1.0.1</h3>
+    <p class="wn-sub">Easy Browser just updated. Here is what is new:</p>
+    <ul>
+      <li><b>Tabs <span class="new-badge" style="display:inline-block;margin:0 0 0 6px;">NEW</span></b><span>Open several websites at once with the tab bar, address bar and bookmarks bar.</span></li>
+      <li><b>Your own PIN <span class="new-badge" style="display:inline-block;margin:0 0 0 6px;">NEW</span></b><span>Sign up with a username and a 4-digit PIN you choose. Reset it on your own device if you forget it.</span></li>
+      <li><b>Photos <span class="new-badge" style="display:inline-block;margin:0 0 0 6px;">NEW</span></b><span>Use your own background photo or the mountain lake. Your profile photo and background follow your account.</span></li>
+      <li><b>Face ID / fingerprint <span class="new-badge" style="display:inline-block;margin:0 0 0 6px;">NEW</span></b><span>Sign in with your phone's biometrics (Settings).</span></li>
+      <li><b>Languages <span class="new-badge" style="display:inline-block;margin:0 0 0 6px;">NEW</span></b><span>Pick your language and use the on-screen keyboard (Settings).</span></li>
+    </ul>
+    <button class="primary-btn" id="wnClose" type="button" style="margin:0;">Got it</button>
+  </div>
+</div>
+
+<div id="chrome" style="display:none;">
+  <div id="tabStrip"><div id="tabList" role="tablist"></div><button id="newTabBtn" type="button" aria-label="New tab">+</button></div>
+  <div id="toolbar">
+    <button class="tb" id="tbBack" type="button" aria-label="Back" disabled><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 12H5M12 19l-7-7 7-7"/></svg></button>
+    <button class="tb" id="tbFwd" type="button" aria-label="Forward" disabled><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M12 5l7 7-7 7"/></svg></button>
+    <button class="tb" id="tbReload" type="button" aria-label="Reload"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12a9 9 0 11-3-6.7L21 8M21 3v5h-5"/></svg></button>
+    <form id="addrForm" autocomplete="off"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V8a4 4 0 018 0v3"/></svg><input id="addrInput" type="text" placeholder="Search or enter website" autocomplete="off" autocapitalize="off" autocorrect="off" spellcheck="false" enterkeyhint="go" data-novk></form>
+    <button class="tb" id="tbStar" type="button" aria-label="Bookmark this page"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 3l2.7 5.6 6.1.9-4.4 4.3 1 6.1L12 17l-5.4 2.9 1-6.1L3.2 9.5l6.1-.9z"/></svg></button>
+    <button class="tb" id="tbSettings" type="button" aria-label="Settings"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 11-2.83 2.83l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-4 0v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 11-2.83-2.83l.06-.06A1.65 1.65 0 004.6 15a1.65 1.65 0 00-1.51-1H3a2 2 0 010-4h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 112.83-2.83l.06.06A1.65 1.65 0 009 4.6a1.65 1.65 0 001-1.51V3a2 2 0 014 0v.09A1.65 1.65 0 0015 4.6a1.65 1.65 0 001.82-.33l.06-.06a2 2 0 112.83 2.83l-.06.06A1.65 1.65 0 0019.4 9c.36.14.68.38 1 .5H21a2 2 0 010 4h-.09a1.65 1.65 0 00-1.51 1z"/></svg></button>
+    <button class="tb" id="tbProfile" type="button" aria-label="Profile and settings">?</button>
+    <button class="tb" id="tbMenu" type="button" aria-label="Menu"><svg viewBox="0 0 24 24" fill="currentColor"><circle cx="12" cy="5" r="2"/><circle cx="12" cy="12" r="2"/><circle cx="12" cy="19" r="2"/></svg></button>
+  </div>
+  <div id="bmBar"></div>
+  <div id="menuPop" style="display:none;">
+    <button type="button" data-m="new">New tab</button>
+    <button type="button" data-m="history">History</button>
+    <button type="button" data-m="bot">Ask Easy Bot</button>
+    <button type="button" data-m="settings">Settings</button>
+    <button type="button" data-m="logout">Log out</button>
+  </div>
+</div>
+<div id="tabView">
+  <div id="tvBanner"><span>If the page below is blank, this site does not allow being shown inside another page.</span><button type="button" id="tvOpen">Open in browser tab &#8599;</button></div>
+  <iframe id="tvFrame" title="Web page" referrerpolicy="no-referrer" allow="fullscreen" sandbox="allow-scripts allow-forms allow-same-origin allow-popups allow-popups-to-escape-sandbox"></iframe>
+  <div id="tvCard"><div class="big" id="tvBig">E</div><h2 id="tvName" style="margin:0;font-size:22px;"></h2><p id="tvNote"></p><button type="button" id="tvOpen2">Open in your browser &#8599;</button></div>
+</div>
+
+<div id="introVideo" style="display:none;position:fixed;inset:0;z-index:99999;background:#000;align-items:center;justify-content:center;">
+  <video id="introVid" playsinline webkit-playsinline preload="auto" style="max-width:100%;max-height:100%;width:100%;height:100%;object-fit:contain;"></video>
+  <div id="introMsg" style="position:absolute;left:0;right:0;top:50%;transform:translateY(-50%);text-align:center;color:#fff;font:600 15px Inter,system-ui,sans-serif;padding:0 24px;pointer-events:none;">Loading video...</div>
+  <button type="button" id="introPlay" style="display:none;position:absolute;padding:16px 30px;border-radius:999px;border:0;background:#fff;color:#000;font:700 17px Inter,system-ui,sans-serif;cursor:pointer;">&#9654; Play</button>
+  <button type="button" id="introSkip" style="position:absolute;top:max(14px,env(safe-area-inset-top));right:14px;padding:9px 16px;border-radius:999px;border:1px solid rgba(255,255,255,.4);background:rgba(0,0,0,.55);color:#fff;font:600 14px Inter,system-ui,sans-serif;cursor:pointer;">Skip &#8250;</button>
+</div>
 <div id="photoBg"></div>
 
 <div class="wrap">
@@ -447,21 +571,34 @@ YUUUVymh//Z"></div>
         </div>
         <button class="primary-btn" id="pinLoginBtn" type="button">Log in</button>
         <div class="otp-status" id="pinStatus" aria-live="polite" style="margin-top:10px;"></div>
+        <button type="button" class="link-btn" id="resetOffer" style="display:none;">Reset PIN on this device &#8250;</button>
+        <div id="pinAsk" style="display:none;margin-top:10px;padding:12px;border:1px solid rgba(255,143,143,.5);border-radius:12px;">
+          <div id="pinAskText" style="font-size:13px;line-height:1.5;margin-bottom:10px;"></div>
+          <button type="button" class="primary-btn" id="pinAskYes" style="margin:0 0 8px;">Yes, delete and start over</button>
+          <button type="button" class="link-btn" id="pinAskNo">Cancel</button>
+        </div>
       </div>
 
       <div id="signupPane" style="display:none;">
         <div class="field-label">Choose a username</div>
         <input class="field" id="signupName" type="text" autocomplete="username" placeholder="Your username">
+        <div class="field-label">Create a 4-digit PIN</div>
+        <input class="field" id="signupPin" type="password" inputmode="numeric" pattern="[0-9]*" maxlength="4" autocomplete="new-password" data-novk placeholder="4-digit PIN">
+        <div class="field-label">Confirm PIN</div>
+        <input class="field" id="signupPin2" type="password" inputmode="numeric" pattern="[0-9]*" maxlength="4" autocomplete="new-password" data-novk placeholder="Type the PIN again">
         <button class="primary-btn" id="signupBtn" type="button">Create account</button>
         <div class="otp-status" id="signupStatus" aria-live="polite" style="margin-top:10px;"></div>
-        <button type="button" class="link-btn" id="backToLogin">‹ Back to log in</button>
+        <button type="button" class="link-btn" id="backToLogin">&#8249; Back to log in</button>
       </div>
 
-      <div id="pinReveal" style="display:none;text-align:center;">
-        <div class="field-label">Your PIN</div>
-        <div id="pinBig" style="font-size:44px;font-weight:800;letter-spacing:12px;margin:8px 0 4px;">0000</div>
-        <p class="dev-note">Save this PIN now. It is shown only once. You need your username and this PIN to log in on any device.</p>
-        <button class="primary-btn" id="pinContinue" type="button">I saved it, continue</button>
+      <div id="resetPane" style="display:none;">
+        <div class="field-label">New 4-digit PIN</div>
+        <input class="field" id="resetPin" type="password" inputmode="numeric" pattern="[0-9]*" maxlength="4" autocomplete="new-password" data-novk placeholder="New PIN">
+        <div class="field-label">Confirm new PIN</div>
+        <input class="field" id="resetPin2" type="password" inputmode="numeric" pattern="[0-9]*" maxlength="4" autocomplete="new-password" data-novk placeholder="Type it again">
+        <button class="primary-btn" id="resetBtn" type="button">Reset PIN</button>
+        <div class="otp-status" id="resetStatus" aria-live="polite" style="margin-top:10px;"></div>
+        <button type="button" class="link-btn" id="resetCancel">&#8249; Back to log in</button>
       </div>
 
       <div id="otpPane" style="display:none;">
@@ -657,6 +794,7 @@ YUUUVymh//Z"></div>
       <div class="stat"><div class="label">History</div><div class="num">136</div><div class="sub">Visited</div></div>
     </div>
 
+    <h1 id="ntTitle">Easy <span>Browser</span></h1>
     <form class="search-wrap" id="searchForm">
       <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#9db0cf" stroke-width="2"><circle cx="11" cy="11" r="7"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
       <input type="text" id="searchInput" placeholder="Search or enter website" autocomplete="off" autocapitalize="off" autocorrect="off" spellcheck="false" enterkeyhint="search">
@@ -850,16 +988,17 @@ YUUUVymh//Z"></div>
     <div class="settings-label">Appearance</div>
     <div class="theme-row" id="themeRow"></div>
 
-    <div class="settings-label" style="margin-top:26px;">Background photo</div>
+    <div class="settings-label" style="margin-top:26px;">Background photo<span class="new-badge">NEW</span></div>
     <div class="update-card">
       <button class="primary-btn" id="bgPick" type="button" style="margin:0;">Choose a photo</button>
+      <button class="primary-btn" id="bgPreset" type="button" style="margin:10px 0 0;">Use mountain lake background</button>
       <button class="primary-btn" id="bgClear" type="button" style="margin:10px 0 0;display:none;">Use theme background</button>
       <div class="update-status" id="bgMsg"></div>
       <p class="dev-note">Your photo becomes the app background. It is saved on this device and, when you are logged in, with your account together with your profile photo.</p>
     </div>
     <input type="file" id="bgFile" accept="image/*" style="display:none">
 
-    <div class="settings-label" style="margin-top:26px;">Language</div>
+    <div class="settings-label" style="margin-top:26px;">Language<span class="new-badge">NEW</span></div>
     <div class="update-card">
       <select class="field" id="langSelect" aria-label="Language" style="margin:0;"></select>
       <label class="remember" style="margin-top:12px;display:flex;align-items:center;gap:10px;"><input type="checkbox" id="kbToggle"> <span>On-screen keyboard</span></label>
@@ -867,7 +1006,7 @@ YUUUVymh//Z"></div>
       <p class="dev-note">Names, search and the chat bot accept letters from any language. Menu text is translated for the main screens; the rest stays in English.</p>
     </div>
 
-    <div class="settings-label" style="margin-top:26px;">Passkey (Face ID / fingerprint)</div>
+    <div class="settings-label" style="margin-top:26px;">Passkey (Face ID / fingerprint)<span class="new-badge">NEW</span></div>
     <div class="update-card">
       <div class="cloud-state" id="pkState"></div>
       <button class="primary-btn" id="pkSetupBtn" type="button" style="margin:12px 0 0;">Set up passkey</button>
@@ -887,11 +1026,12 @@ YUUUVymh//Z"></div>
     <div class="update-card">
       <div class="update-row">
         <span>Easy Browser version</span>
-        <span id="installedVersion" class="version-tag">1.0.0</span>
+        <span id="installedVersion" class="version-tag">1.0.1</span>
       </div>
       <button class="primary-btn" id="checkUpdateBtn" style="margin:12px 0 0;">Check for Updates</button>
       <div id="updateStatus" class="update-status"></div>
       <button class="primary-btn" id="installUpdateBtn" style="display:none;margin-top:10px;">Reload to Update</button>
+      <button class="primary-btn" id="wnOpen" type="button" style="margin:10px 0 0;">What's new in 1.0.1</button>
       <p class="dev-note">Updates are published by pushing new code to the GitHub repo — only whoever has push access to it (you) can release one. Anyone with the page already open keeps using the version they loaded until they reload.</p>
     </div>
   </div>
@@ -1804,7 +1944,7 @@ document.getElementById('searchForm').addEventListener('submit', (e) => {
     url = looksLikeUrl ? (/^https?:\/\//.test(q) ? q : `https://${q}`) : `https://www.google.com/search?q=${encodeURIComponent(q)}`;
     logHistory(looksLikeUrl ? q.replace(/^https?:\/\//,'') : `Search: ${q}`);
   }
-  window.location.href = url;
+  if(window.ezbGo) window.ezbGo(url); else window.location.href = url;
 });
 
 document.getElementById('searchInput').addEventListener('keydown', (e) => {
@@ -2027,7 +2167,7 @@ Object.keys(THEMES).forEach(key => {
 
 // real software update check — compares the version baked into THIS running page
 // against whatever is currently live on GitHub Pages, by re-fetching the page itself.
-const APP_VERSION = '1.0.0'; // bump this number and push to GitHub to "release" an update
+const APP_VERSION = '1.0.1'; // bump this number and push to GitHub to "release" an update
 document.getElementById('installedVersion').textContent = APP_VERSION;
 
 document.getElementById('checkUpdateBtn').addEventListener('click', async () => {
@@ -2974,7 +3114,7 @@ var ezbKB = (function(){
   }
   function render(){
     var s=$('cloudState'), b=$('syncNowBtn'); if(!s) return;
-    if(!cloud){ s.className='cloud-state'; s.textContent='Not signed in. Log in with your username and PIN to sync your history, theme, language and photo to your account.'; return; }
+    if(!cloud){ s.className='cloud-state'+(window.ezbHasServer===false?' bad':''); s.textContent=window.ezbHasServer===false?'Sync is OFF: no sync server is connected to this site, so your account and data stay on this device only. To sync across devices, host otp_server.py and set OTP_API_BASE in index.html.':'Not signed in. Log in with your username and PIN to sync your history, theme, language and photo to your account.'; return; }
     var t=state==='busy'?'Syncing…':state==='offline'?'Offline — will retry when you are back online.':state==='expired'?'Session expired. Please log in again.':(lastSync?'Synced '+new Date(lastSync).toLocaleTimeString():'Signed in');
     s.className='cloud-state '+(state==='offline'||state==='expired'?'bad':'ok');
     s.textContent='✓ '+String(cloud.email).replace(/^pin:/,'')+' — '+t+'  (encrypted on the server)';
@@ -3035,6 +3175,7 @@ var ezbKB = (function(){
   document.querySelectorAll('input.field,#searchInput').forEach(function(i){ if(i.type==='text'||i.type==='search') i.setAttribute('dir','auto'); });
 
   /* ---------- start ---------- */
+  fetch(OTP_API_BASE+'/api/status',{cache:'no-store'}).then(function(r){return r.json();}).then(function(j){ window.ezbHasServer=!!(j&&j.ok); render(); }).catch(function(){ window.ezbHasServer=false; render(); });
   ezbKB.init({});
   var savedT=ls('ezb_theme'); if(savedT){ try{ applyTheme(savedT); }catch(e){} }
   setLang(ls('ezb_lang')||'en',false);
@@ -3131,10 +3272,9 @@ var ezbKB = (function(){
 })();
 </script>
 <script>
-/* ---------- Username + 4-digit PIN accounts (server = synced; no server = this device only) ---------- */
+/* ---------- Username + your own 4-digit PIN (server = synced across devices; no server = this device only) ---------- */
 (function(){
   var $=function(i){return document.getElementById(i);}, LK='ezb_local_accts';
-  var pending=null;
   function say(id,t,cls){ var e=$(id); if(e){ e.textContent=t||''; e.className='otp-status'+(cls?' '+cls:''); } }
   function post(path,body){
     return fetch(OTP_API_BASE+path,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)})
@@ -3143,13 +3283,26 @@ var ezbKB = (function(){
   function hasServer(){
     return fetch(OTP_API_BASE+'/api/status',{cache:'no-store'}).then(function(r){return r.json();}).then(function(j){return !!(j&&j.ok);}).catch(function(){return false;});
   }
-  /* device-only accounts, used when no server is reachable */
+  function clean(u){ return String(u||'').normalize('NFKC').trim().replace(/\s+/g,' '); }
   function lget(){ try{return JSON.parse(localStorage.getItem(LK)||'{}');}catch(e){return {};} }
   function lset(v){ try{localStorage.setItem(LK,JSON.stringify(v));}catch(e){} }
   function sha(t){ return crypto.subtle.digest('SHA-256',new TextEncoder().encode(t)).then(function(b){ return Array.from(new Uint8Array(b)).map(function(x){return ('0'+x.toString(16)).slice(-2);}).join(''); }); }
-  function clean(u){ return String(u||'').normalize('NFKC').trim().replace(/\s+/g,' '); }
+  /* trusted-device token: proves "this browser has logged in to this account before" (needed to reset a PIN) */
+  function getDev(u){ try{return localStorage.getItem('ezb_dev:'+u.toLowerCase())||'';}catch(e){return '';} }
+  function setDev(u,t){ try{ if(t) localStorage.setItem('ezb_dev:'+u.toLowerCase(),t); }catch(e){} }
+  /* lockout for device-only accounts (same rule as the server) */
+  function lkGet(u){ try{return JSON.parse(localStorage.getItem('ezb_lk:'+u.toLowerCase())||'null')||{fails:0,level:0,until:0};}catch(e){return {fails:0,level:0,until:0};} }
+  function lkSet(u,v){ try{ localStorage.setItem('ezb_lk:'+u.toLowerCase(),JSON.stringify(v)); }catch(e){} }
+  function lkLeft(u){ var st=lkGet(u); return st.until>Date.now()?Math.ceil((st.until-Date.now())/1000):0; }
+  function lkFail(u){
+    var st=lkGet(u); st.fails++;
+    if(st.fails>=5){ st.fails=0; st.level++; st.until=Date.now()+(st.level===1?60000:300000); lkSet(u,st); return {locked:true,retry_in:Math.ceil((st.until-Date.now())/1000),offer_reset:st.level>=2}; }
+    lkSet(u,st); return {locked:false,left:5-st.fails};
+  }
+  function digits(el){ el.addEventListener('input',function(){ this.value=this.value.replace(/\D/g,'').slice(0,4); }); }
+  ['passwordInput','signupPin','signupPin2','resetPin','resetPin2'].forEach(function(i){ digits($(i)); });
 
-  /* device-only accounts keep their own history under the username */
+  /* device-only accounts keep their own history and photos under the username */
   var LU=null;
   function hk(n){ return 'ezb_lh:'+n.toLowerCase(); }
   window.ezbLU=function(){ return LU; };
@@ -3161,90 +3314,168 @@ var ezbKB = (function(){
   var _lh2=window.logHistory;
   if(typeof _lh2==='function') window.logHistory=function(){ var r=_lh2.apply(this,arguments); if(LU){ try{ localStorage.setItem(hk(LU),localStorage.getItem('ezb_history')||'[]'); }catch(e){} } return r; };
   $('logoutBtn').addEventListener('click',function(){ if(LU){ LU=null; try{ localStorage.removeItem('ezb_history'); renderHistory(); }catch(e){} } },true);
+
+  /* screens inside the login card */
+  var resetUser='';
   function show(which){
     $('passwordPane').style.display=which==='login'?'':'none';
     $('signupPane').style.display=which==='signup'?'':'none';
-    $('pinReveal').style.display=which==='reveal'?'':'none';
+    $('resetPane').style.display=which==='reset'?'':'none';
     $('otpPane').style.display='none';
-    var tabs=document.querySelector('.login-card .tabs'); if(tabs) tabs.style.display=which==='login'?'':'none';
     $('signupLine').style.display=which==='login'?'':'none';
     var d=document.querySelector('.login-card .divider'); if(d) d.style.display=which==='login'?'':'none';
     var h=document.querySelector('.login-card h2'), sb=document.querySelector('.login-card .sub');
-    if(which==='signup'){ h.textContent='Create account'; sb.textContent='Only a username. We give you a 4-digit PIN.'; }
-    else if(which==='reveal'){ h.textContent='Account created'; sb.textContent='Keep your PIN safe.'; }
-    else { h.textContent='Welcome back'; sb.textContent='Log in to continue to Easy Browser'; if($('tabPassword')) $('tabPassword').click(); }
+    if(which==='signup'){ h.textContent='Create account'; sb.textContent='Pick a username and your own 4-digit PIN.'; }
+    else if(which==='reset'){ h.textContent='Reset PIN'; sb.textContent='Choose a new PIN for "'+resetUser+'".'; }
+    else { h.textContent='Welcome back'; sb.textContent='Log in to continue to Easy Browser'; }
   }
   $('goSignup').addEventListener('click',function(e){ e.preventDefault(); say('signupStatus',''); show('signup'); });
   $('backToLogin').addEventListener('click',function(){ show('login'); });
-  $('forgotPin').addEventListener('click',function(e){
-    e.preventDefault();
-    var u=clean($('nameInput').value);
-    if(!u){ say('pinStatus','Type your username above first, then tap Forgot PIN.','err'); return; }
-    if(!confirm('A PIN cannot be recovered.\n\nDelete the account "'+u+'" and ALL its saved data, then create a new account?')) return;
-    say('pinStatus','Deleting...');
-    hasServer().then(function(srv){
-      if(srv) return post('/api/delete-account',{username:u,confirm:true}).then(function(r){ if(!r.j.ok) throw new Error(r.j.error||'failed'); });
-      var a=lget(); delete a[u.toLowerCase()]; lset(a); try{ localStorage.removeItem(hk(u)); }catch(x){}
-    }).then(function(){
-      say('pinStatus',''); $('passwordInput').value=''; show('signup'); $('signupName').value=u; say('signupStatus','Old account deleted. Create it again to get a new PIN.','ok');
-    }).catch(function(x){ say('pinStatus',(x&&x.message)||'Could not delete. Try again.','err'); });
-  });
+  $('resetCancel').addEventListener('click',function(){ show('login'); });
 
+  /* countdown on the Log in button while locked */
+  var lockTimer=null;
+  function startLock(sec,offer,u){
+    clearInterval(lockTimer); var b=$('pinLoginBtn'), end=Date.now()+sec*1000;
+    b.disabled=true;
+    function tick(){
+      var left=Math.max(0,Math.ceil((end-Date.now())/1000));
+      if(left<=0){ clearInterval(lockTimer); b.disabled=false; b.textContent='Log in'; say('pinStatus','You can try again now.'); return; }
+      b.textContent='Try again in '+Math.floor(left/60)+':'+('0'+(left%60)).slice(-2);
+    }
+    tick(); lockTimer=setInterval(tick,1000);
+    say('pinStatus','Too many wrong PINs. Wait for the timer.'+(offer?' You can also reset your PIN on this device.':''),'err');
+    $('resetOffer').style.display=(offer&&u)?'block':'none'; resetUser=u||'';
+  }
+  function after(j,u,srv){
+    var nm=j.username||u;
+    if(srv&&j.device) setDev(nm,j.device);
+    if(srv&&window.ezbCloudLogin){ try{ nm=window.ezbCloudLogin(j,j.username||u)||nm; }catch(e){} }
+    return nm;
+  }
+
+  /* welcome video, played once right after a new account is created */
+  function playIntro(done){
+    var box=$('introVideo'), v=$('introVid'), msg=$('introMsg'), pb=$('introPlay'), fin=false;
+    function end(){ if(fin) return; fin=true; try{ v.pause(); }catch(e){} box.style.display='none'; v.removeAttribute('src'); try{ v.load(); }catch(e){} done(); }
+    $('introSkip').onclick=end; v.onended=end;
+    v.onerror=function(){ msg.textContent='The welcome video could not be loaded. (welcome.mp4 must be uploaded next to index.html.) Tap Skip to continue.'; msg.style.display='block'; pb.style.display='none'; };
+    v.onplaying=function(){ msg.style.display='none'; pb.style.display='none'; };
+    v.onwaiting=function(){ msg.textContent='Loading video...'; msg.style.display='block'; };
+    pb.onclick=function(){ var q=v.play(); if(q&&q.catch) q.catch(function(){}); };
+    msg.textContent='Loading video...'; msg.style.display='block'; pb.style.display='none';
+    v.muted=false; v.src='welcome.mp4'; box.style.display='flex';
+    var pr=v.play();
+    if(pr&&pr.catch) pr.catch(function(err){
+      /* sound-autoplay refused: try muted, else show a big Play button */
+      v.muted=true; var q=v.play();
+      if(q&&q.catch) q.catch(function(){ msg.textContent='Tap Play to watch the welcome video.'; msg.style.display='block'; pb.style.display='block'; });
+    });
+  }
+  /* sign up: username + your own PIN */
   $('signupBtn').addEventListener('click',function(){
-    var u=clean($('signupName').value), b=$('signupBtn');
+    var u=clean($('signupName').value), p1=$('signupPin').value, p2=$('signupPin2').value, b=$('signupBtn');
     if(u.length<2||u.length>30){ say('signupStatus','Enter a username (2 to 30 characters).','err'); return; }
+    if(!/^\d{4}$/.test(p1)){ say('signupStatus','Your PIN must be exactly 4 digits.','err'); return; }
+    if(p1!==p2){ say('signupStatus','The two PINs do not match.','err'); return; }
     b.disabled=true; say('signupStatus','Creating...');
     hasServer().then(function(srv){
       if(srv){
-        return post('/api/signup',{username:u}).then(function(r){
+        return post('/api/signup',{username:u,pin:p1}).then(function(r){
           if(!r.j.ok){ say('signupStatus',r.j.error||'Could not create the account.','err'); return; }
-          pending={name:r.j.username,j:r.j}; reveal(r.j.pin,true);
+          var nm=after(r.j,u,true); $('signupPin').value=$('signupPin2').value=''; $('signupName').value=''; show('login'); playIntro(function(){ logInAs(nm); });
         });
       }
       var a=lget(), k=u.toLowerCase();
       if(a[k]){ say('signupStatus','That username is taken on this device. Choose another.','err'); return; }
-      var pin=('000'+(crypto.getRandomValues(new Uint32Array(1))[0]%10000)).slice(-4), salt=Math.random().toString(36).slice(2);
-      return sha(salt+pin).then(function(h){ a[k]={name:u,salt:salt,hash:h}; lset(a); pending={name:u,j:null}; reveal(pin,false); });
+      var salt=Math.random().toString(36).slice(2);
+      return sha(salt+p1).then(function(h){ a[k]={name:u,salt:salt,hash:h}; lset(a); useLocal(u); $('signupPin').value=$('signupPin2').value=''; $('signupName').value=''; show('login'); playIntro(function(){ logInAs(u); }); });
     }).catch(function(){ say('signupStatus','Something went wrong. Try again.','err'); }).then(function(){ b.disabled=false; });
   });
-  function reveal(pin,srv){
-    $('pinBig').textContent=pin; show('reveal');
-    var n=$('pinReveal').querySelector('.dev-note');
-    n.textContent='Save this PIN now. It is shown only once. '+(srv?'Use your username and this PIN to log in on any device and your data will sync.':'No sync server is connected, so this account works on this device only.');
-  }
-  $('pinContinue').addEventListener('click',function(){
-    if(!pending) return; var p=pending; pending=null; var nm=p.name;
-    if(p.j&&window.ezbCloudLogin){ try{ nm=window.ezbCloudLogin(p.j,p.name)||nm; }catch(e){} }
-    $('pinBig').textContent='----'; $('signupName').value='';
-    if(!p.j) useLocal(nm);
-    logInAs(nm); show('login');
-  });
 
+  /* log in */
   $('pinLoginBtn').addEventListener('click',function(){
     var u=clean($('nameInput').value), pin=$('passwordInput').value.replace(/\D/g,''), b=$('pinLoginBtn');
     if(!u&&!pin){ logInAs(''); return; }                       /* guest */
     if(!u){ say('pinStatus','Enter your username.','err'); return; }
     if(pin.length!==4){ say('pinStatus','Enter your 4-digit PIN.','err'); return; }
-    b.disabled=true; say('pinStatus','Checking...');
+    $('resetOffer').style.display='none'; b.disabled=true; say('pinStatus','Checking...');
     hasServer().then(function(srv){
       if(srv){
-        return post('/api/login',{username:u,pin:pin}).then(function(r){
-          if(!r.j.ok){ say('pinStatus',r.j.error||'Login failed.','err'); return; }
+        return post('/api/login',{username:u,pin:pin,device:getDev(u)}).then(function(r){
+          if(!r.j.ok){
+            if(r.s===429&&r.j.retry_in){ startLock(r.j.retry_in,r.j.offer_reset&&!!getDev(u),u); return 'locked'; }
+            say('pinStatus',r.j.error||'Login failed.','err'); return;
+          }
           try{ localStorage.setItem('ezb_history','[]'); }catch(e){}
-          var nm=r.j.username; if(window.ezbCloudLogin){ try{ nm=window.ezbCloudLogin(r.j,r.j.username)||nm; }catch(e){} }
-          say('pinStatus',''); $('passwordInput').value=''; logInAs(nm);
+          var nm=after(r.j,u,true); say('pinStatus',''); $('passwordInput').value=''; logInAs(nm);
         });
       }
-      var rec=lget()[u.toLowerCase()];
-      if(!rec){ say('pinStatus','Wrong username or PIN.','err'); return; }
-      return sha(rec.salt+pin).then(function(h){
-        if(h!==rec.hash){ say('pinStatus','Wrong username or PIN.','err'); return; }
-        say('pinStatus',''); $('passwordInput').value=''; useLocal(rec.name); logInAs(rec.name);
+      var key=u.toLowerCase(), left=lkLeft(u);
+      if(left>0){ startLock(left,lkGet(u).level>=2&&!!lget()[key],u); return 'locked'; }
+      var rec=lget()[key];
+      return (rec?sha(rec.salt+pin):Promise.resolve('')).then(function(h){
+        if(!rec||h!==rec.hash){
+          var f=lkFail(u);
+          if(f.locked){ startLock(f.retry_in,f.offer_reset&&!!rec,u); return 'locked'; }
+          say('pinStatus','Wrong username or PIN. '+f.left+' tries left before a lock.','err'); return;
+        }
+        lkSet(u,{fails:0,level:0,until:0}); say('pinStatus',''); $('passwordInput').value=''; useLocal(rec.name); logInAs(rec.name);
       });
-    }).catch(function(){ say('pinStatus','Something went wrong. Try again.','err'); }).then(function(){ b.disabled=false; });
+    }).catch(function(){ say('pinStatus','Something went wrong. Try again.','err'); }).then(function(res){ if(res!=='locked') b.disabled=false; });
   });
   [$('nameInput'),$('passwordInput')].forEach(function(i){ i.addEventListener('keydown',function(e){ if(e.key==='Enter') $('pinLoginBtn').click(); }); });
-  $('passwordInput').addEventListener('input',function(){ this.value=this.value.replace(/\D/g,'').slice(0,4); });
+
+  /* reset PIN: only on a device that has logged in to this account before */
+  function openReset(u){ resetUser=u; $('resetPin').value=$('resetPin2').value=''; say('resetStatus',''); show('reset'); }
+  $('resetOffer').addEventListener('click',function(){ openReset(resetUser||clean($('nameInput').value)); });
+  $('resetBtn').addEventListener('click',function(){
+    var u=resetUser, p1=$('resetPin').value, p2=$('resetPin2').value, b=$('resetBtn');
+    if(!/^\d{4}$/.test(p1)){ say('resetStatus','Your PIN must be exactly 4 digits.','err'); return; }
+    if(p1!==p2){ say('resetStatus','The two PINs do not match.','err'); return; }
+    b.disabled=true; say('resetStatus','Resetting...');
+    hasServer().then(function(srv){
+      if(srv){
+        return post('/api/reset-pin',{username:u,pin:p1,device:getDev(u)}).then(function(r){
+          if(!r.j.ok){ say('resetStatus',r.j.error||'Could not reset.','err'); return; }
+          clearInterval(lockTimer); $('pinLoginBtn').disabled=false; $('pinLoginBtn').textContent='Log in';
+          var nm=after(r.j,u,true); show('login'); say('pinStatus',''); logInAs(nm);
+        });
+      }
+      var a=lget(), k=u.toLowerCase(), rec=a[k];
+      if(!rec){ say('resetStatus','Account not found on this device.','err'); return; }
+      var salt=Math.random().toString(36).slice(2);
+      return sha(salt+p1).then(function(h){ rec.salt=salt; rec.hash=h; lset(a); lkSet(u,{fails:0,level:0,until:0});
+        clearInterval(lockTimer); $('pinLoginBtn').disabled=false; $('pinLoginBtn').textContent='Log in'; useLocal(rec.name); show('login'); logInAs(rec.name); });
+    }).catch(function(){ say('resetStatus','Something went wrong. Try again.','err'); }).then(function(){ b.disabled=false; });
+  });
+
+  /* Forgot PIN: reset here if this device is trusted, otherwise offer delete-and-start-over */
+  function doDelete(u){
+    say('pinStatus','Deleting...');
+    hasServer().then(function(srv){
+      if(srv) return post('/api/delete-account',{username:u,confirm:true}).then(function(r){ if(!r.j.ok) throw new Error(r.j.error||'failed'); });
+      var a=lget(); delete a[u.toLowerCase()]; lset(a); try{ localStorage.removeItem(hk(u)); localStorage.removeItem('ezb_lp:'+u.toLowerCase()); localStorage.removeItem('ezb_lk:'+u.toLowerCase()); }catch(x){}
+    }).then(function(){
+      try{ localStorage.removeItem('ezb_dev:'+u.toLowerCase()); }catch(x){}
+      $('pinAsk').style.display='none'; $('passwordInput').value=''; show('signup'); $('signupName').value=u;
+      say('signupStatus','Old account deleted. Choose a new PIN to create it again.','ok');
+    }).catch(function(x){ say('pinStatus',(x&&x.message)||'Could not delete. Try again.','err'); });
+  }
+  $('forgotPin').addEventListener('click',function(e){
+    e.preventDefault();
+    var u=clean($('nameInput').value);
+    if(!u){ say('pinStatus','Type your username in the box above, then tap Forgot PIN.','err'); $('nameInput').focus(); return; }
+    say('pinStatus','');
+    hasServer().then(function(srv){
+      var trusted=srv?!!getDev(u):!!lget()[u.toLowerCase()];
+      if(trusted){ openReset(u); return; }
+      $('pinAskText').textContent='This device has not logged in to "'+u+'" before, so the PIN cannot be reset here. You can delete the account and all its saved data, then create it again with a new PIN. Delete it?';
+      $('pinAsk').style.display='block';
+      $('pinAskYes').onclick=function(){ $('pinAsk').style.display='none'; doDelete(u); };
+    });
+  });
+  $('pinAskNo').addEventListener('click',function(){ $('pinAsk').style.display='none'; });
 })();
 </script>
 <script>
@@ -3286,6 +3517,162 @@ var ezbKB = (function(){
     if(user){ saveLocalUser(); if(window.ezbSchedule) window.ezbSchedule(); }
   };
   $('bgPick').addEventListener('click',function(){ $('bgFile').click(); });
+  var MOUNTAIN=
+  'data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAxNj'+
+  'AwIDEwMDAiIHByZXNlcnZlQXNwZWN0UmF0aW89InhNaWRZTWlkIHNsaWNlIj4KPGRlZnM+CjxsaW5lYXJHcmFkaWVudCBpZD0ic2'+
+  't5IiB4MT0iMCIgeTE9IjAiIHgyPSIwIiB5Mj0iMSI+PHN0b3Agb2Zmc2V0PSIwIiBzdG9wLWNvbG9yPSIjNWE2ZWU2Ii8+PHN0b3'+
+  'Agb2Zmc2V0PSIuMzgiIHN0b3AtY29sb3I9IiNhOThhZTAiLz48c3RvcCBvZmZzZXQ9Ii42MiIgc3RvcC1jb2xvcj0iI2YzYTlhMi'+
+  'IvPjxzdG9wIG9mZnNldD0iLjc4IiBzdG9wLWNvbG9yPSIjZmZjYjhlIi8+PHN0b3Agb2Zmc2V0PSIxIiBzdG9wLWNvbG9yPSIjZm'+
+  'ZkOWEwIi8+PC9saW5lYXJHcmFkaWVudD4KPHJhZGlhbEdyYWRpZW50IGlkPSJnbG93IiBjeD0iMTEyMCIgY3k9IjYyMCIgcj0iNT'+
+  'IwIiBncmFkaWVudFVuaXRzPSJ1c2VyU3BhY2VPblVzZSI+PHN0b3Agb2Zmc2V0PSIwIiBzdG9wLWNvbG9yPSIjZmZmMmQwIiBzdG'+
+  '9wLW9wYWNpdHk9Ii45Ii8+PHN0b3Agb2Zmc2V0PSIxIiBzdG9wLWNvbG9yPSIjZmZjYjhlIiBzdG9wLW9wYWNpdHk9IjAiLz48L3'+
+  'JhZGlhbEdyYWRpZW50Pgo8bGluZWFyR3JhZGllbnQgaWQ9Imxha2UiIHgxPSIwIiB5MT0iMCIgeDI9IjAiIHkyPSIxIj48c3RvcC'+
+  'BvZmZzZXQ9IjAiIHN0b3AtY29sb3I9IiMyYTRmYjgiLz48c3RvcCBvZmZzZXQ9Ii41IiBzdG9wLWNvbG9yPSIjMTUyZjg2Ii8+PH'+
+  'N0b3Agb2Zmc2V0PSIxIiBzdG9wLWNvbG9yPSIjMDkxNjQ5Ii8+PC9saW5lYXJHcmFkaWVudD4KPGxpbmVhckdyYWRpZW50IGlkPS'+
+  'JmYWRlUiIgeDE9IjAiIHkxPSIwIiB4Mj0iMCIgeTI9IjEiPjxzdG9wIG9mZnNldD0iMCIgc3RvcC1jb2xvcj0iI2ZmZiIgc3RvcC'+
+  '1vcGFjaXR5PSIuNTUiLz48c3RvcCBvZmZzZXQ9IjEiIHN0b3AtY29sb3I9IiNmZmYiIHN0b3Atb3BhY2l0eT0iMCIvPjwvbGluZW'+
+  'FyR3JhZGllbnQ+CjxtYXNrIGlkPSJybSI+PHJlY3QgeD0iMCIgeT0iNzgwIiB3aWR0aD0iMTYwMCIgaGVpZ2h0PSIyMjAiIGZpbG'+
+  'w9InVybCgjZmFkZVIpIi8+PC9tYXNrPgo8ZmlsdGVyIGlkPSJzb2Z0Ij48ZmVHYXVzc2lhbkJsdXIgc3RkRGV2aWF0aW9uPSIzID'+
+  'YiLz48L2ZpbHRlcj4KPC9kZWZzPgo8cmVjdCB3aWR0aD0iMTYwMCIgaGVpZ2h0PSIxMDAwIiBmaWxsPSJ1cmwoI3NreSkiLz4KPH'+
+  'JlY3Qgd2lkdGg9IjE2MDAiIGhlaWdodD0iMTAwMCIgZmlsbD0idXJsKCNnbG93KSIvPgo8cGF0aCBkPSJNLTUwLDU4MCBMMTcsNT'+
+  'Y1IEw2OSw1MTQgTDEwNyw1OTQgTDE1OSw1NzcgTDIxMSw1NzkgTDI4Niw1NjkgTDMyMCw1MjggTDM3MCw1NzAgTDQwNCw1NjkgTD'+
+  'Q1OSw2MDggTDUwMSw1OTUgTDUzNSw0OTEgTDU5Nyw1NzQgTDY2Nyw2MTQgTDczMiw1MDcgTDc4NCw0OTIgTDgzMCw1MjMgTDkwMC'+
+  'w1MzMgTDkzNSw1NjcgTDk4Niw1NzUgTDEwNTAsNTEyIEwxMTAyLDUzMyBMMTE1OCw1NDcgTDExOTMsNTkyIEwxMjY5LDUyMiBMMT'+
+  'MwOSw1MzMgTDEzNzYsNTI5IEwxNDE5LDUzMiBMMTQ3OCw1OTUgTDE1MzUsNTY2IEwxNjAyLDQ5MyBMMTYwMiw4MDAgTC01MCw4MD'+
+  'AgWiIgZmlsbD0iIzhhOGVlMCIvPjxwYXRoIGQ9Ik02OSw1MTQgTDQ0LDU2NSBMOTQsNTY1IFoiIGZpbGw9IiNjOWQyZmYiIG9wYW'+
+  'NpdHk9Ii41NSIvPjxwYXRoIGQ9Ik0xNTksNTc3IEwxNDYsNjAyIEwxNzEsNjAyIFoiIGZpbGw9IiNjOWQyZmYiIG9wYWNpdHk9Ii'+
+  '41NSIvPjxwYXRoIGQ9Ik0zMjAsNTI4IEwyOTgsNTczIEwzNDIsNTczIFoiIGZpbGw9IiNjOWQyZmYiIG9wYWNpdHk9Ii41NSIvPj'+
+  'xwYXRoIGQ9Ik00MDQsNTY5IEwzOTAsNTk4IEw0MTgsNTk4IFoiIGZpbGw9IiNjOWQyZmYiIG9wYWNpdHk9Ii41NSIvPjxwYXRoIG'+
+  'Q9Ik01MzUsNDkxIEw1MDUsNTUwIEw1NjUsNTUwIFoiIGZpbGw9IiNjOWQyZmYiIG9wYWNpdHk9Ii41NSIvPjxwYXRoIGQ9Ik03OD'+
+  'QsNDkyIEw3NTQsNTUxIEw4MTMsNTUxIFoiIGZpbGw9IiNjOWQyZmYiIG9wYWNpdHk9Ii41NSIvPjxwYXRoIGQ9Ik0xMDUwLDUxMi'+
+  'BMMTAyNCw1NjMgTDEwNzYsNTYzIFoiIGZpbGw9IiNjOWQyZmYiIG9wYWNpdHk9Ii41NSIvPjxwYXRoIGQ9Ik0xMjY5LDUyMiBMMT'+
+  'I0NSw1NjkgTDEyOTIsNTY5IFoiIGZpbGw9IiNjOWQyZmYiIG9wYWNpdHk9Ii41NSIvPjxwYXRoIGQ9Ik0xMzc2LDUyOSBMMTM1NC'+
+  'w1NzMgTDEzOTgsNTczIFoiIGZpbGw9IiNjOWQyZmYiIG9wYWNpdHk9Ii41NSIvPgo8cGF0aCBkPSJNLTUwLDQ0OSBMLTUsNjE4IE'+
+  'w3OCw2MTIgTDE1NCw1MTcgTDIwNSw1NTEgTDI4OCw0NDEgTDM2MCw2MzIgTDQwNCw2MzAgTDQ2NCw1NjEgTDUzNSw2MjIgTDU3OS'+
+  'w2NDIgTDY0OSw0NDAgTDcwMiw0NjEgTDc4NSw0NTggTDg3MSw1NjYgTDk2Nyw2MDQgTDEwNDksNTQ1IEwxMTE4LDQ1NSBMMTIwNy'+
+  'w1NjYgTDEyOTksNTQ1IEwxMzkzLDQ5NCBMMTQ0Nyw1NzIgTDE0OTgsNTkxIEwxNTkxLDU3NSBMMTU5MSw4MDAgTC01MCw4MDAgWi'+
+  'IgZmlsbD0iIzRhNTVhZCIvPjxwYXRoIGQ9Ik0xNTQsNTE3IEwxMTIsNTk0IEwxNDMsNTc3IEwxNjIsNTk4IEwxOTMsNTcxIFoiIG'+
+  'ZpbGw9IiNkZmU2ZmYiIG9wYWNpdHk9Ii44NSIvPjxwYXRoIGQ9Ik0xNTQsNTE3IEwxOTMsNTcxIEwxNjIsNTk4IFoiIGZpbGw9Ii'+
+  'M5YWE2ZTgiIG9wYWNpdHk9Ii42Ii8+PHBhdGggZD0iTTI4OCw0NDEgTDIzOCw1MzEgTDI3NCw1MTEgTDI5Nyw1MzYgTDMzMyw1MD'+
+  'QgWiIgZmlsbD0iI2RmZTZmZiIgb3BhY2l0eT0iLjg1Ii8+PHBhdGggZD0iTTI4OCw0NDEgTDMzMyw1MDQgTDI5Nyw1MzYgWiIgZm'+
+  'lsbD0iIzlhYTZlOCIgb3BhY2l0eT0iLjYiLz48cGF0aCBkPSJNNjQ5LDQ0MCBMNjAwLDUzMCBMNjM2LDUxMCBMNjU4LDUzNSBMNj'+
+  'k0LDUwMyBaIiBmaWxsPSIjZGZlNmZmIiBvcGFjaXR5PSIuODUiLz48cGF0aCBkPSJNNjQ5LDQ0MCBMNjk0LDUwMyBMNjU4LDUzNS'+
+  'BaIiBmaWxsPSIjOWFhNmU4IiBvcGFjaXR5PSIuNiIvPjxwYXRoIGQ9Ik03ODUsNDU4IEw3MzUsNTQ4IEw3NzEsNTI4IEw3OTQsNT'+
+  'UzIEw4MzAsNTIxIFoiIGZpbGw9IiNkZmU2ZmYiIG9wYWNpdHk9Ii44NSIvPjxwYXRoIGQ9Ik03ODUsNDU4IEw4MzAsNTIxIEw3OT'+
+  'QsNTUzIFoiIGZpbGw9IiM5YWE2ZTgiIG9wYWNpdHk9Ii42Ii8+PHBhdGggZD0iTTExMTgsNDU1IEwxMDY5LDU0NSBMMTEwNSw1Mj'+
+  'UgTDExMjcsNTQ5IEwxMTYzLDUxOCBaIiBmaWxsPSIjZGZlNmZmIiBvcGFjaXR5PSIuODUiLz48cGF0aCBkPSJNMTExOCw0NTUgTD'+
+  'ExNjMsNTE4IEwxMTI3LDU0OSBaIiBmaWxsPSIjOWFhNmU4IiBvcGFjaXR5PSIuNiIvPjxwYXRoIGQ9Ik0xMzkzLDQ5NCBMMTM0NS'+
+  'w1ODAgTDEzODAsNTYxIEwxNDAxLDU4NSBMMTQzNiw1NTQgWiIgZmlsbD0iI2RmZTZmZiIgb3BhY2l0eT0iLjg1Ii8+PHBhdGggZD'+
+  '0iTTEzOTMsNDk0IEwxNDM2LDU1NCBMMTQwMSw1ODUgWiIgZmlsbD0iIzlhYTZlOCIgb3BhY2l0eT0iLjYiLz4KPHJlY3QgeT0iNz'+
+  'AwIiB3aWR0aD0iMTYwMCIgaGVpZ2h0PSI5MCIgZmlsbD0iIzJkM2I4YyIgb3BhY2l0eT0iLjM1Ii8+CjxwYXRoIGQ9Ik0tMjAsNj'+
+  'k1IEwtNTUsNzc5IEwxNSw3NzkgWiIgZmlsbD0iIzBiMzE0MCIvPjxwYXRoIGQ9Ik03LDY3NyBMLTMyLDc3MSBMNDcsNzcxIFoiIG'+
+  'ZpbGw9IiMwYjMxNDAiLz48cGF0aCBkPSJNMzYsNzI3IEwxNiw3NzUgTDU2LDc3NSBaIiBmaWxsPSIjMGQzYTQ0Ii8+PHBhdGggZD'+
+  '0iTTU2LDcyNCBMMzYsNzcxIEw3Niw3NzEgWiIgZmlsbD0iIzBkM2E0NCIvPjxwYXRoIGQ9Ik03Niw3MjggTDU0LDc4MSBMOTksNz'+
+  'gxIFoiIGZpbGw9IiMxMTQ2M2YiLz48cGF0aCBkPSJNOTMsNjczIEw1Myw3NjkgTDEzMyw3NjkgWiIgZmlsbD0iIzExNDYzZiIvPj'+
+  'xwYXRoIGQ9Ik0xMDksNzQxIEw5Miw3ODEgTDEyNiw3ODEgWiIgZmlsbD0iIzBkM2E0NCIvPjxwYXRoIGQ9Ik0xMzUsNjYyIEw5MC'+
+  'w3NzAgTDE4MCw3NzAgWiIgZmlsbD0iIzBkM2E0NCIvPjxwYXRoIGQ9Ik0xNTQsNjY4IEwxMDksNzc2IEwxOTksNzc2IFoiIGZpbG'+
+  'w9IiMwZDNhNDQiLz48cGF0aCBkPSJNMTcxLDY2MiBMMTI2LDc3MCBMMjE2LDc3MCBaIiBmaWxsPSIjMTE0NjNmIi8+PHBhdGggZD'+
+  '0iTTE5MCw3MDQgTDE2Miw3NzAgTDIxNyw3NzAgWiIgZmlsbD0iIzBkM2E0NCIvPjxwYXRoIGQ9Ik0yMDgsNzE3IEwxODEsNzgwIE'+
+  'wyMzUsNzgwIFoiIGZpbGw9IiMwYjMxNDAiLz48cGF0aCBkPSJNMjMyLDY3OSBMMTk0LDc2OCBMMjY5LDc2OCBaIiBmaWxsPSIjMG'+
+  'EyYTNjIi8+PHBhdGggZD0iTTI1OSw2OTggTDIyOCw3NzIgTDI5MCw3NzIgWiIgZmlsbD0iIzExNDYzZiIvPjxwYXRoIGQ9Ik0yOD'+
+  'AsNzE5IEwyNTgsNzcxIEwzMDIsNzcxIFoiIGZpbGw9IiMwYjMxNDAiLz48cGF0aCBkPSJNMzA5LDcwOCBMMjgyLDc3MyBMMzM3LD'+
+  'c3MyBaIiBmaWxsPSIjMTE0NjNmIi8+PHBhdGggZD0iTTMyOSw2ODcgTDI5NSw3NjcgTDM2Myw3NjcgWiIgZmlsbD0iIzBiMzE0MC'+
+  'IvPjxwYXRoIGQ9Ik0zNTUsNjk5IEwzMTksNzgyIEwzOTAsNzgyIFoiIGZpbGw9IiMwYjMxNDAiLz48cGF0aCBkPSJNMzgxLDY3Ny'+
+  'BMMzM3LDc4MiBMNDI1LDc4MiBaIiBmaWxsPSIjMGEyYTNjIi8+PHBhdGggZD0iTTQwMyw2NjkgTDM2MCw3NzEgTDQ0Niw3NzEgWi'+
+  'IgZmlsbD0iIzExNDYzZiIvPjxwYXRoIGQ9Ik00MTksNjg3IEwzODAsNzgwIEw0NTcsNzgwIFoiIGZpbGw9IiMwYTJhM2MiLz48cG'+
+  'F0aCBkPSJNNDMzLDY2MiBMMzg5LDc2OCBMNDc4LDc2OCBaIiBmaWxsPSIjMGEyYTNjIi8+PHBhdGggZD0iTTQ1NSw3MDQgTDQyOC'+
+  'w3NjkgTDQ4Myw3NjkgWiIgZmlsbD0iIzBhMmEzYyIvPjxwYXRoIGQ9Ik00ODQsNjk0IEw0NTEsNzcyIEw1MTcsNzcyIFoiIGZpbG'+
+  'w9IiMwYTJhM2MiLz48cGF0aCBkPSJNNTAzLDY4MSBMNDYzLDc3NyBMNTQzLDc3NyBaIiBmaWxsPSIjMGEyYTNjIi8+PHBhdGggZD'+
+  '0iTTUzMyw3MTYgTDUxMSw3NjggTDU1NSw3NjggWiIgZmlsbD0iIzExNDYzZiIvPjxwYXRoIGQ9Ik01NDcsNjgxIEw1MDksNzczIE'+
+  'w1ODYsNzczIFoiIGZpbGw9IiMwYTJhM2MiLz48cGF0aCBkPSJNNTY5LDY5OCBMNTQwLDc2OCBMNTk4LDc2OCBaIiBmaWxsPSIjMG'+
+  'IzMTQwIi8+PHBhdGggZD0iTTU5Niw3MDcgTDU2OSw3NzAgTDYyMiw3NzAgWiIgZmlsbD0iIzBkM2E0NCIvPjxwYXRoIGQ9Ik02Mj'+
+  'AsNjc0IEw1ODAsNzY5IEw2NjAsNzY5IFoiIGZpbGw9IiMxMTQ2M2YiLz48cGF0aCBkPSJNNjQwLDczMCBMNjIxLDc3NCBMNjU4LD'+
+  'c3NCBaIiBmaWxsPSIjMGQzYTQ0Ii8+PHBhdGggZD0iTTY2MSw2NzEgTDYxNSw3ODEgTDcwNyw3ODEgWiIgZmlsbD0iIzExNDYzZi'+
+  'IvPjxwYXRoIGQ9Ik02OTAsNjg0IEw2NTMsNzcyIEw3MjcsNzcyIFoiIGZpbGw9IiMwYTJhM2MiLz48cGF0aCBkPSJNNzA5LDcwMS'+
+  'BMNjgwLDc2OSBMNzM4LDc2OSBaIiBmaWxsPSIjMTE0NjNmIi8+PHBhdGggZD0iTTczNiw2OTMgTDcwNCw3NzAgTDc2OSw3NzAgWi'+
+  'IgZmlsbD0iIzExNDYzZiIvPjxwYXRoIGQ9Ik03NjQsNzIyIEw3NDIsNzc1IEw3ODYsNzc1IFoiIGZpbGw9IiMwYTJhM2MiLz48cG'+
+  'F0aCBkPSJNNzc5LDY3NyBMNzM5LDc3MyBMODE5LDc3MyBaIiBmaWxsPSIjMGIzMTQwIi8+PHBhdGggZD0iTTgwNSw3MTMgTDc3OC'+
+  'w3NzggTDgzMyw3NzggWiIgZmlsbD0iIzBhMmEzYyIvPjxwYXRoIGQ9Ik04MzMsNzI0IEw4MDgsNzgzIEw4NTcsNzgzIFoiIGZpbG'+
+  'w9IiMwYTJhM2MiLz48cGF0aCBkPSJNODYyLDcwNiBMODM1LDc3MCBMODg5LDc3MCBaIiBmaWxsPSIjMGIzMTQwIi8+PHBhdGggZD'+
+  '0iTTg4Myw2NzggTDg0NCw3NzIgTDkyMyw3NzIgWiIgZmlsbD0iIzBhMmEzYyIvPjxwYXRoIGQ9Ik05MDUsNjgwIEw4NjQsNzc3IE'+
+  'w5NDYsNzc3IFoiIGZpbGw9IiMwYTJhM2MiLz48cGF0aCBkPSJNOTI0LDY5NCBMODg5LDc3OSBMOTYwLDc3OSBaIiBmaWxsPSIjMT'+
+  'E0NjNmIi8+PHBhdGggZD0iTTk0NCw2ODIgTDkwMiw3ODEgTDk4Niw3ODEgWiIgZmlsbD0iIzExNDYzZiIvPjxwYXRoIGQ9Ik05Nz'+
+  'QsNjY4IEw5MjksNzc1IEwxMDE5LDc3NSBaIiBmaWxsPSIjMGQzYTQ0Ii8+PHBhdGggZD0iTTk5MSw3MTUgTDk2Myw3ODEgTDEwMT'+
+  'gsNzgxIFoiIGZpbGw9IiMwYTJhM2MiLz48cGF0aCBkPSJNMTAxNiw2ODggTDk3OCw3NzkgTDEwNTQsNzc5IFoiIGZpbGw9IiMwZD'+
+  'NhNDQiLz48cGF0aCBkPSJNMTA0MCw2NzAgTDk5NSw3NzUgTDEwODQsNzc1IFoiIGZpbGw9IiMxMTQ2M2YiLz48cGF0aCBkPSJNMT'+
+  'A1OSw3MDIgTDEwMjUsNzgxIEwxMDkyLDc4MSBaIiBmaWxsPSIjMGEyYTNjIi8+PHBhdGggZD0iTTEwODQsNzI4IEwxMDY2LDc3MC'+
+  'BMMTEwMiw3NzAgWiIgZmlsbD0iIzExNDYzZiIvPjxwYXRoIGQ9Ik0xMTA4LDcyNiBMMTA4Niw3NzkgTDExMzAsNzc5IFoiIGZpbG'+
+  'w9IiMwZDNhNDQiLz48cGF0aCBkPSJNMTEzMiw3MzIgTDExMTQsNzc1IEwxMTUwLDc3NSBaIiBmaWxsPSIjMGQzYTQ0Ii8+PHBhdG'+
+  'ggZD0iTTExNDksNjY2IEwxMTA2LDc2OSBMMTE5Miw3NjkgWiIgZmlsbD0iIzBkM2E0NCIvPjxwYXRoIGQ9Ik0xMTcxLDY5NSBMMT'+
+  'EzOCw3NzQgTDEyMDMsNzc0IFoiIGZpbGw9IiMwYTJhM2MiLz48cGF0aCBkPSJNMTE5MSw2OTQgTDExNTYsNzc2IEwxMjI1LDc3Ni'+
+  'BaIiBmaWxsPSIjMGQzYTQ0Ii8+PHBhdGggZD0iTTEyMTYsNzA2IEwxMTg4LDc3MyBMMTI0NCw3NzMgWiIgZmlsbD0iIzBhMmEzYy'+
+  'IvPjxwYXRoIGQ9Ik0xMjQ0LDY3NyBMMTIwMiw3NzggTDEyODYsNzc4IFoiIGZpbGw9IiMwYTJhM2MiLz48cGF0aCBkPSJNMTI3My'+
+  'w2OTMgTDEyNDAsNzcyIEwxMzA2LDc3MiBaIiBmaWxsPSIjMGEyYTNjIi8+PHBhdGggZD0iTTEyOTYsNzEzIEwxMjY5LDc3NiBMMT'+
+  'MyMyw3NzYgWiIgZmlsbD0iIzBhMmEzYyIvPjxwYXRoIGQ9Ik0xMzIzLDcxMSBMMTI5NCw3ODAgTDEzNTIsNzgwIFoiIGZpbGw9Ii'+
+  'MwYTJhM2MiLz48cGF0aCBkPSJNMTM0NSw3MjIgTDEzMjMsNzczIEwxMzY2LDc3MyBaIiBmaWxsPSIjMTE0NjNmIi8+PHBhdGggZD'+
+  '0iTTEzNzQsNjY5IEwxMzI5LDc3NyBMMTQxOSw3NzcgWiIgZmlsbD0iIzBhMmEzYyIvPjxwYXRoIGQ9Ik0xNDAxLDY4NyBMMTM2NS'+
+  'w3NzMgTDE0MzcsNzczIFoiIGZpbGw9IiMwYTJhM2MiLz48cGF0aCBkPSJNMTQyNCw2ODYgTDEzODksNzY5IEwxNDU5LDc2OSBaIi'+
+  'BmaWxsPSIjMTE0NjNmIi8+PHBhdGggZD0iTTE0NDUsNjY3IEwxMzk5LDc3NSBMMTQ5MCw3NzUgWiIgZmlsbD0iIzExNDYzZiIvPj'+
+  'xwYXRoIGQ9Ik0xNDc0LDcxNiBMMTQ0Niw3ODIgTDE1MDIsNzgyIFoiIGZpbGw9IiMwZDNhNDQiLz48cGF0aCBkPSJNMTQ5OCw3Mj'+
+  'UgTDE0NzQsNzgzIEwxNTIyLDc4MyBaIiBmaWxsPSIjMTE0NjNmIi8+PHBhdGggZD0iTTE1MTYsNzQxIEwxNDk5LDc4MiBMMTUzMy'+
+  'w3ODIgWiIgZmlsbD0iIzBhMmEzYyIvPjxwYXRoIGQ9Ik0xNTM4LDcxNSBMMTUxMyw3NzUgTDE1NjMsNzc1IFoiIGZpbGw9IiMwYj'+
+  'MxNDAiLz48cGF0aCBkPSJNMTU2Miw2NjQgTDE1MTcsNzcxIEwxNjA3LDc3MSBaIiBmaWxsPSIjMGIzMTQwIi8+PHBhdGggZD0iTT'+
+  'E1ODksNjY5IEwxNTQ4LDc2NyBMMTYzMCw3NjcgWiIgZmlsbD0iIzBhMmEzYyIvPjxwYXRoIGQ9Ik0xNjA3LDY5NCBMMTU3Niw3Nj'+
+  'ggTDE2MzgsNzY4IFoiIGZpbGw9IiMxMTQ2M2YiLz48cmVjdCB4PSIwIiB5PSI3NzAiIHdpZHRoPSIxNjAwIiBoZWlnaHQ9IjE0Ii'+
+  'BmaWxsPSIjMGEyNjM0Ii8+CjxyZWN0IHk9Ijc4NCIgd2lkdGg9IjE2MDAiIGhlaWdodD0iMjE2IiBmaWxsPSJ1cmwoI2xha2UpIi'+
+  '8+CjxnIG1hc2s9InVybCgjcm0pIiBmaWx0ZXI9InVybCgjc29mdCkiIHRyYW5zZm9ybT0idHJhbnNsYXRlKDAsMTU2OCkgc2NhbG'+
+  'UoMSwtMSkiPjxwYXRoIGQ9Ik0tNTAsNDQ5IEwtNSw2MTggTDc4LDYxMiBMMTU0LDUxNyBMMjA1LDU1MSBMMjg4LDQ0MSBMMzYwLD'+
+  'YzMiBMNDA0LDYzMCBMNDY0LDU2MSBMNTM1LDYyMiBMNTc5LDY0MiBMNjQ5LDQ0MCBMNzAyLDQ2MSBMNzg1LDQ1OCBMODcxLDU2Ni'+
+  'BMOTY3LDYwNCBMMTA0OSw1NDUgTDExMTgsNDU1IEwxMjA3LDU2NiBMMTI5OSw1NDUgTDEzOTMsNDk0IEwxNDQ3LDU3MiBMMTQ5OC'+
+  'w1OTEgTDE1OTEsNTc1IEwxNTkxLDgwMCBMLTUwLDgwMCBaIiBmaWxsPSIjNmE3OGQ4Ii8+PHBhdGggZD0iTTE1NCw1MTcgTDExMi'+
+  'w1OTQgTDE0Myw1NzcgTDE2Miw1OTggTDE5Myw1NzEgWiIgZmlsbD0iI2RmZTZmZiIgb3BhY2l0eT0iLjg1Ii8+PHBhdGggZD0iTT'+
+  'E1NCw1MTcgTDE5Myw1NzEgTDE2Miw1OTggWiIgZmlsbD0iIzlhYTZlOCIgb3BhY2l0eT0iLjYiLz48cGF0aCBkPSJNMjg4LDQ0MS'+
+  'BMMjM4LDUzMSBMMjc0LDUxMSBMMjk3LDUzNiBMMzMzLDUwNCBaIiBmaWxsPSIjZGZlNmZmIiBvcGFjaXR5PSIuODUiLz48cGF0aC'+
+  'BkPSJNMjg4LDQ0MSBMMzMzLDUwNCBMMjk3LDUzNiBaIiBmaWxsPSIjOWFhNmU4IiBvcGFjaXR5PSIuNiIvPjxwYXRoIGQ9Ik02ND'+
+  'ksNDQwIEw2MDAsNTMwIEw2MzYsNTEwIEw2NTgsNTM1IEw2OTQsNTAzIFoiIGZpbGw9IiNkZmU2ZmYiIG9wYWNpdHk9Ii44NSIvPj'+
+  'xwYXRoIGQ9Ik02NDksNDQwIEw2OTQsNTAzIEw2NTgsNTM1IFoiIGZpbGw9IiM5YWE2ZTgiIG9wYWNpdHk9Ii42Ii8+PHBhdGggZD'+
+  '0iTTc4NSw0NTggTDczNSw1NDggTDc3MSw1MjggTDc5NCw1NTMgTDgzMCw1MjEgWiIgZmlsbD0iI2RmZTZmZiIgb3BhY2l0eT0iLj'+
+  'g1Ii8+PHBhdGggZD0iTTc4NSw0NTggTDgzMCw1MjEgTDc5NCw1NTMgWiIgZmlsbD0iIzlhYTZlOCIgb3BhY2l0eT0iLjYiLz48cG'+
+  'F0aCBkPSJNMTExOCw0NTUgTDEwNjksNTQ1IEwxMTA1LDUyNSBMMTEyNyw1NDkgTDExNjMsNTE4IFoiIGZpbGw9IiNkZmU2ZmYiIG'+
+  '9wYWNpdHk9Ii44NSIvPjxwYXRoIGQ9Ik0xMTE4LDQ1NSBMMTE2Myw1MTggTDExMjcsNTQ5IFoiIGZpbGw9IiM5YWE2ZTgiIG9wYW'+
+  'NpdHk9Ii42Ii8+PHBhdGggZD0iTTEzOTMsNDk0IEwxMzQ1LDU4MCBMMTM4MCw1NjEgTDE0MDEsNTg1IEwxNDM2LDU1NCBaIiBmaW'+
+  'xsPSIjZGZlNmZmIiBvcGFjaXR5PSIuODUiLz48cGF0aCBkPSJNMTM5Myw0OTQgTDE0MzYsNTU0IEwxNDAxLDU4NSBaIiBmaWxsPS'+
+  'IjOWFhNmU4IiBvcGFjaXR5PSIuNiIvPjxwYXRoIGQ9Ik0tNTAsNTgwIEwxNyw1NjUgTDY5LDUxNCBMMTA3LDU5NCBMMTU5LDU3Ny'+
+  'BMMjExLDU3OSBMMjg2LDU2OSBMMzIwLDUyOCBMMzcwLDU3MCBMNDA0LDU2OSBMNDU5LDYwOCBMNTAxLDU5NSBMNTM1LDQ5MSBMNT'+
+  'k3LDU3NCBMNjY3LDYxNCBMNzMyLDUwNyBMNzg0LDQ5MiBMODMwLDUyMyBMOTAwLDUzMyBMOTM1LDU2NyBMOTg2LDU3NSBMMTA1MC'+
+  'w1MTIgTDExMDIsNTMzIEwxMTU4LDU0NyBMMTE5Myw1OTIgTDEyNjksNTIyIEwxMzA5LDUzMyBMMTM3Niw1MjkgTDE0MTksNTMyIE'+
+  'wxNDc4LDU5NSBMMTUzNSw1NjYgTDE2MDIsNDkzIEwxNjAyLDgwMCBMLTUwLDgwMCBaIiBmaWxsPSIjOGE4ZWUwIiBvcGFjaXR5PS'+
+  'IuNiIvPjwvZz4KPHJlY3QgeD0iMTU4MiIgeT0iNzk5IiB3aWR0aD0iMTE5IiBoZWlnaHQ9IjEuNiIgcng9IjEiIGZpbGw9IiM5Zm'+
+  'I0ZmYiIG9wYWNpdHk9IjAuMTMiLz48cmVjdCB4PSIxMDMyIiB5PSI4MDgiIHdpZHRoPSIxODEiIGhlaWdodD0iMS42IiByeD0iMS'+
+  'IgZmlsbD0iIzlmYjRmZiIgb3BhY2l0eT0iMC4xNSIvPjxyZWN0IHg9IjEyMTciIHk9IjgxNCIgd2lkdGg9IjEyMCIgaGVpZ2h0PS'+
+  'IxLjYiIHJ4PSIxIiBmaWxsPSIjOWZiNGZmIiBvcGFjaXR5PSIwLjEyIi8+PHJlY3QgeD0iNDc1IiB5PSI4MjMiIHdpZHRoPSIxNj'+
+  'YiIGhlaWdodD0iMS42IiByeD0iMSIgZmlsbD0iIzlmYjRmZiIgb3BhY2l0eT0iMC4xMiIvPjxyZWN0IHg9IjExOTIiIHk9IjgzMS'+
+  'Igd2lkdGg9IjE3OCIgaGVpZ2h0PSIxLjYiIHJ4PSIxIiBmaWxsPSIjOWZiNGZmIiBvcGFjaXR5PSIwLjA2Ii8+PHJlY3QgeD0iNz'+
+  'I5IiB5PSI4MzkiIHdpZHRoPSIyNDMiIGhlaWdodD0iMS42IiByeD0iMSIgZmlsbD0iIzlmYjRmZiIgb3BhY2l0eT0iMC4xNyIvPj'+
+  'xyZWN0IHg9IjIzIiB5PSI4NDgiIHdpZHRoPSIyMTYiIGhlaWdodD0iMS42IiByeD0iMSIgZmlsbD0iIzlmYjRmZiIgb3BhY2l0eT'+
+  '0iMC4xMSIvPjxyZWN0IHg9IjExMzMiIHk9Ijg1NiIgd2lkdGg9IjE4NiIgaGVpZ2h0PSIxLjYiIHJ4PSIxIiBmaWxsPSIjOWZiNG'+
+  'ZmIiBvcGFjaXR5PSIwLjEyIi8+PHJlY3QgeD0iNjE3IiB5PSI4NjYiIHdpZHRoPSIxMzgiIGhlaWdodD0iMS42IiByeD0iMSIgZm'+
+  'lsbD0iIzlmYjRmZiIgb3BhY2l0eT0iMC4xNiIvPjxyZWN0IHg9IjQ3NCIgeT0iODcxIiB3aWR0aD0iMjI2IiBoZWlnaHQ9IjEuNi'+
+  'Igcng9IjEiIGZpbGw9IiM5ZmI0ZmYiIG9wYWNpdHk9IjAuMDciLz48cmVjdCB4PSIxMTExIiB5PSI4ODEiIHdpZHRoPSIxNDciIG'+
+  'hlaWdodD0iMS42IiByeD0iMSIgZmlsbD0iIzlmYjRmZiIgb3BhY2l0eT0iMC4wOSIvPjxyZWN0IHg9IjE0NTciIHk9Ijg4OSIgd2'+
+  'lkdGg9Ijg5IiBoZWlnaHQ9IjEuNiIgcng9IjEiIGZpbGw9IiM5ZmI0ZmYiIG9wYWNpdHk9IjAuMTIiLz48cmVjdCB4PSI3OTYiIH'+
+  'k9Ijg5NiIgd2lkdGg9IjEyNiIgaGVpZ2h0PSIxLjYiIHJ4PSIxIiBmaWxsPSIjOWZiNGZmIiBvcGFjaXR5PSIwLjA4Ii8+PHJlY3'+
+  'QgeD0iMTI5OSIgeT0iOTA0IiB3aWR0aD0iNzQiIGhlaWdodD0iMS42IiByeD0iMSIgZmlsbD0iIzlmYjRmZiIgb3BhY2l0eT0iMC'+
+  '4wOSIvPjxyZWN0IHg9IjEyNjciIHk9IjkxMyIgd2lkdGg9IjE5MyIgaGVpZ2h0PSIxLjYiIHJ4PSIxIiBmaWxsPSIjOWZiNGZmIi'+
+  'BvcGFjaXR5PSIwLjA2Ii8+PHJlY3QgeD0iMTU2NiIgeT0iOTIxIiB3aWR0aD0iMjYwIiBoZWlnaHQ9IjEuNiIgcng9IjEiIGZpbG'+
+  'w9IiM5ZmI0ZmYiIG9wYWNpdHk9IjAuMTQiLz48cmVjdCB4PSIxMzQ3IiB5PSI5MjYiIHdpZHRoPSIxMDQiIGhlaWdodD0iMS42Ii'+
+  'ByeD0iMSIgZmlsbD0iIzlmYjRmZiIgb3BhY2l0eT0iMC4xNCIvPjxyZWN0IHg9IjExNDAiIHk9IjkzOCIgd2lkdGg9Ijg3IiBoZW'+
+  'lnaHQ9IjEuNiIgcng9IjEiIGZpbGw9IiM5ZmI0ZmYiIG9wYWNpdHk9IjAuMTAiLz48cmVjdCB4PSIyNDAiIHk9Ijk0NiIgd2lkdG'+
+  'g9IjE4MiIgaGVpZ2h0PSIxLjYiIHJ4PSIxIiBmaWxsPSIjOWZiNGZmIiBvcGFjaXR5PSIwLjExIi8+PHJlY3QgeD0iOTk2IiB5PS'+
+  'I5NTEiIHdpZHRoPSI2OSIgaGVpZ2h0PSIxLjYiIHJ4PSIxIiBmaWxsPSIjOWZiNGZmIiBvcGFjaXR5PSIwLjA3Ii8+PHJlY3QgeD'+
+  '0iMTE1IiB5PSI5NjAiIHdpZHRoPSI3MiIgaGVpZ2h0PSIxLjYiIHJ4PSIxIiBmaWxsPSIjOWZiNGZmIiBvcGFjaXR5PSIwLjEzIi'+
+  '8+PHJlY3QgeD0iMTQwNiIgeT0iOTY5IiB3aWR0aD0iODciIGhlaWdodD0iMS42IiByeD0iMSIgZmlsbD0iIzlmYjRmZiIgb3BhY2'+
+  'l0eT0iMC4xMSIvPjxyZWN0IHg9Ijk2MCIgeT0iOTc1IiB3aWR0aD0iMTU4IiBoZWlnaHQ9IjEuNiIgcng9IjEiIGZpbGw9IiM5Zm'+
+  'I0ZmYiIG9wYWNpdHk9IjAuMTciLz48cmVjdCB4PSI4OSIgeT0iOTgzIiB3aWR0aD0iMTk5IiBoZWlnaHQ9IjEuNiIgcng9IjEiIG'+
+  'ZpbGw9IiM5ZmI0ZmYiIG9wYWNpdHk9IjAuMDgiLz48cmVjdCB4PSI4MDkiIHk9Ijk5MyIgd2lkdGg9IjI0MiIgaGVpZ2h0PSIxLj'+
+  'YiIHJ4PSIxIiBmaWxsPSIjOWZiNGZmIiBvcGFjaXR5PSIwLjEzIi8+PHJlY3QgeD0iNDIxIiB5PSIxMDAwIiB3aWR0aD0iMTcwIi'+
+  'BoZWlnaHQ9IjEuNiIgcng9IjEiIGZpbGw9IiM5ZmI0ZmYiIG9wYWNpdHk9IjAuMDkiLz4KPC9zdmc+';
+  $('bgPreset').addEventListener('click',function(){ window.ezbSetBg(MOUNTAIN,true); $('bgMsg').textContent='Mountain lake background saved.'; });
   $('bgClear').addEventListener('click',function(){ window.ezbSetBg('',true); $('bgMsg').textContent='Background reset.'; });
   $('bgFile').addEventListener('change',function(){
     var f=this.files[0]; this.value=''; if(!f) return;
@@ -3302,9 +3689,174 @@ var ezbKB = (function(){
   $('logoutBtn').addEventListener('click',function(){
     setTimeout(function(){
       window.ezbSetBg('',false); lsSet(AK,null);
+      try{ applyTheme('blue'); }catch(e){}
       var a=$('homeAvatar'); if(a){ a.style.backgroundImage=''; a.textContent='?'; }
     },0);
   },true);
+})();
+</script>
+<script>
+/* ---------- Browser shell: multiple tabs, toolbar, bookmarks bar ---------- */
+(function(){
+  var $=function(i){return document.getElementById(i);}, MAX=12, BMK='ezb_bookmarks', TK='ezb_tabs';
+  /* sites that refuse to be shown inside another page: they open in a real browser tab instead */
+  var BLOCK=/(^|\.)(google\.[a-z.]+|youtube\.com|youtu\.be|claude\.ai|openai\.com|chatgpt\.com|whatsapp\.com|facebook\.com|instagram\.com|x\.com|twitter\.com|linkedin\.com|github\.com|amazon\.[a-z.]+|netflix\.com|spotify\.com|reddit\.com|telegram\.org|canva\.com|codepen\.io|bing\.com|stackoverflow\.com|pinterest\.com|zoom\.us|paypal\.com|flipkart\.com|cruise\.money)$/i;
+  var tabs=[], active=0, cur='loginScreen', nid=1;
+  function ls(k,v){ try{ if(v===undefined) return localStorage.getItem(k); if(v===null) localStorage.removeItem(k); else localStorage.setItem(k,v); }catch(e){} return null; }
+  function ss(v){ try{ if(v===undefined) return sessionStorage.getItem(TK); if(v===null) sessionStorage.removeItem(TK); else sessionStorage.setItem(TK,v); }catch(e){} return null; }
+  function host(u){ try{ return new URL(u).hostname.replace(/^www\./,''); }catch(e){ return u; } }
+  function mk(){ return {id:nid++,hist:[null],idx:0}; }
+  function T(){ return tabs[active]; }
+  function entry(t){ return t.hist[t.idx]; }
+  function persist(){ ss(JSON.stringify({tabs:tabs.map(function(t){return {hist:t.hist,idx:t.idx};}),active:active})); }
+  function resolve(q){
+    q=String(q||'').trim(); if(!q) return null;
+    var k=q.toLowerCase();
+    if(typeof SITE_SHORTCUTS!=='undefined'&&SITE_SHORTCUTS[k]){ try{ logHistory(k+(k.indexOf('.')>=0?'':'.com')); }catch(e){} return SITE_SHORTCUTS[k]; }
+    var isUrl=/^[\w-]+(\.[\w-]+)+([\/?#].*)?$/.test(q)||/^https?:\/\//i.test(q);
+    if(/^[a-z][a-z0-9+.-]*:/i.test(q)&&!/^https?:\/\//i.test(q)) isUrl=false;   /* never javascript:, data: ... */
+    if(isUrl){ try{ logHistory(q.replace(/^https?:\/\//i,'')); }catch(e){} return /^https?:\/\//i.test(q)?q:'https://'+q; }
+    try{ logHistory('Search: '+q); }catch(e){}
+    return 'https://www.google.com/search?q='+encodeURIComponent(q);
+  }
+  /* ---- navigation inside the active tab ---- */
+  function go(url,quiet){
+    if(!/^https?:\/\//i.test(url||'')) return;
+    var t=T(); t.hist=t.hist.slice(0,t.idx+1); t.hist.push(url); t.idx=t.hist.length-1;
+    render(); if(!quiet) openExternalIfBlocked(url);
+  }
+  function openExternalIfBlocked(url){
+    /* sites stay inside Easy Browser: nothing is opened in another browser unless the person taps the button */
+  }
+  window.ezbGo=function(url){ go(url,false); };
+  function step(d){ var t=T(), n=t.idx+d; if(n<0||n>=t.hist.length) return; t.idx=n; render(); }
+  /* ---- tabs ---- */
+  function newTab(url){
+    if(tabs.length>=MAX){ tabs.splice(0,1); if(active>0) active--; }
+    var t=mk(); tabs.push(t); active=tabs.length-1;
+    if(url){ t.hist.push(url); t.idx=1; }
+    render(); if(url) openExternalIfBlocked(url);
+    if(!url){ try{ showScreen('homeScreen'); }catch(e){} }
+  }
+  function closeTab(i){
+    tabs.splice(i,1);
+    if(!tabs.length){ tabs=[mk()]; active=0; }
+    else if(i<active) active--;
+    else if(active>=tabs.length) active=tabs.length-1;
+    render();
+  }
+  function fav(u){ var d=document.createElement('span'); d.className='tfav'; d.textContent=u?host(u).charAt(0).toUpperCase():'E'; if(u){ var im=new Image(); im.alt=''; im.onload=function(){ d.textContent=''; d.appendChild(im); }; im.src='https://www.google.com/s2/favicons?sz=32&domain='+encodeURIComponent(host(u)); } return d; }
+  function renderTabs(){
+    var L=$('tabList'); L.innerHTML='';
+    tabs.forEach(function(t,i){
+      var u=entry(t), el=document.createElement('div'); el.className='ctab'+(i===active?' active':''); el.setAttribute('role','tab');
+      el.appendChild(fav(u));
+      var ti=document.createElement('span'); ti.className='ttl'; ti.textContent=u?host(u):'New Tab'; el.appendChild(ti);
+      var x=document.createElement('button'); x.type='button'; x.className='tx'; x.setAttribute('aria-label','Close tab'); x.textContent='×';
+      x.addEventListener('click',function(e){ e.stopPropagation(); closeTab(i); }); el.appendChild(x);
+      el.addEventListener('click',function(){ active=i; render(); });
+      L.appendChild(el);
+    });
+  }
+  /* ---- bookmarks ---- */
+  function bms(){ try{ return JSON.parse(ls(BMK)||'[]'); }catch(e){ return []; } }
+  function renderBm(){
+    var B=$('bmBar'); B.innerHTML='';
+    function add(name,url){
+      var b=document.createElement('button'); b.type='button'; b.className='bm'; b.title=url; b.appendChild(fav(url));
+      var s=document.createElement('span'); s.textContent=name; b.appendChild(s);
+      b.addEventListener('click',function(){ go(url,false); try{ showScreen('homeScreen'); }catch(e){} });
+      B.appendChild(b);
+    }
+    (typeof QUICK!=='undefined'?QUICK:[]).forEach(function(q){ add(q.name,q.href); });
+    var mine=bms(); if(mine.length){ var sp=document.createElement('div'); sp.className='bm sep'; B.appendChild(sp); mine.forEach(function(m){ add(m.title,m.url); }); }
+  }
+  $('tbStar').addEventListener('click',function(){
+    var u=entry(T()); if(!u) return; var a=bms(), i=a.findIndex(function(m){return m.url===u;});
+    if(i>=0) a.splice(i,1); else a.push({title:host(u),url:u}); ls(BMK,JSON.stringify(a.slice(-40))); renderBm(); renderBar();
+  });
+  /* ---- toolbar + page area ---- */
+  function renderBar(){
+    var t=T(), u=entry(t);
+    $('tbBack').disabled=t.idx<=0; $('tbFwd').disabled=t.idx>=t.hist.length-1;
+    if(document.activeElement!==$('addrInput')) $('addrInput').value=u||'';
+    $('tbStar').classList.toggle('on',!!u&&bms().some(function(m){return m.url===u;})); $('tbStar').disabled=!u;
+    var pr=$('tbProfile'), av=$('homeAvatar');
+    if(av&&av.style.backgroundImage){ pr.textContent=''; pr.style.backgroundImage=av.style.backgroundImage; pr.style.backgroundSize='cover'; pr.style.backgroundPosition='center'; }
+    else { pr.style.backgroundImage=''; var w=($('homeWelcome')||{}).textContent||'?'; pr.textContent=(w.trim().charAt(0)||'?').toUpperCase(); }
+  }
+  function renderView(){
+    var u=entry(T()), show=!!u&&cur==='homeScreen', V=$('tabView');
+    V.style.display=show?'flex':'none';
+    if(!show){ return; }
+    var blocked=BLOCK.test(host(u)); var F=$('tvFrame');
+    $('tvBanner').style.display=blocked?'none':'flex'; F.style.display=blocked?'none':'block'; $('tvCard').style.display=blocked?'flex':'none';
+    if(blocked){
+      if(F.getAttribute('src')) F.removeAttribute('src');
+      $('tvBig').textContent=host(u).charAt(0).toUpperCase(); $('tvName').textContent=host(u);
+      $('tvNote').textContent=host(u)+' does not allow other apps to show its pages. This is the site\'s own rule, so it cannot be displayed inside Easy Browser tabs. You can still open it in your browser.';
+    } else if(F.getAttribute('data-u')!==u){ F.setAttribute('data-u',u); F.src=u; }
+  }
+  function render(){ renderTabs(); renderBar(); renderView(); persist(); }
+  $('tbBack').addEventListener('click',function(){ step(-1); });
+  $('tbFwd').addEventListener('click',function(){ step(1); });
+  $('tbReload').addEventListener('click',function(){ var u=entry(T()); if(!u) return; if(BLOCK.test(host(u))) return; var F=$('tvFrame'); F.setAttribute('data-u',''); renderView(); });
+  $('newTabBtn').addEventListener('click',function(){ newTab(); });
+  $('tvOpen').addEventListener('click',function(){ var u=entry(T()); if(u) window.open(u,'_blank','noopener'); });
+  $('tvOpen2').addEventListener('click',function(){ var u=entry(T()); if(u) window.open(u,'_blank','noopener'); });
+  $('addrForm').addEventListener('submit',function(e){ e.preventDefault(); var u=resolve($('addrInput').value); if(u){ $('addrInput').blur(); go(u,false); try{ showScreen('homeScreen'); }catch(x){} } });
+  $('addrInput').addEventListener('focus',function(){ var i=this; setTimeout(function(){ try{ i.select(); }catch(e){} },0); });
+  $('tbProfile').addEventListener('click',function(){ $('openSettingsFromHome').click(); });
+  $('tbSettings').addEventListener('click',function(){ $('openSettingsFromHome').click(); });
+  function home(){ var t=T(); if(entry(t)===null){ try{ showScreen('homeScreen'); }catch(e){} return; } t.hist=t.hist.slice(0,t.idx+1); t.hist.push(null); t.idx=t.hist.length-1; render(); try{ showScreen('homeScreen'); }catch(e){} }
+  window.ezbHome=home;
+  document.querySelectorAll('.bottom-nav .nav-item')[0].addEventListener('click',home);
+  $('tbMenu').addEventListener('click',function(e){ e.stopPropagation(); var m=$('menuPop'); m.style.display=m.style.display==='none'?'block':'none'; });
+  document.addEventListener('click',function(e){ var m=$('menuPop'); if(m.style.display!=='none'&&!m.contains(e.target)) m.style.display='none'; });
+  $('menuPop').addEventListener('click',function(e){
+    var b=e.target.closest('button'); if(!b) return; $('menuPop').style.display='none'; var k=b.getAttribute('data-m');
+    if(k==='new') newTab();
+    else if(k==='history') document.querySelectorAll('.bottom-nav .nav-item')[2].click();
+    else if(k==='bot') $('askBotBtn').click();
+    else if(k==='settings') $('openSettingsFromHome').click();
+    else if(k==='logout') $('logoutBtn').click();
+  });
+  /* quick tiles and recent chips open inside the current tab */
+  document.addEventListener('click',function(e){
+    var a=e.target.closest&&e.target.closest('a.quick-item, a.chip[data-site]'); if(!a||!a.href) return;
+    e.preventDefault(); go(a.href,false);
+  });
+  /* show the chrome only on the signed-in screens (not on the chat screen) */
+  var _ss=window.showScreen;
+  window.showScreen=function(id){ _ss(id); cur=id; var app=(id==='homeScreen'||id==='historyScreen'||id==='settingsScreen'); $('chrome').style.display=app?'block':'none'; document.body.classList.toggle('in-app',app); if(!app) $('menuPop').style.display='none'; renderBar(); renderView(); };
+  /* sign-out clears the tabs */
+  $('logoutBtn').addEventListener('click',function(){ tabs=[mk()]; active=0; ss(null); render(); },true);
+  window.ezbTabsReset=function(){ tabs=[mk()]; active=0; render(); };
+  /* start */
+  try{ var st=JSON.parse(ss()||'null'); if(st&&st.tabs&&st.tabs.length){ tabs=st.tabs.slice(0,MAX).map(function(x){ var t=mk(); t.hist=(Array.isArray(x.hist)&&x.hist.length?x.hist:[null]).map(function(h){return /^https?:\/\//i.test(h||'')?h:null;}); t.idx=Math.min(Math.max(0,x.idx|0),t.hist.length-1); return t; }); active=Math.min(Math.max(0,st.active|0),tabs.length-1); } }catch(e){}
+  if(!tabs.length) tabs=[mk()];
+  renderBm(); render();
+  var av=$('homeAvatar'); if(av&&window.MutationObserver) new MutationObserver(renderBar).observe(av,{attributes:true,childList:true,characterData:true,subtree:true});
+})();
+</script>
+<script>
+/* ---------- 1.0.1: tell updating users what is new (new visitors are not shown it) ---------- */
+(function(){
+  var $=function(i){return document.getElementById(i);}, K='ezb_ver', U='ezb_newuntil';
+  function g(k){ try{return localStorage.getItem(k);}catch(e){return null;} }
+  function st(k,v){ try{ localStorage.setItem(k,v); }catch(e){} }
+  var prev=g(K);
+  var existing=!!(g('ezb_local_accts')||g('ezb_history')||g('ezb_cloud')||g('ezb_name'));
+  var pending=prev?(prev!==APP_VERSION):existing;
+  if(pending) st(U,String(Date.now()+7*86400000));
+  st(K,APP_VERSION);
+  if(Date.now()<(+g(U)||0)) document.body.classList.add('has-new');
+  function open(){ $('whatsNew').style.display='flex'; }
+  function close(){ $('whatsNew').style.display='none'; pending=false; }
+  $('wnClose').addEventListener('click',close);
+  $('wnOpen').addEventListener('click',open);
+  var _s=window.showScreen;
+  window.showScreen=function(id){ _s(id); if(pending&&id==='homeScreen') setTimeout(function(){ if(pending) open(); },400); };
 })();
 </script>
 </body>
