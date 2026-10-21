@@ -4,9 +4,11 @@
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 <title>Easy Browser</title>
-<link rel="icon" type="image/png" href="easy-browser-beta.png">
-<link rel="apple-touch-icon" href="easy-browser-beta.png">
-<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" href="favicon.ico" sizes="any">
+<link rel="icon" type="image/png" sizes="32x32" href="favicon-32.png">
+<link rel="icon" type="image/png" sizes="16x16" href="favicon-16.png">
+<link rel="apple-touch-icon" sizes="180x180" href="apple-touch-icon.png">
+<link rel="manifest" href="manifest.json">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-title" content="Easy Browser">
@@ -1777,7 +1779,6 @@ const LOGOS = {
     'OYOQrbQDQVFWTGtIY1xRzByFYrntSbcVY2DFLsWjmFyFYrQEq0sS+lQyyeWcKq/lTUrg4W1YixHqeB6mhpVQbY+T3aomkZ/vMTTa'+
     'q3czc+wUUUVRmf/2Q==',
 };
-Object.keys(LOGOS).forEach(key => { LOGOS[key] = 'easy-browser-beta.png'; });
 function handleIconError(img){
   const step = img.dataset.step || '0';
   if(step === '0'){
@@ -3857,15 +3858,6 @@ var ezbKB = (function(){
   var _s=window.showScreen;
   window.showScreen=function(id){ _s(id); if(pending&&id==='homeScreen') setTimeout(function(){ if(pending) open(); },400); };
 })();
-</script>
-<script>
-if ('serviceWorker' in navigator) {
-  window.addEventListener('load', function() {
-    navigator.serviceWorker.register('./sw.js').catch(function(error) {
-      console.error('Easy Browser service worker registration failed:', error);
-    });
-  });
-}
 </script>
 </body>
 </html>
