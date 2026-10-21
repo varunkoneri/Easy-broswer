@@ -4,8 +4,8 @@
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 <title>Easy Browser</title>
-<link rel="icon" type="image/jpeg" href="easy%20browser.jpeg">
-<link rel="apple-touch-icon" href="easy%20browser.jpeg">
+<link rel="icon" type="image/png" href="easy-browser-beta.png">
+<link rel="apple-touch-icon" href="easy-browser-beta.png">
 <link rel="manifest" href="manifest.webmanifest">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="mobile-web-app-capable" content="yes">
@@ -1777,6 +1777,7 @@ const LOGOS = {
     'OYOQrbQDQVFWTGtIY1xRzByFYrntSbcVY2DFLsWjmFyFYrQEq0sS+lQyyeWcKq/lTUrg4W1YixHqeB6mhpVQbY+T3aomkZ/vMTTa'+
     'q3czc+wUUUVRmf/2Q==',
 };
+Object.keys(LOGOS).forEach(key => { LOGOS[key] = 'easy-browser-beta.png'; });
 function handleIconError(img){
   const step = img.dataset.step || '0';
   if(step === '0'){

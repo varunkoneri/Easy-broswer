@@ -1,11 +1,11 @@
-const CACHE_NAME = 'easy-browser-shell-v1';
+const CACHE_NAME = 'easy-browser-shell-v2';
 const APP_ROOT = new URL('./', self.registration.scope);
 const INDEX_URL = new URL('index.html', APP_ROOT).toString();
 const APP_SHELL = [
   APP_ROOT.toString(),
   INDEX_URL,
   new URL('manifest.webmanifest', APP_ROOT).toString(),
-  new URL('easy%20browser.jpeg', APP_ROOT).toString()
+  new URL('easy-browser-beta.png', APP_ROOT).toString()
 ];
 const CACHED_URLS = new Set(APP_SHELL);
 
