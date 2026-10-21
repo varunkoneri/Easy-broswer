@@ -1,0 +1,20 @@
+{
+  "name": "Easy Browser",
+  "short_name": "Easy Browser",
+  "icons": [
+    {
+      "src": "easy%20browser.jpeg",
+      "sizes": "320x320",
+      "type": "image/jpeg",
+      "purpose": "any"
+    }
+  ],
+  "theme_color": "#0a1a33",
+  "background_color": "#0a1a33",
+  "display": "standalone",
+  "start_url": "./",
+  "scope": "./",
+  "orientation": "portrait",
+  "description": "Search apps and websites",
+  "id": "./"
+}
